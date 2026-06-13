@@ -16,6 +16,8 @@ const config: Config = {
       fontFamily: {
         serif: ["var(--font-serif)", "ui-serif", "Georgia", "serif"],
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui"],
+        // hairline：超细字重的中英组合，比 PingFang Ultralight 更纤细
+        hairline: ["var(--font-sans-hairline)", "var(--font-sans)", "ui-sans-serif", "system-ui"],
       },
       fontSize: {
         // 杂志感语义化字号 token

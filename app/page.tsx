@@ -4,22 +4,23 @@ import { CinemaHero } from "@/components/cinema-hero";
 import { BookSphere } from "@/components/home/book-sphere";
 import { TodayHighlight } from "@/components/home/today-highlight";
 import { listFeatured, listWorks } from "@/lib/works";
-import { getDailyIndex, listHighlights, listReading } from "@/lib/reading";
+import { getDailyIndex, listHighlights, pickSphereBooks } from "@/lib/reading";
+
+// 球面书籍每次刷新都换一批，依赖运行时随机 seed → 不能预渲染。
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const featured = await listFeatured();
   const hero = featured[0] ?? (await listWorks())[0];
 
-  // 取所有有封面的读书笔记，最多 50 本，给球用
-  const sphereBooks = listReading()
-    .filter((b) => b.cover)
-    .slice(0, 50)
-    .map((b) => ({
-      slug: b.slug,
-      title: b.title,
-      author: b.author,
-      cover: b.cover,
-    }));
+  // 每次请求重新洗牌，从所有有封面的书里抽 50 本上球。
+  // 不传 seed → 默认 Date.now()，每次刷新换一批。
+  const sphereBooks = pickSphereBooks(50).map((b) => ({
+    slug: b.slug,
+    title: b.title,
+    author: b.author,
+    cover: b.cover,
+  }));
 
   const highlights = listHighlights();
   const startIndex = getDailyIndex();
@@ -53,7 +54,7 @@ export default async function HomePage() {
         <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-32 md:px-10 md:py-40">
           <header className="mx-auto max-w-[900px] text-center">
             <p className="eyebrow">From the Bookshelf</p>
-            <h2 className="mt-3 font-sans text-display leading-[0.95]">
+            <h2 className="mt-3 font-hairline text-display font-thin leading-[0.95] tracking-[0.05em]">
               寂静无声
             </h2>
             <p className="mx-auto mt-6 max-w-column font-sans text-lede text-ink/80">

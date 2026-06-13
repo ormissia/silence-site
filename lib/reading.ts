@@ -323,3 +323,31 @@ export function getDailyIndex(): number {
 export function listHighlights(): Highlight[] {
   return ALL_HIGHLIGHTS;
 }
+
+/**
+ * 为首页 3D 书球抽取 N 本"有封面"的书。
+ *
+ * 不能直接 `listReading().slice(0, N)`：那是按读完时间倒序的固定顺序，
+ * 排在前 N 之外的书封面永远不会出现在球面上。
+ *
+ * 用 mulberry32 做确定性洗牌。seed 来源决定了"刷新会不会换书"：
+ *   - 不传 seed → 默认 `Date.now()`，每次调用都换一批
+ *   - 传 seed   → 同一 seed 内确定（构建期复用、单元测试可重现）
+ *
+ * 调用方负责确保页面是动态渲染（`export const dynamic = "force-dynamic"`），
+ * 否则 build 时一次定终身，刷新不会换。
+ */
+export function pickSphereBooks(count: number, seed?: number): ReadingEntry[] {
+  const pool = ALL.filter((b) => b.cover);
+  if (pool.length <= count) return pool;
+
+  const rand = mulberry32(seed ?? Date.now());
+
+  // Fisher–Yates，只洗到需要的 count 位即可，O(count) 而非 O(n)
+  const arr = [...pool];
+  for (let i = 0; i < count; i++) {
+    const j = i + Math.floor(rand() * (arr.length - i));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr.slice(0, count);
+}

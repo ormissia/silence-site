@@ -1,5 +1,5 @@
 import type {Metadata} from "next";
-import {Inter, Playfair_Display} from "next/font/google";
+import {Inter, Noto_Sans_SC, Playfair_Display} from "next/font/google";
 import "./globals.css";
 import {SiteHeader} from "@/components/layout/site-header";
 
@@ -15,6 +15,14 @@ const sans = Inter({
     display: "swap",
 });
 
+// 中文超细字重——给"寂静无声"一类的大标题用，PingFang Ultralight 还嫌粗时回落到 Noto Sans SC 100
+const sansHairline = Noto_Sans_SC({
+    subsets: ["latin"],
+    weight: ["100"],
+    variable: "--font-sans-hairline",
+    display: "swap",
+});
+
 export const metadata: Metadata = {
     title: "SILENCE — Photography by Song",
     description: "A personal journal of light, cities, and people.",
@@ -23,7 +31,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: { children: React.ReactNode }) {
     return (
         <html lang="zh">
-        <body className={`${serif.variable} ${sans.variable} font-sans`}>
+        <body className={`${serif.variable} ${sans.variable} ${sansHairline.variable} font-sans`}>
         <SiteHeader />
 
         <main className="relative z-10">{children}</main>

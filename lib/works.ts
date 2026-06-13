@@ -18,6 +18,10 @@ export type Work = {
   date: string;
   location: string;
   cover: string;
+  /** cover 的真实像素宽，列表 Justified 排版需要 */
+  coverWidth?: number;
+  /** 同上 */
+  coverHeight?: number;
   deck: string;
   story: string[];
   exif: { camera: string; lens: string; film?: string };
@@ -121,6 +125,8 @@ function ensureLoaded(): Promise<Work[]> {
     const meta = await ensureMeta(allKeys);
     return works.map((w) => ({
       ...w,
+      coverWidth: meta[w.cover]?.w,
+      coverHeight: meta[w.cover]?.h,
       photos: w.photos.map((p) => ({
         ...p,
         width: p.width ?? meta[p.key]?.w,
