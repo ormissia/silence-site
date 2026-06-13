@@ -1,0 +1,537 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body {
+  background: theme(colors.paper);
+  color: theme(colors.ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: theme(colors.accent);
+  color: theme(colors.paper);
+}
+
+/* 全站基础噪点（电影胶片感），覆盖在背景之上、内容之下 */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+.eyebrow {
+  font-family: theme(fontFamily.sans);
+  font-size: theme(fontSize.deck[0]);
+  letter-spacing: theme(letterSpacing.eyebrow);
+  text-transform: uppercase;
+  color: theme(colors.muted);
+}
+
+.rule {
+  border-top: 1px solid theme(colors.rule);
+}
+
+.drop-cap::first-letter {
+  font-family: theme(fontFamily.serif);
+  font-weight: 600;
+  float: left;
+  font-size: 5.5rem;
+  line-height: 0.85;
+  padding-right: 0.6rem;
+  padding-top: 0.35rem;
+  color: theme(colors.accent);
+}
+
+/* picsum 占位 → 模拟电影暗调摄影棚 */
+.cinema-tone {
+  filter: brightness(0.55) contrast(1.15) saturate(0.7) sepia(0.18) hue-rotate(-6deg);
+}
+
+/* 真实照片用：保留画面信息，只压亮 + 冷调，避免高反差画面被滤镜毁掉 */
+.cinema-tone-soft {
+  filter: brightness(0.72) contrast(1.08) saturate(0.85);
+}
+
+/* 暗角 */
+.vignette {
+  position: relative;
+}
+.vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at center, transparent 35%, rgba(0, 0, 0, 0.55) 80%, rgba(0, 0, 0, 0.85) 100%),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.4) 0%, transparent 25%, transparent 70%, rgba(0, 0, 0, 0.7) 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .motion-safe-only {
+    display: none;
+  }
+}
+
+/* lightbox 打开时隐藏全局 header（PlatesGrid 会在 body 上加这个属性） */
+body[data-lightbox-open="true"] header {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease-out;
+}
+
+/* ================================================================
+   .film-frame —— 单张胶片作品封面的齿孔条
+   每张胶片作品在卡片上下各加一条齿孔（sprocket holes），
+   模拟 35mm 底片在透写台上看到的样子。
+   只在 series === "胶片" 时被 work-card 加上。
+================================================================ */
+
+.film-frame {
+  /* 给齿孔条留出空间——上下各 14px 黑边 */
+  padding: 14px 0;
+  background: #0c0c0d;
+  /* 上下两条齿孔：用 radial-gradient 在黑边上排白点 */
+  background-image:
+    /* 上边齿孔：4×4 圆点，每 16px 一个 */
+    radial-gradient(circle at 8px 7px, rgba(255,255,255,0.85) 2px, transparent 2.5px),
+    /* 下边齿孔 */
+    radial-gradient(circle at 8px calc(100% - 7px), rgba(255,255,255,0.85) 2px, transparent 2.5px);
+  background-size: 16px 14px, 16px 14px;
+  background-repeat: repeat-x, repeat-x;
+  background-position: 0 0, 0 100%;
+}
+
+/* 让 cinema-tone 滤镜不被 padding 黑边的位置影响——img 容器要 inset */
+.film-frame > img,
+.film-frame > .relative {
+  border-radius: 0;
+}
+
+/* ================================================================
+   .film-strip —— Film tab 选中时整个网格区域包一层"胶卷感"
+   背景叠层：左右两条暗带 + 全局轻微暖色偏调
+================================================================ */
+
+.film-strip {
+  position: relative;
+}
+
+.film-strip::before,
+.film-strip::after {
+  content: "";
+  position: absolute;
+  top: -2rem;
+  bottom: -2rem;
+  width: 14px;
+  background:
+    linear-gradient(to right, transparent 0, rgba(0,0,0,0.4) 50%, transparent 100%),
+    repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 10px,
+      rgba(255,200,120,0.3) 10px,
+      rgba(255,200,120,0.3) 12px
+    );
+  pointer-events: none;
+  z-index: -1;
+}
+.film-strip::before { left: -28px; }
+.film-strip::after { right: -28px; }
+
+@media (max-width: 768px) {
+  .film-strip::before,
+  .film-strip::after {
+    display: none;
+  }
+}
+
+/* ================================================================
+   .md-content —— Life 详情页 markdown 渲染样式
+   作用范围：所有由 marked 输出的 HTML（h1-h6 / p / ul / ol / li
+   / blockquote / hr / a / strong / em / del / code / pre / img
+   / table / kbd）。延续站点杂志暗调，跟 eyebrow / drop-cap 一致。
+================================================================ */
+
+.md-content {
+  font-family: theme(fontFamily.sans);
+  color: theme(colors.ink);
+  font-size: theme(fontSize.lede[0]);
+  line-height: 1.6;
+}
+
+/* 块级元素垂直节奏：用相邻兄弟 + 通配符控制段距，避免每条单写 */
+.md-content > * + * {
+  margin-top: 1.4em;
+}
+
+/* 标题：跟全局 text-display / text-headline 一脉相承，但缩小到正文上下文 */
+.md-content h1,
+.md-content h2,
+.md-content h3,
+.md-content h4,
+.md-content h5,
+.md-content h6 {
+  font-family: theme(fontFamily.sans);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+  color: theme(colors.ink);
+}
+.md-content h1 {
+  font-size: 2.5rem;
+  margin-top: 2.2em;
+  padding-bottom: 0.4em;
+  border-bottom: 1px solid theme(colors.rule);
+}
+.md-content h2 {
+  font-size: 1.875rem;
+  margin-top: 2em;
+}
+.md-content h3 {
+  font-size: 1.5rem;
+  margin-top: 1.8em;
+}
+.md-content h4 {
+  font-size: 1.25rem;
+  margin-top: 1.6em;
+}
+.md-content h5,
+.md-content h6 {
+  font-size: 1rem;
+  margin-top: 1.4em;
+  text-transform: uppercase;
+  letter-spacing: theme(letterSpacing.eyebrow);
+  color: theme(colors.muted);
+}
+
+/* 段落 + 副段落：第一段 drop-cap 由 :first-child 命中 */
+.md-content p {
+  color: theme(colors.ink/90);
+}
+.md-content > p:first-child::first-letter {
+  font-family: theme(fontFamily.serif);
+  font-weight: 600;
+  float: left;
+  font-size: 5.5rem;
+  line-height: 0.85;
+  padding-right: 0.6rem;
+  padding-top: 0.35rem;
+  color: theme(colors.accent);
+}
+
+/* 强调 */
+.md-content strong {
+  font-weight: 700;
+  color: theme(colors.ink);
+}
+.md-content em {
+  font-style: italic;
+  color: theme(colors.accent);
+}
+.md-content del {
+  color: theme(colors.muted);
+  text-decoration: line-through;
+}
+
+/* 链接：常态下带浅下划线，hover 走 accent 色 */
+.md-content a {
+  color: theme(colors.ink);
+  text-decoration: underline;
+  text-decoration-color: theme(colors.muted);
+  text-underline-offset: 3px;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+.md-content a:hover {
+  color: theme(colors.accent);
+  text-decoration-color: theme(colors.accent);
+}
+
+/* 引用：左侧 accent 立柱 + 斜体 */
+.md-content blockquote {
+  border-left: 3px solid theme(colors.accent);
+  padding: 0.2em 0 0.2em 1.4em;
+  font-style: italic;
+  color: theme(colors.ink/80);
+}
+.md-content blockquote p {
+  color: inherit;
+}
+
+/* 列表 */
+.md-content ul,
+.md-content ol {
+  padding-left: 1.4em;
+}
+.md-content ul {
+  list-style: disc;
+}
+.md-content ol {
+  list-style: decimal;
+}
+.md-content li {
+  margin-top: 0.4em;
+}
+.md-content li::marker {
+  color: theme(colors.muted);
+}
+.md-content li > ul,
+.md-content li > ol {
+  margin-top: 0.4em;
+}
+/* GFM task list */
+.md-content li input[type="checkbox"] {
+  margin-right: 0.5em;
+  accent-color: theme(colors.accent);
+}
+
+/* 行内代码：暗灰底 + 圆角，等宽字体 */
+.md-content code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.9em;
+  background: theme(colors.rule);
+  color: theme(colors.ink);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+}
+
+/* 代码块：完整盒子 + 横向滚动 */
+.md-content pre {
+  background: theme(colors.rule);
+  color: theme(colors.ink);
+  padding: 1.2em 1.4em;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border: 1px solid theme(colors.ink/10);
+}
+.md-content pre code {
+  background: transparent;
+  padding: 0;
+  border-radius: 0;
+  font-size: inherit;
+}
+
+/* 分割线：用一个细长留白 + 短横线，呼应杂志页脚 */
+.md-content hr {
+  border: 0;
+  margin: 3em auto;
+  width: 30%;
+  height: 1px;
+  background: theme(colors.muted);
+  opacity: 0.5;
+}
+
+/* 图片：撑满 column 宽度 + 暖白边 */
+.md-content img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid theme(colors.ink/10);
+}
+
+/* 表格：暗调线框 */
+.md-content table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95em;
+}
+.md-content th,
+.md-content td {
+  padding: 0.6em 0.9em;
+  border-bottom: 1px solid theme(colors.rule);
+  text-align: left;
+}
+.md-content th {
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.85em;
+  color: theme(colors.muted);
+}
+
+/* 键盘按键 */
+.md-content kbd {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  padding: 0.1em 0.5em;
+  border: 1px solid theme(colors.ink/30);
+  border-radius: 4px;
+  background: theme(colors.rule);
+  box-shadow: 0 2px 0 theme(colors.ink/10);
+}
+
+/* 移动端缩字号 */
+@media (max-width: 640px) {
+  .md-content {
+    font-size: 1.0625rem;
+  }
+  .md-content h1 {
+    font-size: 2rem;
+  }
+  .md-content h2 {
+    font-size: 1.5rem;
+  }
+  .md-content h3 {
+    font-size: 1.25rem;
+  }
+}
+
+/* ================================================================
+   Obsidian Callout 适配
+   原始语法：
+     > [!abstract] 标题
+     > 内容...
+   预处理后输出：
+     <div class="md-callout md-callout-abstract">
+       <p class="md-callout-title">标题</p>
+       ...
+     </div>
+   每种 type 用不同的颜色立柱与色调，保持站点暗调风格
+================================================================ */
+
+.md-content .md-callout {
+  margin-top: 1.4em;
+  border-left: 3px solid theme(colors.accent);
+  padding: 1em 1.4em;
+  background: theme(colors.rule);
+  border-radius: 0 6px 6px 0;
+}
+.md-content .md-callout > * + * {
+  margin-top: 0.8em;
+}
+.md-content .md-callout p {
+  color: theme(colors.ink/85);
+}
+.md-content .md-callout .md-callout-title {
+  margin: 0;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.85em;
+  color: theme(colors.accent);
+}
+
+/* 不同类型的 callout 主题色（依 Obsidian 默认调色板） */
+.md-content .md-callout-abstract,
+.md-content .md-callout-summary,
+.md-content .md-callout-tldr {
+  border-left-color: #4493cf;
+}
+.md-content .md-callout-abstract .md-callout-title,
+.md-content .md-callout-summary .md-callout-title,
+.md-content .md-callout-tldr .md-callout-title {
+  color: #4493cf;
+}
+
+.md-content .md-callout-info,
+.md-content .md-callout-note {
+  border-left-color: #0a7cc6;
+}
+.md-content .md-callout-info .md-callout-title,
+.md-content .md-callout-note .md-callout-title {
+  color: #4ea9e0;
+}
+
+.md-content .md-callout-tip,
+.md-content .md-callout-hint,
+.md-content .md-callout-important {
+  border-left-color: #00aa9e;
+}
+.md-content .md-callout-tip .md-callout-title,
+.md-content .md-callout-hint .md-callout-title,
+.md-content .md-callout-important .md-callout-title {
+  color: #00aa9e;
+}
+
+.md-content .md-callout-success,
+.md-content .md-callout-check,
+.md-content .md-callout-done {
+  border-left-color: #4caf50;
+}
+.md-content .md-callout-success .md-callout-title,
+.md-content .md-callout-check .md-callout-title,
+.md-content .md-callout-done .md-callout-title {
+  color: #4caf50;
+}
+
+.md-content .md-callout-question,
+.md-content .md-callout-help,
+.md-content .md-callout-faq {
+  border-left-color: #cc9b00;
+}
+.md-content .md-callout-question .md-callout-title,
+.md-content .md-callout-help .md-callout-title,
+.md-content .md-callout-faq .md-callout-title {
+  color: #d6a900;
+}
+
+.md-content .md-callout-warning,
+.md-content .md-callout-caution,
+.md-content .md-callout-attention {
+  border-left-color: #d68b1d;
+}
+.md-content .md-callout-warning .md-callout-title,
+.md-content .md-callout-caution .md-callout-title,
+.md-content .md-callout-attention .md-callout-title {
+  color: #d68b1d;
+}
+
+.md-content .md-callout-failure,
+.md-content .md-callout-fail,
+.md-content .md-callout-missing,
+.md-content .md-callout-danger,
+.md-content .md-callout-error,
+.md-content .md-callout-bug {
+  border-left-color: #c44a4a;
+}
+.md-content .md-callout-failure .md-callout-title,
+.md-content .md-callout-fail .md-callout-title,
+.md-content .md-callout-missing .md-callout-title,
+.md-content .md-callout-danger .md-callout-title,
+.md-content .md-callout-error .md-callout-title,
+.md-content .md-callout-bug .md-callout-title {
+  color: #d65656;
+}
+
+.md-content .md-callout-example {
+  border-left-color: #8a4dd4;
+}
+.md-content .md-callout-example .md-callout-title {
+  color: #a974e8;
+}
+
+.md-content .md-callout-quote,
+.md-content .md-callout-cite {
+  border-left-color: theme(colors.accent);
+}
+.md-content .md-callout-quote .md-callout-title,
+.md-content .md-callout-cite .md-callout-title {
+  color: theme(colors.accent);
+}
+
+/* callout 内的图片：微信读书书摘里 ![书名|200] 这种带尺寸提示，
+   但 marked 不识别 |200，会渲染成普通 alt——保留原图，限制最大宽度即可 */
+.md-content .md-callout img {
+  max-width: 200px;
+  margin: 0 auto;
+  display: block;
+}
+
+/* callout 里的列表与正文一致，但缩进略小 */
+.md-content .md-callout ul,
+.md-content .md-callout ol {
+  padding-left: 1.2em;
+}
