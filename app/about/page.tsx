@@ -58,7 +58,7 @@ export default function AboutPage() {
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.18em] text-muted">Cameras</p>
-              <p className="mt-1">SONY A1II · Hasselblad X2D · FUJI GSW960</p>
+              <p className="mt-1">Sony A1M2 · Hasselblad X2D · FUJI GSW960</p>
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.18em] text-muted">Film Stock</p>
