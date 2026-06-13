@@ -35,12 +35,12 @@ export default function AboutPage() {
             <span className="italic">风光</span>是行走的回礼，
             <span className="italic">人像</span>是与陌生人交换的三秒钟，
             <span className="italic">日常</span>是被路过的物件，
-            <span className="italic">胶片</span>则是我学着对"现在"按一次快门、不再回看的练习。
+            <span className="italic">胶片</span>则是我学着对“现在”按一次快门、不再回看的练习。
           </p>
 
           <p className="mt-6 max-w-column font-sans text-lede leading-relaxed">
             最近在德国古典哲学里待得最久——
-            康德把"人"放进了一个倔强的位置：
+            康德把“人”放进了一个倔强的位置：
             <span className="italic">人是目的，永远不只是手段。</span>
             这句话我一直记得，也尝试用它衡量自己每天的工作与镜头。
             读书笔记里那些划线，是我用别人的句子，给自己留的借据。
