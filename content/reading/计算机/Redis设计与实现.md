@@ -1,18 +1,19 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "622000"
+title: Redis设计与实现
 reviewCount: 3
 noteCount: 87
 author: 黄健宏
 cover: https://cdn.weread.qq.com/weread/cover/54/YueWen_622000/t6_YueWen_622000.jpg
+readingStatus: "4"
 progress: 100%
 readingTime: 4小时53分钟
 readingDate: 2024-01-19
 finishedDate: 2024-02-19
 isbn: 9787111464747
 category: 计算机 编程设计
-title: Redis设计与实现
-rating: 85.8%
+rating: 85.7%
 readProgress: 100
 readingTimestamp: 17580
 lastReadDate: 2024-02-19
@@ -22,7 +23,7 @@ tags:
   - 计算机
   - 编程设计
   - 读完
-totalWords: 289957
+totalWords:
 
 ---
 

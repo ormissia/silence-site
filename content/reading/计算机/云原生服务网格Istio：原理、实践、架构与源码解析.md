@@ -1,16 +1,17 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "3300055509"
+title: 云原生服务网格Istio：原理、实践、架构与源码解析
 reviewCount: 0
 noteCount: 35
 author: 张超盟 等
 cover: https://cdn.weread.qq.com/weread/cover/74/cpplatform_89br3rqhwrf9z4leqcjnp5/t6_cpplatform_89br3rqhwrf9z4leqcjnp51681457871.jpg
+readingStatus: "2"
 progress: 36%
 readingTime: 4小时47分钟
 readingDate: 2024-01-16
 isbn: 9787121366536
 category: 计算机 理论知识
-title: 云原生服务网格Istio：原理、实践、架构与源码解析
 rating: 0%
 readProgress: 36
 readingTimestamp: 17241
@@ -21,7 +22,7 @@ tags:
   - 计算机
   - 理论知识
   - 在读
-totalWords: 273677
+totalWords:
 
 ---
 

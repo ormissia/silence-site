@@ -1,18 +1,19 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "38153670"
+title: Kubernetes修炼手册
 reviewCount: 2
 noteCount: 65
 author: 奈吉尔·波尔顿
 cover: https://cdn.weread.qq.com/weread/cover/5/YueWen_38153670/t6_YueWen_38153670.jpg
+readingStatus: "4"
 progress: 100%
 readingTime: 1小时37分钟
 readingDate: 2024-02-11
 finishedDate: 2024-02-14
 isbn: 9787115561091
 category: 计算机 计算机综合
-title: Kubernetes修炼手册
-rating: 74.4%
+rating: 75.1%
 readProgress: 100
 readingTimestamp: 5842
 lastReadDate: 2024-02-14
@@ -22,7 +23,7 @@ tags:
   - 计算机
   - 计算机综合
   - 读完
-totalWords: 153396
+totalWords:
 
 ---
 

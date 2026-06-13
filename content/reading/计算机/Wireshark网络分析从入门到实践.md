@@ -1,18 +1,19 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "25916509"
+title: Wireshark网络分析从入门到实践
 reviewCount: 0
 noteCount: 5
 author: 李华峰 陈虹
 cover: https://cdn.weread.qq.com/weread/cover/51/YueWen_25916509/t6_YueWen_25916509.jpg
+readingStatus: "4"
 progress: 88%
 readingTime: 1小时51分钟
 readingDate: 2024-01-14
 finishedDate: 2024-03-07
 isbn: 9787115505224
 category: 计算机 理论知识
-title: Wireshark网络分析从入门到实践
-rating: 75.9%
+rating: 76.9%
 readProgress: 88
 readingTimestamp: 6674
 lastReadDate: 2024-03-04
@@ -22,7 +23,7 @@ tags:
   - 计算机
   - 理论知识
   - 读完
-totalWords: 138756
+totalWords:
 
 ---
 

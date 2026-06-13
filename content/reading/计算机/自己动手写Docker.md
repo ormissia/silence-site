@@ -1,17 +1,18 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "35537589"
+title: 自己动手写Docker
 reviewCount: 0
 noteCount: 1
 author: 陈显鹭
 cover: https://wfqqreader-1252317822.image.myqcloud.com/cover/589/35537589/t6_35537589.jpg
+readingStatus: "2"
 progress: 15%
 readingTime: 0小时5分钟
 readingDate: 2024-01-06
 isbn: 9787121317866
 category: 计算机 计算机综合
-title: 自己动手写Docker
-rating: 78.9%
+rating: 76.9%
 readProgress: 15
 readingTimestamp: 340
 lastReadDate: 2024-01-16
@@ -21,7 +22,7 @@ tags:
   - 计算机
   - 计算机综合
   - 在读
-totalWords: 68745
+totalWords:
 
 ---
 

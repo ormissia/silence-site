@@ -1,18 +1,19 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "3300059653"
+title: 深入理解Go语言
 reviewCount: 0
 noteCount: 11
 author: 刘丹冰
 cover: https://cdn.weread.qq.com/weread/cover/77/cpplatform_nhmagh6mnyrbgfugxz55lv/t6_cpplatform_nhmagh6mnyrbgfugxz55lv1684921281.jpg
+readingStatus: "4"
 progress: 100%
 readingTime: 3小时17分钟
 readingDate: 2024-02-21
 finishedDate: 2024-03-01
 isbn: 9787302613664
 category: 计算机 计算机综合
-title: 深入理解Go语言
-rating: 73.7%
+rating: 74.5%
 readProgress: 100
 readingTimestamp: 11863
 lastReadDate: 2024-11-12
@@ -22,7 +23,7 @@ tags:
   - 计算机
   - 计算机综合
   - 读完
-totalWords: 167650
+totalWords:
 
 ---
 

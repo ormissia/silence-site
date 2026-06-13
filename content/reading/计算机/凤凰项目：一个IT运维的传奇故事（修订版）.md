@@ -1,18 +1,19 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "27337404"
+title: 凤凰项目：一个IT运维的传奇故事（修订版）
 reviewCount: 5
 noteCount: 19
 author: 吉恩·金 凯文·贝尔 乔治·斯帕福德
 cover: https://cdn.weread.qq.com/weread/cover/74/YueWen_27337404/t6_YueWen_27337404.jpg
+readingStatus: "4"
 progress: 55%
 readingTime: 9小时44分钟
 readingDate: 2024-06-04
 finishedDate: 2024-12-20
 isbn: 9787115516763
 category: 计算机 计算机综合
-title: 凤凰项目：一个IT运维的传奇故事（修订版）
-rating: 92.3%
+rating: 91.9%
 readProgress: 55
 readingTimestamp: 35066
 lastReadDate: 2024-12-19
@@ -22,7 +23,7 @@ tags:
   - 计算机
   - 计算机综合
   - 读完
-totalWords: 285064
+totalWords:
 
 ---
 

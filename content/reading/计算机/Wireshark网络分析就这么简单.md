@@ -1,17 +1,18 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "729216"
+title: Wireshark网络分析就这么简单
 reviewCount: 0
 noteCount: 18
 author: 林沛满
 cover: https://wfqqreader-1252317822.image.myqcloud.com/cover/216/729216/t6_729216.jpg
+readingStatus: "4"
 progress: 89%
 readingTime: 6小时53分钟
 readingDate: 2024-03-20
 finishedDate: 2024-04-15
 isbn: 9787115366610
 category: 计算机 计算机综合
-title: Wireshark网络分析就这么简单
 rating: 87.4%
 readProgress: 89
 readingTimestamp: 24839
@@ -22,7 +23,7 @@ tags:
   - 计算机
   - 计算机综合
   - 读完
-totalWords: 89611
+totalWords:
 
 ---
 

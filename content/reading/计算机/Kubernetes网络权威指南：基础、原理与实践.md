@@ -1,18 +1,19 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "27741281"
+title: Kubernetes网络权威指南：基础、原理与实践
 reviewCount: 0
 noteCount: 65
 author: 杜军
 cover: https://wfqqreader-1252317822.image.myqcloud.com/cover/281/27741281/t6_27741281.jpg
+readingStatus: "4"
 progress: 100%
 readingTime: 10小时32分钟
 readingDate: 2024-02-20
 finishedDate: 2024-02-29
 isbn: 9787121373398
 category: 计算机 计算机综合
-title: Kubernetes网络权威指南：基础、原理与实践
-rating: 81.5%
+rating: 81.6%
 readProgress: 100
 readingTimestamp: 37961
 lastReadDate: 2024-02-29
@@ -22,7 +23,7 @@ tags:
   - 计算机
   - 计算机综合
   - 读完
-totalWords: 203519
+totalWords:
 
 ---
 

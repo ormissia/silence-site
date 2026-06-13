@@ -1,18 +1,19 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "3300090305"
+title: 大模型应用开发极简入门：基于GPT-4和ChatGPT
 reviewCount: 0
 noteCount: 19
 author: 奥利维耶·卡埃朗  【法】玛丽-艾丽斯·布莱特
 cover: https://cdn.weread.qq.com/weread/cover/44/cpplatform_uzfvcz8q85gdzbaqvchudt/t6_cpplatform_uzfvcz8q85gdzbaqvchudt1709868767.jpg
+readingStatus: "4"
 progress: 99%
 readingTime: 3小时46分钟
 readingDate: 2024-03-10
 finishedDate: 2024-03-19
 isbn: 9787115636409
 category: 计算机 编程设计
-title: 大模型应用开发极简入门：基于GPT-4和ChatGPT
-rating: 71.1%
+rating: 70.6%
 readProgress: 99
 readingTimestamp: 13566
 lastReadDate: 2024-03-19
@@ -22,7 +23,7 @@ tags:
   - 计算机
   - 编程设计
   - 读完
-totalWords: 108251
+totalWords:
 
 ---
 

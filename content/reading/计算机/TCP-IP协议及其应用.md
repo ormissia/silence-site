@@ -1,18 +1,19 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "22651844"
+title: TCP-IP协议及其应用
 reviewCount: 0
 noteCount: 84
 author: 林成浴
 cover: https://cdn.weread.qq.com/weread/cover/10/YueWen_22651844/t6_YueWen_22651844.jpg
+readingStatus: "4"
 progress: 75%
 readingTime: 11小时58分钟
 readingDate: 2024-01-04
 finishedDate: 2024-01-16
 isbn: 9787115325228
 category: 计算机 计算机综合
-title: TCP-IP协议及其应用
-rating: 68.9%
+rating: 69.6%
 readProgress: 75
 readingTimestamp: 43109
 lastReadDate: 2024-01-16
@@ -22,7 +23,7 @@ tags:
   - 计算机
   - 计算机综合
   - 读完
-totalWords: 330693
+totalWords:
 
 ---
 
