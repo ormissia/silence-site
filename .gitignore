@@ -8,4 +8,5 @@ dist
 .vscode
 .idea
 content/.image-meta.json
+content/.album-manifest.json
 

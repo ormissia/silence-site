@@ -3,6 +3,7 @@ import path from "node:path";
 import matter from "gray-matter";
 
 const WORKS_DIR = path.join(process.cwd(), "content/works");
+const FILM_DIR = path.join(process.cwd(), "content/film");
 const JOURNAL_DIR = path.join(process.cwd(), "content/journal");
 const READING_DIR = path.join(process.cwd(), "content/reading");
 
@@ -55,6 +56,11 @@ function readAllMdx(rootDir: string): WorkRaw[] {
 
 export function readAllWorksMdx(): WorkRaw[] {
   return readAllMdx(WORKS_DIR);
+}
+
+/** 胶片卷:content/film 下每卷一个 MDX,series=胶片,album 指向 OSS film/ 前缀 */
+export function readAllFilmMdx(): WorkRaw[] {
+  return readAllMdx(FILM_DIR);
 }
 
 export function readAllJournalMdx(): WorkRaw[] {

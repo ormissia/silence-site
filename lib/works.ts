@@ -1,5 +1,6 @@
-import { readAllWorksMdx } from "./mdx";
+import { readAllWorksMdx, readAllFilmMdx, type WorkRaw } from "./mdx";
 import { ensureMeta } from "./image-meta";
+import { ensureManifest, type Manifest } from "./oss-list";
 
 export type Photo = {
   key: string;
@@ -37,28 +38,66 @@ function normalizeDate(raw: unknown): string {
 }
 
 /**
- * 约定式 cover / photos 解析。
- *
- * 标准写法（推荐）：
- *   album: bzlyuj
- *   photoCount: 12
- * 自动展开为：
- *   cover  = albums/bzlyuj/cover
- *   photos = [albums/bzlyuj/1 ... albums/bzlyuj/12]
- *
- * 也支持显式覆盖（用于单张作品 / 带 caption / 不在 albums/ 下的旧数据）：
- *   - 写了 `photos:` 数组 → 直接用，跳过自动展开
- *   - 写了 `cover:` 字段  → 覆盖自动生成的 cover
- *
- * 文件命名硬约定：照片名为整数序号（1.jpg, 2.jpg ... 10.jpg, 11.jpg），不补零。
+ * album 字段 → OSS 完整 prefix。
+ * 规则:含 `/` 视为完整相对 prefix（如胶片 `film/0001-120-RVP100-3`）,
+ * 否则补 `albums/` 前缀（如普通作品 `bzlyuj` → `albums/bzlyuj`）。
  */
-function resolveCoverAndPhotos(data: Record<string, unknown>): {
-  cover: string;
-  photos: Photo[];
-} {
+function albumPrefix(album: string): string {
+  return album.includes("/") ? album.replace(/\/$/, "") : `albums/${album}`;
+}
+
+/** 文件名自然排序:1.jpg < 2.jpg < 10.jpg；DSC001 < DSC010 */
+function naturalSort(a: string, b: string): number {
+  return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
+}
+
+/**
+ * 基于 OSS 列举结果解析 cover / photos（纯函数,无副作用）。
+ *
+ * - files：manifest[prefix]，该文件夹下全部图片完整 key（含扩展名）
+ * - explicitCover：frontmatter 的 cover 字段,值为文件名（如 "cover.jpg"）
+ *
+ * cover 既是封面也是详情页第一张：
+ *   - 指定了 cover → 用 `${prefix}/${cover}`
+ *   - 未指定 → 优先名为 cover.* 的文件,否则自然排序第一张
+ * photos = cover 置顶 + 其余自然排序,去重（cover 不重复出现）。
+ */
+function resolveCoverAndPhotos(
+  prefix: string,
+  files: string[],
+  explicitCover?: string
+): { cover: string; photos: Photo[] } {
+  const sorted = [...files].sort(naturalSort);
+
+  let coverKey: string | undefined;
+  if (explicitCover) {
+    coverKey = `${prefix}/${explicitCover}`;
+    if (!sorted.includes(coverKey)) {
+      console.warn(`[works] cover "${explicitCover}" not found under ${prefix}`);
+    }
+  } else {
+    coverKey = sorted.find((k) => /\/cover\.[^/]+$/i.test(k)) ?? sorted[0];
+  }
+
+  const ordered = coverKey
+    ? [coverKey, ...sorted.filter((k) => k !== coverKey)]
+    : sorted;
+
+  return {
+    cover: coverKey ?? "",
+    photos: ordered.filter(Boolean).map((key) => ({ key })),
+  };
+}
+
+/** works + film 合并为统一来源 */
+function readAllSources(): WorkRaw[] {
+  return [...readAllWorksMdx(), ...readAllFilmMdx()];
+}
+
+/** 把单条 MDX 原始数据 + 列举 manifest 映射成 Work（纯同步） */
+function mapRawToWork(raw: WorkRaw, manifest: Manifest): Work {
+  const { slug, data, storyMd } = raw;
   const album = typeof data.album === "string" ? data.album : undefined;
-  const photoCount =
-    typeof data.photoCount === "number" ? data.photoCount : undefined;
   const explicitCover = typeof data.cover === "string" ? data.cover : undefined;
   const explicitPhotos = Array.isArray(data.photos)
     ? (data.photos as Photo[])
@@ -67,59 +106,66 @@ function resolveCoverAndPhotos(data: Record<string, unknown>): {
   let cover = explicitCover ?? "";
   let photos: Photo[] = explicitPhotos ?? [];
 
-  if (album) {
-    if (!explicitCover) cover = `albums/${album}/cover`;
-    if (!explicitPhotos && photoCount && photoCount > 0) {
-      photos = Array.from({ length: photoCount }, (_, i) => ({
-        key: `albums/${album}/${i + 1}`,
-      }));
-    }
+  if (album && !explicitPhotos) {
+    const prefix = albumPrefix(album);
+    const files = manifest[prefix] ?? [];
+    ({ cover, photos } = resolveCoverAndPhotos(prefix, files, explicitCover));
   }
 
-  return { cover, photos };
-}
-
-function buildWorksFromMdx(): Work[] {
-  return readAllWorksMdx()
-    .map(({ slug, data, storyMd }) => {
-      const { cover, photos } = resolveCoverAndPhotos(data);
-      return {
-        slug,
-        title: data.title as string,
-        series: data.series as string,
-        year: data.year as number,
-        date: normalizeDate(data.date),
-        location: data.location as string,
-        cover,
-        deck: data.deck as string,
-        story: storyMd
-          .split(/\n\n+/)
-          .map((p) => p.trim())
-          .filter(Boolean),
-        exif: data.exif as Work["exif"],
-        photos,
-        featured: data.featured as boolean | undefined,
-      } satisfies Work;
-    })
-    .sort((a, b) => b.date.localeCompare(a.date));
+  return {
+    slug,
+    title: data.title as string,
+    series: data.series as string,
+    year: data.year as number,
+    date: normalizeDate(data.date),
+    location: data.location as string,
+    cover,
+    deck: data.deck as string,
+    story: storyMd
+      .split(/\n\n+/)
+      .map((p) => p.trim())
+      .filter(Boolean),
+    exif: data.exif as Work["exif"],
+    photos,
+    featured: data.featured as boolean | undefined,
+  } satisfies Work;
 }
 
 /**
- * 进程级懒加载：第一次调用时读 MDX、批量探测 OSS 尺寸、注入到 photos[].width/height；
- * 之后所有 list/get 调用都共用这一份内存结果。
+ * 进程级懒加载：第一次调用时读 MDX、列举 OSS 文件夹拿真实文件名、
+ * 批量探测尺寸、注入到 cover/photos[].width/height；之后所有 list/get
+ * 调用都共用这一份内存结果。
  *
- * 这里用 Promise 缓存而不是 await 完成后存数组——并发场景下避免重复探测。
+ * 用 Promise 缓存而不是 await 完成后存数组——并发场景下避免重复列举/探测。
  */
 let cachePromise: Promise<Work[]> | null = null;
 
 function ensureLoaded(): Promise<Work[]> {
   if (cachePromise) return cachePromise;
   cachePromise = (async () => {
-    const works = buildWorksFromMdx();
+    const raws = readAllSources();
+
+    // 1) 收集所有需要列举的 album prefix（demo 回退张数取 photoCount,胶片无则默认）
+    const listReqs = raws
+      .filter((r) => typeof r.data.album === "string" && !Array.isArray(r.data.photos))
+      .map((r) => ({
+        prefix: albumPrefix(r.data.album as string),
+        fallbackCount:
+          typeof r.data.photoCount === "number" ? r.data.photoCount : undefined,
+      }));
+    const manifest = await ensureManifest(listReqs);
+
+    // 2) 映射成 Work,过滤空相册(未上传/列举失败 → 无图,避免 404),按 date 倒序
+    const works = raws
+      .map((r) => mapRawToWork(r, manifest))
+      .filter((w) => w.photos.length > 0)
+      .sort((a, b) => b.date.localeCompare(a.date));
+
+    // 3) 收集全部 OSS key 探测尺寸,注入 width/height
     const allKeys = Array.from(
       new Set(works.flatMap((w) => [w.cover, ...w.photos.map((p) => p.key)]))
     ).filter(
-      // 外链与本地 public/ 资源跳过探测，只对 OSS key 探测
+      // 外链与本地 public/ 资源跳过探测,只对 OSS key 探测
       (k) => k && !/^https?:\/\//.test(k) && !k.startsWith("/")
     );
     const meta = await ensureMeta(allKeys);

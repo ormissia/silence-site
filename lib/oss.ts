@@ -27,7 +27,7 @@ const OSS_BASE = readOssBase();
 /**
  * 把内容清单里的 key 拼成可访问的图片 URL。
  *
- * - key 形如 "lisbon-2024/01"（不带扩展名，便于切换格式）
+ * - key 形如 "albums/bzlyuj/cover.jpg"（构建期由 OSS 列举得到,已含扩展名）
  *   或外链 "https://..." 时直接透传
  * - 当 NEXT_PUBLIC_OSS_BASE_URL 未配置（demo 模式），回落到 picsum.photos，
  *   通过对 key 取 hash 得到稳定的占位图，保证刷新不变
@@ -44,9 +44,10 @@ export function buildSrc(key: string, preset: ImagePreset): string {
     return `https://picsum.photos/seed/${seed}/${w}/${h}`;
   }
 
-  // OSS 图片处理：缩放 + WebP；接入时按需调整
+  // OSS 图片处理：缩放 + WebP。key 已含扩展名,直接拼;
+  // format,webp 会覆盖原扩展名输出 WebP,所以源是 .jpg / .png 都不影响最终格式。
   const process = `image/resize,w_${w},h_${h},m_lfit/format,webp/quality,q_82`;
-  return `${OSS_BASE}/${key}.jpg?x-oss-process=${process}`;
+  return `${OSS_BASE}/${key}?x-oss-process=${process}`;
 }
 
 export function presetSize(preset: ImagePreset): { width: number; height: number } {

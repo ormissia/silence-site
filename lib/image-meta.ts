@@ -46,7 +46,7 @@ function writeCache(map: MetaMap): void {
  * 返回示例：{ ImageWidth: { value: "4284" }, ImageHeight: { value: "5712" } }
  */
 async function probeOss(key: string, ossBase: string): Promise<Dim> {
-  const url = `${ossBase}/${key}.jpg?x-oss-process=image/info`;
+  const url = `${ossBase}/${key}?x-oss-process=image/info`;
   const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) throw new Error(`probe ${key} -> HTTP ${res.status}`);
   const json = (await res.json()) as Record<string, { value: string }>;
