@@ -7,7 +7,11 @@ import path from "node:path";
  * 背景:作品/胶片文件夹名固定,但文件夹内图片文件名不固定,无法靠
  * `1.jpg..N.jpg` 约定。改为构建期匿名调用阿里云 ListObjectsV2
  * （bucket 已加 Bucket Policy 放开匿名 oss:ListObjects）拿真实文件名,
- * 结果缓存到 `content/.album-manifest.json`（不入 git）。
+ * 结果缓存到 `content/.album-manifest.json`。
+ *
+ * 缓存入 git:本地(白名单 IP)构建时生成并提交,Vercel 等无 OSS 访问
+ * 权限的构建机直接读缓存、零 OSS 请求,避免 403。本地新增相册后需重新
+ * 本地构建一次刷新缓存再提交。
  *
  * 与 image-meta.ts 同构:只在 server / RSC 构建阶段执行,运行时读缓存。
  */
