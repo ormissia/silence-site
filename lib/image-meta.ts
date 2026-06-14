@@ -6,12 +6,8 @@ import path from "node:path";
  *
  * 思路：每张作品图都按 OSS key 索引；首次构建/SSR 时调用阿里云
  * `?x-oss-process=image/info` 拿到真实 width/height，写到
- * `content/.image-meta.json` 缓存。后续直接读 cache，
+ * `content/.image-meta.json` 缓存（不入 git）。后续直接读 cache，
  * 让 Justified Layout 在 RSC 阶段就拿到比例，零 CLS、零手填。
- *
- * 缓存入 git：本地（白名单 IP）构建时生成并提交，Vercel 等无 OSS 访问
- * 权限的构建机直接读缓存、零 OSS 请求。本地新增图片后需重新本地构建一次
- * 刷新缓存再提交。
  */
 
 export type Dim = { w: number; h: number };
