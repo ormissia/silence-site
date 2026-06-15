@@ -2,21 +2,14 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { RowsPhotoAlbum, type RenderPhoto } from "react-photo-album";
 import "react-photo-album/rows.css";
 import { buildSrc } from "@/lib/oss";
-import { CATEGORIES, TAB_SLUGS, tabToSeries } from "@/lib/categories";
+import { tabToSeries, seriesToTab } from "@/lib/categories";
+import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tabs";
 import type { Work } from "@/lib/works";
-
-const TABS: Array<{ slug: string; label: string }> = [
-  { slug: "all", label: "全部" },
-  ...CATEGORIES.map((cat) => {
-    const slug = (Object.entries(TAB_SLUGS).find(([, c]) => c === cat) ?? ["all"])[0];
-    return { slug, label: cat };
-  }),
-];
 
 // 探测失败 / demo 模式时的安全比例（横图 3:2），避免 Justified 布局炸
 const FALLBACK_W = 3;
@@ -34,10 +27,11 @@ type AlbumPhoto = {
 
 type Props = {
   works: Work[];
+  /** 各 series 的作品数，由 server 在 page.tsx 计算后传入 */
+  categoryCounts: Array<{ series: string; count: number }>;
 };
 
-export function WorksGallery({ works }: Props) {
-  const router = useRouter();
+export function WorksGallery({ works, categoryCounts }: Props) {
   const params = useSearchParams();
   const activeTab = params.get("tab") ?? "all";
   const activeSeries = tabToSeries(activeTab);
@@ -61,39 +55,27 @@ export function WorksGallery({ works }: Props) {
     [filtered]
   );
 
-  const handleTabClick = (slug: string) => {
-    const next = slug === "all" ? "/works" : `/works?tab=${slug}`;
-    router.replace(next, { scroll: false });
-  };
+  // 把 series 计数翻译成 tab slug 计数；"全部" tab 单独拼上
+  const tabs: CategoryTab[] = useMemo(() => {
+    const result: CategoryTab[] = [
+      { slug: "all", label: "全部", count: works.length },
+    ];
+    for (const { series, count } of categoryCounts) {
+      result.push({ slug: seriesToTab(series), label: series, count });
+    }
+    return result;
+  }, [works.length, categoryCounts]);
+
+  const totalLabel = `${filtered.length} ${filtered.length > 1 ? "Works" : "Work"}`;
 
   return (
     <>
-      {/* Tabs */}
-      <div className="mt-12 flex flex-wrap items-center gap-x-8 gap-y-3 border-b border-rule/60 pb-4">
-        {TABS.map(({ slug, label }) => {
-          const active = slug === activeTab;
-          return (
-            <button
-              key={slug}
-              type="button"
-              onClick={() => handleTabClick(slug)}
-              className={`group relative inline-block py-2 font-sans text-sm uppercase tracking-[0.24em] transition-colors duration-200 ${
-                active ? "text-ink" : "text-muted hover:text-ink"
-              }`}
-            >
-              <span>{label}</span>
-              <span
-                className={`absolute -bottom-0.5 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-ink transition-[width] duration-300 ease-out ${
-                  active ? "w-full" : "w-0 group-hover:w-full"
-                }`}
-              />
-            </button>
-          );
-        })}
-        <span className="ml-auto font-sans text-xs uppercase tracking-[0.24em] text-muted">
-          {filtered.length} {filtered.length > 1 ? "Works" : "Work"}
-        </span>
-      </div>
+      <CategoryTabs
+        tabs={tabs}
+        paramName="tab"
+        basePath="/works"
+        totalLabel={totalLabel}
+      />
 
       {/* Film 模式提示条：胶卷头/批次号信息 */}
       {activeTab === "film" && filtered.length > 0 && (

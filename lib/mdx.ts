@@ -3,7 +3,6 @@ import path from "node:path";
 import matter from "gray-matter";
 
 const WORKS_DIR = path.join(process.cwd(), "content/works");
-const FILM_DIR = path.join(process.cwd(), "content/film");
 const JOURNAL_DIR = path.join(process.cwd(), "content/journal");
 const READING_DIR = path.join(process.cwd(), "content/reading");
 
@@ -11,7 +10,7 @@ export type WorkRaw = {
   slug: string;
   /** 文件相对于扫描根目录的路径段（不含文件名）。
    *  例：content/reading/哲学宗教/理想国.md → ["哲学宗教"]。
-   *  顶层文件为空数组。Reading 用它做"目录即一级分类"的 fallback。 */
+   *  顶层文件为空数组。Reading / Journal / Works 都用它做"目录即一级分类"的 fallback。 */
   pathSegments: string[];
   data: Record<string, unknown>;
   storyMd: string;
@@ -56,11 +55,6 @@ function readAllMdx(rootDir: string): WorkRaw[] {
 
 export function readAllWorksMdx(): WorkRaw[] {
   return readAllMdx(WORKS_DIR);
-}
-
-/** 胶片卷:content/film 下每卷一个 MDX,series=胶片,album 指向 OSS film/ 前缀 */
-export function readAllFilmMdx(): WorkRaw[] {
-  return readAllMdx(FILM_DIR);
 }
 
 export function readAllJournalMdx(): WorkRaw[] {

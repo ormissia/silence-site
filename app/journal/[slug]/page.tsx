@@ -38,38 +38,64 @@ export default function JournalEntryPage({ params }: { params: { slug: string } 
 
   return (
     <article>
-      {entry.cover && (
-        <div className="relative">
-          <div className="vignette relative aspect-[16/9] w-full overflow-hidden bg-ink/5">
-            <Image
-              src={buildSrc(entry.cover, "hero")}
-              alt={entry.title}
-              fill
-              priority
-              className="cinema-tone-soft object-cover"
-              sizes="100vw"
-            />
-          </div>
-        </div>
-      )}
+      {entry.cover ? (
+        // 有封面：标题压在 hero 底部居中，参考 works 详情页
+        <header className="relative h-screen min-h-[560px] w-full overflow-hidden bg-ink/5">
+          <Image
+            src={buildSrc(entry.cover, "hero")}
+            alt={entry.title}
+            fill
+            priority
+            className="cinema-tone-soft object-cover"
+            sizes="100vw"
+          />
+          {/* 暗化让标题在亮区也立得住 */}
+          <div
+            aria-hidden
+            className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/75"
+          />
+          <div className="vignette absolute inset-0" />
 
-      <header className="mx-auto mt-16 max-w-[1100px] px-6 text-center md:mt-24 md:px-10">
-        <p className="eyebrow">
-          {[
-            `${catLabel.en} / ${catLabel.zh}`,
-            formatDateLong(entry.date),
-            entry.location,
-          ]
-            .filter(Boolean)
-            .join(" — ")}
-        </p>
-        <h1 className="mt-6 font-sans text-display">{entry.title}</h1>
-        {entry.excerpt && (
-          <p className="mx-auto mt-8 max-w-column font-sans text-lede italic text-ink/80">
-            {entry.excerpt}
+          <div className="relative z-10 mx-auto flex h-full max-w-[1100px] flex-col items-center justify-end px-6 pb-10 text-center md:px-10 md:pb-14">
+            <p className="eyebrow text-white/80">
+              {[
+                `${catLabel.en} / ${catLabel.zh}`,
+                formatDateLong(entry.date),
+                entry.location,
+              ]
+                .filter(Boolean)
+                .join(" — ")}
+            </p>
+            <h1 className="mt-4 font-sans text-display text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.5)]">
+              {entry.title}
+            </h1>
+            {entry.excerpt && (
+              <p className="mx-auto mt-6 max-w-column font-sans text-lede italic text-white/90 [text-shadow:0_1px_10px_rgba(0,0,0,0.5)]">
+                {entry.excerpt}
+              </p>
+            )}
+          </div>
+        </header>
+      ) : (
+        // 无封面：保留原有"标题居中、留白足"的排版
+        <header className="mx-auto mt-16 max-w-[1100px] px-6 text-center md:mt-24 md:px-10">
+          <p className="eyebrow">
+            {[
+              `${catLabel.en} / ${catLabel.zh}`,
+              formatDateLong(entry.date),
+              entry.location,
+            ]
+              .filter(Boolean)
+              .join(" — ")}
           </p>
-        )}
-      </header>
+          <h1 className="mt-6 font-sans text-display">{entry.title}</h1>
+          {entry.excerpt && (
+            <p className="mx-auto mt-8 max-w-column font-sans text-lede italic text-ink/80">
+              {entry.excerpt}
+            </p>
+          )}
+        </header>
+      )}
 
       <section className="mx-auto mt-20 max-w-[1100px] px-6 md:px-10">
         <div

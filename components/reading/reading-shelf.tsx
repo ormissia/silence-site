@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import type { ReadingEntry } from "@/lib/reading";
+import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tabs";
 
 export function ReadingShelf({
   books,
@@ -12,7 +13,6 @@ export function ReadingShelf({
   books: ReadingEntry[];
   categories: Array<{ name: string; count: number }>;
 }) {
-  const router = useRouter();
   const params = useSearchParams();
   const active = params.get("cat") ?? "all";
 
@@ -21,39 +21,27 @@ export function ReadingShelf({
     [books, active]
   );
 
-  const onClick = (cat: string) => {
-    const next = cat === "all" ? "/reading" : `/reading?cat=${encodeURIComponent(cat)}`;
-    router.replace(next, { scroll: false });
-  };
+  const tabs: CategoryTab[] = [
+    { slug: "all", label: "全部", count: books.length },
+    ...categories.map((c) => ({ slug: c.name, label: c.name, count: c.count })),
+  ];
+
+  const totalLabel = `${filtered.length} ${filtered.length > 1 ? "Books" : "Book"}`;
 
   return (
     <>
-      {/* 分类 Tab：按书数倒序，"全部"在最前；横向可滚 */}
-      <div className="mt-12 flex flex-wrap items-center gap-x-6 gap-y-3 border-b border-rule/60 pb-4">
-        <CategoryTab
-          label="全部"
-          isActive={active === "all"}
-          onClick={() => onClick("all")}
-        />
-        {categories.map((cat) => (
-          <CategoryTab
-            key={cat.name}
-            label={cat.name}
-            count={cat.count}
-            isActive={active === cat.name}
-            onClick={() => onClick(cat.name)}
-          />
-        ))}
-        <span className="ml-auto font-sans text-xs uppercase tracking-[0.24em] text-muted">
-          {filtered.length} {filtered.length > 1 ? "Books" : "Book"}
-        </span>
-      </div>
+      <CategoryTabs
+        tabs={tabs}
+        paramName="cat"
+        basePath="/reading"
+        totalLabel={totalLabel}
+      />
 
       {/* 书架 */}
       {filtered.length === 0 ? (
         <p className="mt-24 text-center font-sans text-muted">这个分类下还没有书。</p>
       ) : (
-        <div className="mt-16 grid grid-cols-2 gap-x-6 gap-y-12 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
+        <div className="mt-16 grid grid-cols-3 gap-x-5 gap-y-10 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8">
           {filtered.map((book) => (
             <Link key={book.slug} href={`/reading/${book.slug}`} className="group block">
               <div className="relative w-full overflow-hidden bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.4)]">
@@ -77,11 +65,11 @@ export function ReadingShelf({
                 )}
               </div>
               <div className="mt-3">
-                <h3 className="font-sans text-base leading-tight text-ink group-hover:text-accent">
+                <h3 className="font-sans text-sm leading-tight text-ink group-hover:text-accent">
                   {book.title}
                 </h3>
                 {book.author && (
-                  <p className="mt-1 font-sans text-xs text-muted">{book.author}</p>
+                  <p className="mt-1 font-sans text-[11px] text-muted">{book.author}</p>
                 )}
                 {(book.finishedDate ?? book.lastReadDate) && (
                   <p className="mt-1 font-sans text-[10px] uppercase tracking-[0.18em] text-muted">
@@ -94,43 +82,5 @@ export function ReadingShelf({
         </div>
       )}
     </>
-  );
-}
-
-function CategoryTab({
-  label,
-  count,
-  isActive,
-  onClick,
-}: {
-  label: string;
-  count?: number;
-  isActive: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`group relative inline-flex items-center gap-2 py-2 font-sans text-sm uppercase tracking-[0.18em] transition-colors duration-200 ${
-        isActive ? "text-ink" : "text-muted hover:text-ink"
-      }`}
-    >
-      <span>{label}</span>
-      {typeof count === "number" && (
-        <span
-          className={`font-sans text-[10px] tracking-[0.12em] ${
-            isActive ? "text-accent" : "text-muted/70"
-          }`}
-        >
-          {count}
-        </span>
-      )}
-      <span
-        className={`absolute -bottom-0.5 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-ink transition-[width] duration-300 ease-out ${
-          isActive ? "w-full" : "w-0 group-hover:w-full"
-        }`}
-      />
-    </button>
   );
 }

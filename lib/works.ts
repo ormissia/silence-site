@@ -1,6 +1,17 @@
-import { readAllWorksMdx, readAllFilmMdx, type WorkRaw } from "./mdx";
+import { readAllWorksMdx, type WorkRaw } from "./mdx";
 import { ensureMeta } from "./image-meta";
 import { ensureManifest, type Manifest } from "./oss-list";
+import { CATEGORIES, TAB_SLUGS, type Category } from "./categories";
+
+/**
+ * 子目录名（如 "landscape"）→ 中文 series（"风光"）。
+ * MDX 按 category 分目录后，frontmatter 缺 series 时按目录兜底。
+ */
+function seriesFromPath(pathSegments: string[]): Category | undefined {
+  const seg = pathSegments[0];
+  if (!seg) return undefined;
+  return (TAB_SLUGS as Record<string, Category>)[seg];
+}
 
 export type Photo = {
   key: string;
@@ -89,14 +100,14 @@ function resolveCoverAndPhotos(
   };
 }
 
-/** works + film 合并为统一来源 */
+/** works 单一来源（含 film 子目录） */
 function readAllSources(): WorkRaw[] {
-  return [...readAllWorksMdx(), ...readAllFilmMdx()];
+  return readAllWorksMdx();
 }
 
 /** 把单条 MDX 原始数据 + 列举 manifest 映射成 Work（纯同步） */
 function mapRawToWork(raw: WorkRaw, manifest: Manifest): Work {
-  const { slug, data, storyMd } = raw;
+  const { slug, pathSegments, data, storyMd } = raw;
   const album = typeof data.album === "string" ? data.album : undefined;
   const explicitCover = typeof data.cover === "string" ? data.cover : undefined;
   const explicitPhotos = Array.isArray(data.photos)
@@ -112,10 +123,16 @@ function mapRawToWork(raw: WorkRaw, manifest: Manifest): Work {
     ({ cover, photos } = resolveCoverAndPhotos(prefix, files, explicitCover));
   }
 
+  // series：frontmatter 优先，否则按子目录名兜底（landscape → 风光）
+  const series =
+    typeof data.series === "string" && data.series.length > 0
+      ? data.series
+      : (seriesFromPath(pathSegments) ?? "");
+
   return {
     slug,
     title: data.title as string,
-    series: data.series as string,
+    series,
     year: data.year as number,
     date: normalizeDate(data.date),
     location: data.location as string,
@@ -145,14 +162,10 @@ function ensureLoaded(): Promise<Work[]> {
   cachePromise = (async () => {
     const raws = readAllSources();
 
-    // 1) 收集所有需要列举的 album prefix（demo 回退张数取 photoCount,胶片无则默认）
+    // 1) 收集所有需要列举的 album prefix
     const listReqs = raws
       .filter((r) => typeof r.data.album === "string" && !Array.isArray(r.data.photos))
-      .map((r) => ({
-        prefix: albumPrefix(r.data.album as string),
-        fallbackCount:
-          typeof r.data.photoCount === "number" ? r.data.photoCount : undefined,
-      }));
+      .map((r) => ({ prefix: albumPrefix(r.data.album as string) }));
     const manifest = await ensureManifest(listReqs);
 
     // 2) 映射成 Work,过滤空相册(未上传/列举失败 → 无图,避免 404),按 date 倒序
@@ -195,6 +208,24 @@ export async function listFeatured(): Promise<Work[]> {
 export async function listSeries(): Promise<string[]> {
   const all = await ensureLoaded();
   return Array.from(new Set(all.map((c) => c.series)));
+}
+
+/**
+ * 二级页 tabs 计数：返回每个 series 对应的作品数（仅有作品的 series）。
+ * 顺序与 lib/categories 的 CATEGORIES 一致；count=0 的 series 跳过，
+ * 让 "人像" 在没作品时不出现在 tabs 上。
+ */
+export async function listWorksCategoryCounts(): Promise<
+  Array<{ series: string; count: number }>
+> {
+  const all = await ensureLoaded();
+  const counts = new Map<string, number>();
+  for (const w of all) {
+    counts.set(w.series, (counts.get(w.series) ?? 0) + 1);
+  }
+  return CATEGORIES.map((c) => ({ series: c, count: counts.get(c) ?? 0 })).filter(
+    (x) => x.count > 0
+  );
 }
 
 export async function getWork(slug: string): Promise<Work | undefined> {

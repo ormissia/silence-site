@@ -133,7 +133,7 @@ function fallbackKeys(prefix: string, count: number): string[] {
   return Array.from({ length: n }, (_, i) => `${prefix}/${i + 1}.jpg`);
 }
 
-export type ListRequest = { prefix: string; fallbackCount?: number };
+export type ListRequest = { prefix: string };
 
 /**
  * 批量确保每个 prefix 在 manifest 里有列举结果。
@@ -150,10 +150,7 @@ export async function ensureManifest(requests: ListRequest[]): Promise<Manifest>
 
   if (!base) {
     return Object.fromEntries(
-      requests.map((r) => [
-        r.prefix,
-        fallbackKeys(r.prefix, r.fallbackCount ?? DEFAULT_FALLBACK_COUNT),
-      ])
+      requests.map((r) => [r.prefix, fallbackKeys(r.prefix, DEFAULT_FALLBACK_COUNT)])
     );
   }
 

@@ -5,8 +5,12 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { buildSrc } from "@/lib/oss";
 import type { JournalEntry } from "@/lib/journal";
-import type { JournalCategory } from "@/lib/journal-categories";
-import { JournalTabs } from "./journal-tabs";
+import {
+  JOURNAL_CATEGORIES,
+  JOURNAL_CATEGORY_LABELS,
+  type JournalCategory,
+} from "@/lib/journal-categories";
+import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tabs";
 
 const MONTH_EN = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -28,15 +32,26 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
 
   const filtered = cat === "all" ? entries : entries.filter((e) => e.category === cat);
 
-  const counts: Record<"all" | JournalCategory, number> = {
-    all: entries.length,
-    tech: entries.filter((e) => e.category === "tech").length,
-    life: entries.filter((e) => e.category === "life").length,
-  };
+  // tabs：全部 + 各 category，每项后跟数量
+  const tabs: CategoryTab[] = [
+    { slug: "all", label: "全部", count: entries.length },
+    ...JOURNAL_CATEGORIES.map((c) => ({
+      slug: c,
+      label: JOURNAL_CATEGORY_LABELS[c].zh,
+      count: entries.filter((e) => e.category === c).length,
+    })),
+  ];
+
+  const totalLabel = `${filtered.length} ${filtered.length > 1 ? "Notes" : "Note"}`;
 
   return (
     <>
-      <JournalTabs counts={counts} />
+      <CategoryTabs
+        tabs={tabs}
+        paramName="cat"
+        basePath="/journal"
+        totalLabel={totalLabel}
+      />
 
       {filtered.length === 0 ? (
         <p className="mt-24 text-center font-sans text-muted">这个分类下还没有文章。</p>
