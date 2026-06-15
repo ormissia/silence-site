@@ -215,10 +215,11 @@ export function CinemaHero({ work }: { work: Work }) {
         </motion.div>
 
         {/* 底部中央滚动提示：跳动动效 + 跟随标题一起渐隐 */}
+        {/* pointer-events-none：容器是 inset-x-0 全宽条，否则会盖住右下角的 Enter the Works 按钮 */}
         <motion.div
           aria-hidden
           style={{ opacity: titleOpacity }}
-          className="absolute inset-x-0 bottom-6 z-30 flex flex-col items-center gap-3"
+          className="pointer-events-none absolute inset-x-0 bottom-6 z-30 flex flex-col items-center gap-3"
         >
           <motion.div
             animate={{ y: [0, -8, 0] }}
