@@ -9,4 +9,4 @@ dist
 .idea
 content/.image-meta.json
 content/.album-manifest.json
-
+*.tsbuildinfo
