@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useRef, useState, type ReactNode } from "react";
+import { NavProgressLink } from "./nav-link";
 
 const WORKS_MENU: Array<{ href: string; label: string }> = [
   { href: "/works?tab=landscape", label: "Landscape / 风光" },
@@ -18,6 +18,7 @@ const JOURNAL_MENU: Array<{ href: string; label: string }> = [
 /**
  * 圆角下划线 hover 动画的导航项。
  * 使用 group + 子 span 实现宽度从中心展开，避免布局抖动。
+ * Click 时通过 NavProgressLink 触发顶部进度条；active:scale-95 给即时按压反馈。
  */
 function NavLink({
   href,
@@ -31,9 +32,9 @@ function NavLink({
   onMouseLeave?: () => void;
 }) {
   return (
-    <Link
+    <NavProgressLink
       href={href}
-      className="group relative inline-block py-1"
+      className="group relative inline-block py-1 active:scale-95 active:opacity-80 transition-transform"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
@@ -44,7 +45,7 @@ function NavLink({
         aria-hidden
         className="absolute -bottom-1 left-1/2 h-[2px] w-0 -translate-x-1/2 rounded-full bg-ink transition-[width] duration-300 ease-out group-hover:w-full"
       />
-    </Link>
+    </NavProgressLink>
   );
 }
 
@@ -87,9 +88,9 @@ function NavMenu({
           <ul className="flex flex-col">
             {items.map((item) => (
               <li key={item.href}>
-                <Link
+                <NavProgressLink
                   href={item.href}
-                  className="group/item flex origin-left items-center gap-2 px-4 py-1.5 font-sans text-[11px] uppercase tracking-[0.2em] text-white transition-transform duration-200 ease-out hover:scale-125"
+                  className="group/item flex origin-left items-center gap-2 px-4 py-1.5 font-sans text-[11px] uppercase tracking-[0.2em] text-white transition-transform duration-200 ease-out hover:scale-125 active:scale-100 active:opacity-70"
                   onClick={() => setOpen(false)}
                 >
                   <span
@@ -97,7 +98,7 @@ function NavMenu({
                     className="block h-px w-2 origin-left scale-x-0 bg-white transition-transform duration-200 ease-out group-hover/item:scale-x-100"
                   />
                   <span>{item.label}</span>
-                </Link>
+                </NavProgressLink>
               </li>
             ))}
           </ul>
@@ -111,14 +112,17 @@ export function SiteHeader() {
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-ink/10 backdrop-blur-md">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
-        <Link href="/" className="leading-none text-white">
+        <NavProgressLink
+          href="/"
+          className="leading-none text-white transition-opacity duration-150 active:opacity-60"
+        >
           <span className="block font-sans text-2xl uppercase tracking-tighter md:text-3xl">
             SILENCE
           </span>
           <span className="mt-1 block font-sans text-[10px] tracking-wider">
             Was it a memory, or was it a dream? Even I don&apos;t know.
           </span>
-        </Link>
+        </NavProgressLink>
 
         <nav className="hidden items-center gap-8 font-sans text-xs uppercase tracking-[0.24em] md:flex">
           <NavMenu href="/works" label="Works" items={WORKS_MENU} />
