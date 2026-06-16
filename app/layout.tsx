@@ -4,6 +4,7 @@ import {Inter, Noto_Sans_SC, Playfair_Display} from "next/font/google";
 import "./globals.css";
 import {SiteHeader} from "@/components/layout/site-header";
 import {RouteProgress, RouteProgressProvider} from "@/components/layout/route-progress";
+import {MobileGate} from "@/components/layout/mobile-gate";
 
 const serif = Playfair_Display({
     subsets: ["latin"],
@@ -53,6 +54,8 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
                     </div>
                 </div>
             </footer>
+
+            <MobileGate />
         </RouteProgressProvider>
         </body>
         </html>
