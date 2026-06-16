@@ -31,9 +31,7 @@ export function WorkCard({
 
   const cover = (
     <div
-      className={`relative overflow-hidden bg-ink/5 ${ASPECT[variant]} ${
-        isFilm ? "film-frame" : ""
-      }`}
+      className={`relative overflow-hidden bg-ink/5 ${ASPECT[variant]}`}
     >
       {/* Album 视觉：右下两层薄阴影模拟相册叠层 */}
       {isAlbum && (

@@ -125,7 +125,7 @@ const renderWorkPhoto: RenderPhoto<AlbumPhoto> = (_, ctx) => {
 
   const cover = (
     <div
-      className={`relative overflow-hidden bg-ink/5 ${isFilm ? "film-frame" : ""}`}
+      className="relative overflow-hidden bg-ink/5"
       style={{ aspectRatio: `${width} / ${height}` }}
     >
       {/* Album 叠层：右下两层薄阴影模拟相册堆叠 */}
