@@ -71,7 +71,7 @@ function nextToken(xml: string): string | undefined {
 
 /**
  * 匿名 ListObjectsV2 列举某 prefix 下的图片文件,返回完整 key（含扩展名,
- * 如 "albums/bzlyuj/cover.jpg"）。
+ * 如 "works/landscape/bzlyuj/cover.jpg"）。
  * - delimiter=/ 只列本层,不递归子目录
  * - 正确处理分页 (IsTruncated / NextContinuationToken)
  * - 过滤掉目录占位对象 / 子目录 / 非图片

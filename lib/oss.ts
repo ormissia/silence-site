@@ -27,7 +27,7 @@ const OSS_BASE = readOssBase();
 /**
  * 把内容清单里的 key 拼成可访问的图片 URL。
  *
- * - key 形如 "albums/bzlyuj/cover.jpg"（构建期由 OSS 列举得到,已含扩展名）
+ * - key 形如 "works/landscape/bzlyuj/cover.jpg"（构建期由 OSS 列举得到,已含扩展名）
  *   或外链 "https://..." 时直接透传
  * - 当 NEXT_PUBLIC_OSS_BASE_URL 未配置（demo 模式），回落到 picsum.photos，
  *   通过对 key 取 hash 得到稳定的占位图，保证刷新不变

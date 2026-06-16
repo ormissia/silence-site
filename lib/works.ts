@@ -49,12 +49,16 @@ function normalizeDate(raw: unknown): string {
 }
 
 /**
- * album 字段 → OSS 完整 prefix。
- * 规则:含 `/` 视为完整相对 prefix（如胶片 `film/0001-120-RVP100-3`）,
- * 否则补 `albums/` 前缀（如普通作品 `bzlyuj` → `albums/bzlyuj`）。
+ * mdx 所在子目录 + album 字段 → OSS 完整 prefix。
+ * 规则：mdx 文件位置即决定 OSS 顶层路径，album 只保留纯名字。
+ * 例：content/works/landscape/2025-07-22-bzlyuj.mdx + album=bzlyuj
+ *     → works/landscape/bzlyuj
+ * 顶层 mdx（pathSegments 为空）→ works/<album>。
  */
-function albumPrefix(album: string): string {
-  return album.includes("/") ? album.replace(/\/$/, "") : `albums/${album}`;
+function albumPrefix(album: string, pathSegments: string[]): string {
+  const cleaned = album.replace(/^\/+|\/+$/g, "");
+  const dir = pathSegments.length > 0 ? `works/${pathSegments.join("/")}` : "works";
+  return `${dir}/${cleaned}`;
 }
 
 /** 文件名自然排序:1.jpg < 2.jpg < 10.jpg；DSC001 < DSC010 */
@@ -118,7 +122,7 @@ function mapRawToWork(raw: WorkRaw, manifest: Manifest): Work {
   let photos: Photo[] = explicitPhotos ?? [];
 
   if (album && !explicitPhotos) {
-    const prefix = albumPrefix(album);
+    const prefix = albumPrefix(album, pathSegments);
     const files = manifest[prefix] ?? [];
     ({ cover, photos } = resolveCoverAndPhotos(prefix, files, explicitCover));
   }
@@ -165,7 +169,7 @@ function ensureLoaded(): Promise<Work[]> {
     // 1) 收集所有需要列举的 album prefix
     const listReqs = raws
       .filter((r) => typeof r.data.album === "string" && !Array.isArray(r.data.photos))
-      .map((r) => ({ prefix: albumPrefix(r.data.album as string) }));
+      .map((r) => ({ prefix: albumPrefix(r.data.album as string, r.pathSegments) }));
     const manifest = await ensureManifest(listReqs);
 
     // 2) 映射成 Work,过滤空相册(未上传/列举失败 → 无图,避免 404),按 date 倒序
