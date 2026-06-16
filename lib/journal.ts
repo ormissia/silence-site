@@ -66,11 +66,22 @@ function resolveCover(
   return `journal/${category}/${raw}`;
 }
 
+/**
+ * 决定一篇随笔的 URL slug。优先级：
+ * 1. frontmatter 显式 `slug` —— 跟文件名解耦
+ * 2. 文件名 —— 兜底
+ */
+function resolveSlug(fileName: string, data: Record<string, unknown>): string {
+  const explicit = typeof data.slug === "string" ? data.slug.trim() : "";
+  if (explicit) return explicit;
+  return fileName;
+}
+
 const ALL: JournalEntry[] = readAllJournalMdx()
-  .map(({ slug, pathSegments, data, storyMd }) => {
+  .map(({ fileName, pathSegments, data, storyMd }) => {
     const category = resolveCategory(pathSegments, data);
     return {
-      slug,
+      slug: resolveSlug(fileName, data),
       title: data.title as string,
       date: normalizeDate(data.date),
       category,

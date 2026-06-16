@@ -41,7 +41,7 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 - **MDX 路径段即一级分类**：`content/works/landscape/*.mdx` → series=风光；`content/journal/life/*.mdx` → category=life。这是兜底，frontmatter 显式字段优先（见 `lib/works.ts:seriesFromPath`、`lib/journal.ts:resolveCategory`、`lib/reading.ts:resolveCategory`）。
 - **OSS key 由 `lib/oss.ts` 唯一拼装**，域名/region 不允许散落他处。
 - **Works 的相册图片**通过构建期 ListObjectsV2 列举（`lib/oss-list.ts`），结果落到 `content/.album-manifest.json`（不入 git），运行时只读缓存——避免运行时调 OSS。配合 `lib/image-meta.ts` 用 `image/info` 接口探测真实像素宽高，注入到 `Photo.width/height`，供 Justified Layout 排版。
-- **MDX 读取入口集中在 `lib/mdx.ts`**：`readAllWorksMdx` / `readAllJournalMdx` / `readAllReadingMdx`，文件名 `YYYY-MM-DD-slug.mdx` 会被自动剥日期前缀。
+- **MDX 读取入口集中在 `lib/mdx.ts`**：`readAllWorksMdx` / `readAllJournalMdx` / `readAllReadingMdx`，文件名不参与 URL slug，URL 由 frontmatter `slug` 字段决定（缺省时才回退到文件名）。
 
 ### 图片管线
 

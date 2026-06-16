@@ -84,7 +84,7 @@ export function WorkCard({
       <div className="mt-4 flex items-baseline justify-between gap-4">
         <div>
           <p className="eyebrow">
-            {work.series} — {work.year}
+            {work.series} — {work.date.slice(0, 4)}
           </p>
           <h3 className="mt-1 font-sans text-2xl leading-tight md:text-3xl">
             {work.title}

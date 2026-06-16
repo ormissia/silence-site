@@ -26,7 +26,6 @@ export type Work = {
   slug: string;
   title: string;
   series: string;
-  year: number;
   date: string;
   location: string;
   cover: string;
@@ -109,9 +108,22 @@ function readAllSources(): WorkRaw[] {
   return readAllWorksMdx();
 }
 
+/**
+ * 决定一篇作品的 URL slug。优先级：
+ * 1. frontmatter 显式 `slug` —— 老公手写最稳，跟文件名解耦
+ * 2. 文件名 —— 兜底，保留旧 URL 不挂
+ *
+ * 注意：文件名不再被识别为"日期前缀 + slug"格式，整个文件名（去扩展名）原样作 slug。
+ */
+function resolveSlug(fileName: string, data: Record<string, unknown>): string {
+  const explicit = typeof data.slug === "string" ? data.slug.trim() : "";
+  if (explicit) return explicit;
+  return fileName;
+}
+
 /** 把单条 MDX 原始数据 + 列举 manifest 映射成 Work（纯同步） */
 function mapRawToWork(raw: WorkRaw, manifest: Manifest): Work {
-  const { slug, pathSegments, data, storyMd } = raw;
+  const { fileName, pathSegments, data, storyMd } = raw;
   const album = typeof data.album === "string" ? data.album : undefined;
   const explicitCover = typeof data.cover === "string" ? data.cover : undefined;
   const explicitPhotos = Array.isArray(data.photos)
@@ -134,10 +146,9 @@ function mapRawToWork(raw: WorkRaw, manifest: Manifest): Work {
       : (seriesFromPath(pathSegments) ?? "");
 
   return {
-    slug,
+    slug: resolveSlug(fileName, data),
     title: data.title as string,
     series,
-    year: data.year as number,
     date: normalizeDate(data.date),
     location: data.location as string,
     cover,

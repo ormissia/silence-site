@@ -87,7 +87,7 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
 
         <div className="relative z-10 mx-auto flex h-full max-w-[1100px] flex-col items-center justify-end px-6 pb-20 text-center md:px-10 md:pb-28">
           <p className="eyebrow text-white/80">
-            {work.series} — {work.location} — {work.year}
+            {work.series} — {work.location} — {work.date.slice(0, 4)}
           </p>
           <h1 className="mt-4 font-sans text-display text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.5)]">
             {work.title.split(",")[0]}

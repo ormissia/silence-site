@@ -7,7 +7,9 @@ const JOURNAL_DIR = path.join(process.cwd(), "content/journal");
 const READING_DIR = path.join(process.cwd(), "content/reading");
 
 export type WorkRaw = {
-  slug: string;
+  /** 裸文件名（去扩展名），不再承担任何语义——slug 由各 lib 用 frontmatter 自行决定。
+   *  仅作为 frontmatter 没有显式 slug 时的兜底 hash 输入。 */
+  fileName: string;
   /** 文件相对于扫描根目录的路径段（不含文件名）。
    *  例：content/reading/哲学宗教/理想国.md → ["哲学宗教"]。
    *  顶层文件为空数组。Reading / Journal / Works 都用它做"目录即一级分类"的 fallback。 */
@@ -15,15 +17,6 @@ export type WorkRaw = {
   data: Record<string, unknown>;
   storyMd: string;
 };
-
-/**
- * 文件名形如 "2023-07-22-dolomites.mdx" 时，剥掉前缀日期返回 "dolomites"。
- * 没有日期前缀的文件名（如 "dolomites.mdx"）原样返回。
- * 这样文件系统按时间倒序排列方便查找，URL slug 仍保持简洁稳定。
- */
-function stripDatePrefix(name: string): string {
-  return name.replace(/^\d{4}-\d{2}-\d{2}-/, "");
-}
 
 /**
  * 递归扫描某个目录下的所有 .md/.mdx，返回每个文件的 frontmatter + 正文 + 路径段。
@@ -41,11 +34,10 @@ function readAllMdx(rootDir: string): WorkRaw[] {
       if (stat.isDirectory()) {
         walk(full, [...segments, name]);
       } else if (name.endsWith(".md") || name.endsWith(".mdx")) {
-        const baseName = name.replace(/\.mdx?$/, "");
-        const slug = stripDatePrefix(baseName);
+        const fileName = name.replace(/\.mdx?$/, "");
         const raw = fs.readFileSync(full, "utf8");
         const { data, content } = matter(raw);
-        out.push({ slug, pathSegments: segments, data, storyMd: content });
+        out.push({ fileName, pathSegments: segments, data, storyMd: content });
       }
     }
   };

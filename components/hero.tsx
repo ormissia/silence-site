@@ -51,7 +51,7 @@ export function Hero({ work }: { work: Work }) {
             </div>
             <figcaption className="mt-3 flex items-center justify-between font-sans text-xs uppercase tracking-[0.18em] text-muted">
               <span>Plate No. 01 — {work.location}</span>
-              <span>{work.year}</span>
+              <span>{work.date.slice(0, 4)}</span>
             </figcaption>
           </div>
         </div>

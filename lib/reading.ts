@@ -130,16 +130,16 @@ function fnv1aHex(s: string): string {
 }
 
 const ALL: ReadingEntry[] = readAllReadingMdx()
-  .map(({ slug: fileSlug, pathSegments, data, storyMd }) => {
+  .map(({ fileName, pathSegments, data, storyMd }) => {
     const { visible: visibleTags, finished } = processTags(
       ensureStringArray(data.tags)
     );
     const rawProgress = ensureString(data.progress);
     const rawReadProgress = ensureNumber(data.readProgress);
     return {
-      // 用 fileSlug 当 fallback hash 的输入，但永远不直接当 URL slug
-      slug: resolveSlug(fileSlug, data),
-      title: (data.title as string) ?? fileSlug,
+      // 用 fileName 当 fallback hash 的输入，但永远不直接当 URL slug
+      slug: resolveSlug(fileName, data),
+      title: (data.title as string) ?? fileName,
       author: ensureString(data.author),
       cover: ensureString(data.cover),
       // 读完 → 强制 100%；否则用 frontmatter 原值
@@ -280,11 +280,11 @@ function interleaveByBook(buckets: Highlight[][], seed = 1): Highlight[] {
 const ALL_HIGHLIGHTS: Highlight[] = (() => {
   // 先按书分桶
   const buckets: Highlight[][] = [];
-  for (const { slug: fileSlug, data, storyMd } of _readAllReadingMdx()) {
+  for (const { fileName, data, storyMd } of _readAllReadingMdx()) {
     const lines = extractHighlightsFromMd(storyMd);
     if (lines.length === 0) continue;
-    const bookSlug = resolveSlug(fileSlug, data);
-    const bookTitle = (data.title as string) ?? fileSlug;
+    const bookSlug = resolveSlug(fileName, data);
+    const bookTitle = (data.title as string) ?? fileName;
     const author = ensureString(data.author);
     buckets.push(
       lines.map((text) => ({ text, bookTitle, bookSlug, author }))

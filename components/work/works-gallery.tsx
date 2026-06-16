@@ -168,7 +168,7 @@ const renderWorkPhoto: RenderPhoto<AlbumPhoto> = (_, ctx) => {
       <div className="mt-3 flex items-baseline justify-between gap-3">
         <div className="min-w-0">
           <p className="eyebrow truncate">
-            {work.series} — {work.year}
+            {work.series} — {work.date.slice(0, 4)}
           </p>
           <h3 className="mt-1 font-sans text-lg leading-tight md:text-xl">{work.title}</h3>
         </div>
