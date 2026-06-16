@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { mapWithConcurrency, withRetry } from "./concurrency";
 
 /**
  * 图片真实尺寸的探测 + 持久化缓存。
@@ -9,6 +10,9 @@ import path from "node:path";
  * `content/.image-meta.json` 缓存（不入 git）。后续直接读 cache，
  * 让 Justified Layout 在 RSC 阶段就拿到比例，零 CLS、零手填。
  */
+
+/** 构建期对 OSS image/info 的并发上限。北京 endpoint 跨网时一把梭哈会 ConnectTimeout */
+const PROBE_CONCURRENCY = 8;
 
 export type Dim = { w: number; h: number };
 export type MetaMap = Record<string, Dim>;
@@ -78,16 +82,15 @@ export async function ensureMeta(keys: string[]): Promise<MetaMap> {
   if (missing.length === 0) return cache;
 
   console.log(`[image-meta] probing ${missing.length} image(s) from OSS...`);
-  const results = await Promise.all(
-    missing.map(async (key) => {
-      try {
-        return [key, await probeOss(key, ossBase)] as const;
-      } catch (err) {
-        console.warn(`[image-meta] ${key} probe failed, fallback used:`, err);
-        return [key, PICSUM_FALLBACK] as const;
-      }
-    })
-  );
+  const results = await mapWithConcurrency(missing, PROBE_CONCURRENCY, async (key) => {
+    try {
+      const dim = await withRetry(() => probeOss(key, ossBase));
+      return [key, dim] as const;
+    } catch (err) {
+      console.warn(`[image-meta] ${key} probe failed, fallback used:`, err);
+      return [key, PICSUM_FALLBACK] as const;
+    }
+  });
 
   for (const [key, dim] of results) cache[key] = dim;
   writeCache(cache);

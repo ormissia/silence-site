@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { mapWithConcurrency, withRetry } from "./concurrency";
 
 /**
  * 构建期 OSS 文件夹列举 + 持久化缓存。
@@ -11,6 +12,9 @@ import path from "node:path";
  *
  * 与 image-meta.ts 同构:只在 server / RSC 构建阶段执行,运行时读缓存。
  */
+
+/** ListObjects 比 image/info 更重，并发开小一点 */
+const LIST_CONCURRENCY = 6;
 
 const MANIFEST_PATH = path.join(process.cwd(), "content/.album-manifest.json");
 
@@ -159,16 +163,15 @@ export async function ensureManifest(requests: ListRequest[]): Promise<Manifest>
   if (missing.length === 0) return cache;
 
   console.log(`[album-manifest] listing ${missing.length} folder(s) from OSS...`);
-  const results = await Promise.all(
-    missing.map(async (r) => {
-      try {
-        return { prefix: r.prefix, files: await listAlbumFiles(r.prefix), ok: true };
-      } catch (err) {
-        console.warn(`[album-manifest] ${r.prefix} list failed (will retry next build):`, err);
-        return { prefix: r.prefix, files: [] as string[], ok: false };
-      }
-    })
-  );
+  const results = await mapWithConcurrency(missing, LIST_CONCURRENCY, async (r) => {
+    try {
+      const files = await withRetry(() => listAlbumFiles(r.prefix));
+      return { prefix: r.prefix, files, ok: true };
+    } catch (err) {
+      console.warn(`[album-manifest] ${r.prefix} list failed (will retry next build):`, err);
+      return { prefix: r.prefix, files: [] as string[], ok: false };
+    }
+  });
 
   let changed = false;
   for (const r of results) {
