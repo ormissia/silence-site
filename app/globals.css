@@ -92,34 +92,6 @@ body[data-lightbox-open="true"] header {
 }
 
 /* ================================================================
-   .film-frame —— 单张胶片作品封面的齿孔条
-   每张胶片作品在卡片上下各加一条齿孔（sprocket holes），
-   模拟 35mm 底片在透写台上看到的样子。
-   只在 series === "胶片" 时被 work-card 加上。
-================================================================ */
-
-.film-frame {
-  /* 给齿孔条留出空间——上下各 14px 黑边 */
-  padding: 14px 0;
-  background: #0c0c0d;
-  /* 上下两条齿孔：用 radial-gradient 在黑边上排白点 */
-  background-image:
-    /* 上边齿孔：4×4 圆点，每 16px 一个 */
-    radial-gradient(circle at 8px 7px, rgba(255,255,255,0.85) 2px, transparent 2.5px),
-    /* 下边齿孔 */
-    radial-gradient(circle at 8px calc(100% - 7px), rgba(255,255,255,0.85) 2px, transparent 2.5px);
-  background-size: 16px 14px, 16px 14px;
-  background-repeat: repeat-x, repeat-x;
-  background-position: 0 0, 0 100%;
-}
-
-/* 让 cinema-tone 滤镜不被 padding 黑边的位置影响——img 容器要 inset */
-.film-frame > img,
-.film-frame > .relative {
-  border-radius: 0;
-}
-
-/* ================================================================
    .film-strip —— Film tab 选中时整个网格区域包一层"胶卷感"
    背景叠层：左右两条暗带 + 全局轻微暖色偏调
 ================================================================ */
