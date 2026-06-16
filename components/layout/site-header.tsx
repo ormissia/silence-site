@@ -6,7 +6,7 @@ import { NavProgressLink } from "./nav-link";
 const WORKS_MENU: Array<{ href: string; label: string }> = [
   { href: "/works?tab=landscape", label: "Landscape / 风光" },
   { href: "/works?tab=portrait", label: "Portrait / 人像" },
-  { href: "/works?tab=casual", label: "Snapshots / 日常" },
+  { href: "/works?tab=snapshots", label: "Snapshots / 日常" },
   { href: "/works?tab=film", label: "Film / 胶片" },
 ];
 

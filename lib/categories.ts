@@ -11,7 +11,7 @@ export type Category = (typeof CATEGORIES)[number];
 export const TAB_SLUGS = {
   landscape: "风光",
   portrait: "人像",
-  casual: "日常",
+  snapshots: "日常",
   film: "胶片",
 } as const satisfies Record<string, Category>;
 
