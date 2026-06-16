@@ -49,7 +49,9 @@ export function MobileGate() {
           适配
         </h1>
         <p className="mt-10 max-w-[20rem] font-sans text-sm leading-relaxed text-ink/70">
-          请用电脑浏览这个站点，画面与排版只在大屏上能立得住。
+          请用电脑浏览这个站点，
+          <br />
+          画面与排版只在大屏上能立得住。
         </p>
         <button
           type="button"
