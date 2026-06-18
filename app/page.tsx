@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Link from "next/link";
 import { CinemaHero } from "@/components/cinema-hero";
 import { BookSphere } from "@/components/home/book-sphere";
+import { HomeSplash } from "@/components/home/home-splash";
 import { TodayHighlight } from "@/components/home/today-highlight";
 import { listFeatured, listWorks } from "@/lib/works";
 import { getDailyIndex, listHighlights, pickSphereBooks } from "@/lib/reading";
@@ -27,6 +28,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <HomeSplash />
       <Suspense fallback={<div className="h-screen bg-paper" />}>
         <CinemaHero work={hero} />
       </Suspense>
