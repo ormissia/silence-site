@@ -20,25 +20,25 @@ function FilmExifPanel({ work }: { work: Work }) {
         {filmStock ?? "Unknown Stock"}
       </p>
       {filmIso && (
-        <p className="mt-1 text-xs uppercase tracking-[0.24em] text-amber-200/70">
+        <p className="mt-1 text-label uppercase tracking-[0.24em] text-amber-200/70">
           ISO {filmIso} · 35mm · C-41
         </p>
       )}
       <dl className="mt-6 space-y-3 text-sm">
         <div>
-          <dt className="text-xs uppercase tracking-[0.18em] text-muted">Camera</dt>
+          <dt className="text-label uppercase tracking-[0.18em] text-muted">Camera</dt>
           <dd className="text-ink">{work.exif.camera}</dd>
         </div>
         <div>
-          <dt className="text-xs uppercase tracking-[0.18em] text-muted">Lens</dt>
+          <dt className="text-label uppercase tracking-[0.18em] text-muted">Lens</dt>
           <dd className="text-ink">{work.exif.lens}</dd>
         </div>
         <div>
-          <dt className="text-xs uppercase tracking-[0.18em] text-muted">Develop</dt>
+          <dt className="text-label uppercase tracking-[0.18em] text-muted">Develop</dt>
           <dd className="text-ink">C-41 / Standard</dd>
         </div>
         <div>
-          <dt className="text-xs uppercase tracking-[0.18em] text-muted">Negatives</dt>
+          <dt className="text-label uppercase tracking-[0.18em] text-muted">Negatives</dt>
           <dd className="text-ink">
             No. {String(1).padStart(2, "0")} – {String(plateCount).padStart(2, "0")}
           </dd>
@@ -89,7 +89,7 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
           <p className="eyebrow text-white/80">
             {work.series} — {work.location} — {work.date.slice(0, 4)}
           </p>
-          <h1 className="mt-4 font-sans text-display text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.5)]">
+          <h1 className="mt-4 font-serif text-display text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.5)]">
             {work.title.split(",")[0]}
             {work.title.includes(",") && (
               <>
@@ -115,16 +115,16 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
                 <p className="eyebrow">Plate Notes</p>
                 <dl className="mt-4 space-y-3 font-sans text-sm">
                   <div>
-                    <dt className="text-xs uppercase tracking-[0.18em] text-muted">Camera</dt>
+                    <dt className="text-label uppercase tracking-[0.18em] text-muted">Camera</dt>
                     <dd>{work.exif.camera}</dd>
                   </div>
                   <div>
-                    <dt className="text-xs uppercase tracking-[0.18em] text-muted">Lens</dt>
+                    <dt className="text-label uppercase tracking-[0.18em] text-muted">Lens</dt>
                     <dd>{work.exif.lens}</dd>
                   </div>
                   {work.exif.film && (
                     <div>
-                      <dt className="text-xs uppercase tracking-[0.18em] text-muted">Film</dt>
+                      <dt className="text-label uppercase tracking-[0.18em] text-muted">Film</dt>
                       <dd>{work.exif.film}</dd>
                     </div>
                   )}
@@ -161,10 +161,10 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
         >
           <p className="eyebrow">Next Story</p>
           <div className="mt-3 flex items-baseline justify-between gap-6">
-            <h3 className="font-sans text-headline group-hover:text-accent">
+            <h3 className="font-serif text-headline group-hover:text-accent">
               {next.title}
             </h3>
-            <span className="hidden font-sans text-sm uppercase tracking-[0.18em] text-muted group-hover:text-accent md:inline">
+            <span className="hidden font-sans text-label uppercase tracking-[0.18em] text-muted group-hover:text-accent md:inline">
               Continue →
             </span>
           </div>

@@ -129,12 +129,12 @@ export function CinemaHero({ work }: { work: Work }) {
             }}
             className={[
               "text-center",
-              "font-sans",                      // 黑体（Inter），跟杂志衬线主调反差
-              "text-[clamp(2rem,5.5vw,4.5rem)]",// 响应式字号：min 2rem / 视口宽 5.5% / max 4.5rem
-              "font-light",                     // 细字重，营造"轻声细语"的语感
-              "leading-[1.4]",                  // 行高 1.4，三行中文呼吸足够
-              "text-[#FFFFFF]",                 // 纯白
-              "[text-shadow:0_1px_8px_rgba(0,0,0,0.7)]", // 轻阴影，亮区也立得住
+              "font-sans",
+              "text-display",
+              "font-light",
+              "leading-[1.4]",
+              "text-ink",
+              "[text-shadow:0_1px_8px_rgba(0,0,0,0.7)]",
             ].join(" ")}
           >
             这是一场回忆
@@ -151,15 +151,15 @@ export function CinemaHero({ work }: { work: Work }) {
             style={{ y: leftY, opacity: leftOpacity }}
             className="pointer-events-auto max-w-[18rem] md:max-w-xs"
           >
-            <h2 className="mt-4 font-sans text-3xl leading-tight md:text-4xl">
+            <h2 className="mt-4 font-sans text-headline leading-tight">
               这里是<br />
               <span className="italic text-accent">寂静无声。</span>
             </h2>
-            <p className="mt-6 font-sans text-base leading-relaxed text-ink/70">
+            <p className="mt-6 font-sans text-xl leading-relaxed text-ink/70">
               一个收着光、句子
               <br />与几次远行的小房间。
             </p>
-            <ul className="mt-8 space-y-2 font-sans text-sm text-ink/60">
+            <ul className="mt-8 space-y-2 font-sans text-lg text-ink/60">
               <li>从 一次按下的快门、</li>
               <li>到一句被划下的话、</li>
               <li>偶尔写下的几行字，</li>
@@ -171,11 +171,11 @@ export function CinemaHero({ work }: { work: Work }) {
             style={{ y: rightY, opacity: rightOpacity }}
             className="pointer-events-auto hidden max-w-[20rem] text-right md:block"
           >
-            <p className="font-sans text-2xl leading-relaxed md:text-3xl">
+            <p className="font-sans text-xl leading-relaxed md:text-2xl">
               如果记忆不好，
               <br />旅途中的景色大概很快就会忘记，
             </p>
-            <p className="mt-8 font-sans text-2xl leading-relaxed text-ink/70 md:text-3xl">
+            <p className="mt-8 font-sans text-xl leading-relaxed text-ink/70 md:text-2xl">
               而摄影，
               <br />让这份
               <span className="italic text-accent">记忆</span>历久弥新。
@@ -189,13 +189,13 @@ export function CinemaHero({ work }: { work: Work }) {
           className="absolute bottom-0 left-0 right-0 z-30 mx-auto max-w-[1400px] px-6 pb-10 md:px-10 md:pb-14"
         >
           <div className="flex items-end justify-between gap-6">
-            <h1 className="font-sans text-headline leading-[0.95]">
+            <h1 className="font-serif text-headline leading-[0.95]">
               The Place
               <br />Where <span className="italic text-accent">Works</span> Begin.
             </h1>
           </div>
           {/* TODO: 同上，location 跟最新作品挂钩与背景图语义不符，先注释。
-          <div className="mt-8 flex items-center justify-end font-sans text-[10px] uppercase tracking-[0.32em] text-muted">
+          <div className="mt-8 flex items-center justify-end font-sans text-annotation uppercase tracking-[0.32em] text-muted">
             <span>Plate No. 01 — {work.location}</span>
           </div>
           */}
@@ -208,7 +208,7 @@ export function CinemaHero({ work }: { work: Work }) {
         >
           <Link
             href="/works"
-            className="inline-flex items-center gap-3 border border-white/40 bg-white/5 px-6 py-3 font-sans text-xs uppercase tracking-[0.24em] text-white backdrop-blur-sm transition hover:scale-105 hover:border-accent hover:text-accent"
+            className="inline-flex items-center gap-3 rounded-lg border border-white/40 bg-white/5 px-6 py-3 font-sans text-label uppercase tracking-[0.24em] text-white backdrop-blur-sm transition hover:scale-105 hover:border-ink/60 hover:text-accent"
           >
             Enter the Works <span aria-hidden>→</span>
           </Link>
@@ -231,7 +231,7 @@ export function CinemaHero({ work }: { work: Work }) {
             }}
             className="flex flex-col items-center gap-3"
           >
-            <span className="font-sans text-xs uppercase tracking-[0.32em] text-ink/85 [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
+            <span className="font-sans text-label uppercase tracking-[0.32em] text-ink/85 [text-shadow:0_1px_8px_rgba(0,0,0,0.6)]">
               Scroll · 向下滚动
             </span>
             {/* 一条细线 + 小箭头点缀，电影感引导 */}
@@ -311,7 +311,7 @@ function CameraBody({
           className="pointer-events-none absolute z-50 ring-2 ring-red-500"
           style={CAMERA.lcd}
         >
-          <span className="absolute -top-6 left-0 bg-red-500 px-2 py-0.5 font-sans text-[10px] uppercase tracking-widest text-white">
+          <span className="absolute -top-6 left-0 bg-red-500 px-2 py-0.5 font-sans text-annotation uppercase tracking-widest text-white">
             LCD {CAMERA.lcd.left} / {CAMERA.lcd.top} / {CAMERA.lcd.width} / {CAMERA.lcd.height}
           </span>
         </div>
@@ -330,7 +330,7 @@ function CinemaHeroStatic({ work }: { work: Work }) {
       />
       <div className="vignette absolute inset-0" />
       <div className="absolute inset-0 z-10 mx-auto flex max-w-[1400px] flex-col justify-end px-6 pb-16 md:px-10">
-        <h1 className="mt-4 font-sans text-display">
+        <h1 className="mt-4 font-serif text-display">
           The Place Where <span className="italic text-accent">Works</span> Begin.
         </h1>
       </div>

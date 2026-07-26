@@ -1,6 +1,6 @@
 import type {Metadata} from "next";
 import {Suspense} from "react";
-import {Inter, Noto_Sans_SC, Playfair_Display} from "next/font/google";
+import {Syne, Noto_Sans_SC, Playfair_Display} from "next/font/google";
 import "./globals.css";
 import {SiteHeader} from "@/components/layout/site-header";
 import {RouteProgress, RouteProgressProvider} from "@/components/layout/route-progress";
@@ -12,17 +12,16 @@ const serif = Playfair_Display({
     display: "swap",
 });
 
-const sans = Inter({
+const sans = Syne({
     subsets: ["latin"],
     variable: "--font-sans",
     display: "swap",
 });
 
-// 中文超细字重——给"寂静无声"一类的大标题用，PingFang Ultralight 还嫌粗时回落到 Noto Sans SC 100
-const sansHairline = Noto_Sans_SC({
+const sansCn = Noto_Sans_SC({
     subsets: ["latin"],
-    weight: ["100"],
-    variable: "--font-sans-hairline",
+    weight: ["100", "400", "700"],
+    variable: "--font-cn",
     display: "swap",
 });
 
@@ -34,7 +33,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: { children: React.ReactNode }) {
     return (
         <html lang="zh">
-        <body className={`${serif.variable} ${sans.variable} ${sansHairline.variable} font-sans`}>
+        <body className={`${serif.variable} ${sans.variable} ${sansCn.variable} font-sans`}>
         <RouteProgressProvider>
             <Suspense fallback={null}>
                 <RouteProgress />
@@ -43,7 +42,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
 
             <main className="relative z-10">{children}</main>
 
-            <footer className="relative z-10 border-t border-rule">
+            <footer className="relative z-10 border-t divider-gradient">
                 <div
                     className="mx-auto flex max-w-[1400px] flex-col gap-6 px-6 py-10 font-sans text-sm text-muted md:flex-row md:items-center md:justify-between md:px-10">
                     <span className="eyebrow">© {new Date().getFullYear()} SILENCE — Photographs &amp; Notes by Song</span>

@@ -82,7 +82,7 @@ export default function ReadingEntryPage({ params }: { params: { slug: string } 
               {book.tags.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center border border-rule px-3 py-1 font-sans text-xs uppercase tracking-[0.2em] text-muted"
+                  className="inline-flex items-center border border-rule px-3 py-1 font-sans text-label uppercase tracking-[0.2em] text-muted"
                 >
                   {tag}
                 </span>
@@ -111,7 +111,7 @@ export default function ReadingEntryPage({ params }: { params: { slug: string } 
               <h3 className="font-sans text-headline group-hover:text-accent">
                 {next.title}
               </h3>
-              <span className="hidden font-sans text-sm uppercase tracking-[0.18em] text-muted group-hover:text-accent md:inline">
+              <span className="hidden font-sans text-label uppercase tracking-[0.18em] text-muted group-hover:text-accent md:inline">
                 Continue →
               </span>
             </div>
@@ -125,7 +125,7 @@ export default function ReadingEntryPage({ params }: { params: { slug: string } 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-[0.18em] text-muted">{label}</dt>
+      <dt className="text-label uppercase tracking-[0.18em] text-muted">{label}</dt>
       <dd className="mt-1 text-ink">{children}</dd>
     </div>
   );

@@ -16,9 +16,9 @@ export function SecondaryPageHeader({
   lede: string;
 }) {
   return (
-    <header className="border-b border-rule pb-10">
+    <header className="border-b divider-gradient pb-10">
       <p className="eyebrow">{eyebrow}</p>
-      <h1 className="mt-3 font-sans text-display">
+      <h1 className="mt-3 font-serif text-display">
         {titleEn} <span className="text-muted">/</span>{" "}
         <span className="italic">{titleZh}</span>
       </h1>

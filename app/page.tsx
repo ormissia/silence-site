@@ -74,7 +74,7 @@ export default async function HomePage() {
           <div className="mt-12 flex justify-center md:mt-16">
             <Link
               href="/reading"
-              className="inline-flex items-center gap-3 border border-ink/30 bg-ink/5 px-6 py-3 font-sans text-xs uppercase tracking-[0.24em] backdrop-blur-sm transition hover:scale-105 hover:border-accent hover:text-accent"
+              className="inline-flex items-center gap-3 border border-ink/30 bg-ink/5 px-6 py-3 font-sans text-label uppercase tracking-[0.24em] backdrop-blur-sm transition hover:scale-105 hover:border-accent hover:text-accent"
             >
               Enter the Reading <span aria-hidden>→</span>
             </Link>

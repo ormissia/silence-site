@@ -56,7 +56,7 @@ export function MobileGate() {
         <button
           type="button"
           onClick={onBypass}
-          className="mt-12 inline-flex items-center gap-3 border border-ink/30 bg-ink/5 px-6 py-3 font-sans text-xs uppercase tracking-[0.24em] backdrop-blur-sm transition active:scale-95 active:opacity-80"
+          className="mt-12 inline-flex items-center gap-3 border border-ink/30 bg-ink/5 px-6 py-3 font-sans text-label uppercase tracking-[0.24em] backdrop-blur-sm transition active:scale-95 active:opacity-80"
         >
           我开心 <span aria-hidden>→</span>
         </button>

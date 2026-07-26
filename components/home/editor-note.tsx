@@ -10,7 +10,7 @@ export function EditorNote() {
             我把它们以一种慢一点的方式排版，希望你也愿意慢一点看。<br/>
 
           </p>
-          <p className="mt-8 font-sans text-sm uppercase tracking-[0.18em] text-muted">
+          <p className="mt-8 font-sans text-label uppercase tracking-[0.18em] text-muted">
             — Silence, Editor
           </p>
         </div>

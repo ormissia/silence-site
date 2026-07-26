@@ -67,7 +67,7 @@ export function BookCard({ book }: { book: ReadingEntry }) {
         whileHover={{ scale: 1.08, z: 24 }}
         transition={{ type: "spring", stiffness: 220, damping: 22, mass: 0.7 }}
       >
-        <div className="relative w-full overflow-hidden bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-shadow duration-300 ease-out group-hover:shadow-[0_24px_56px_rgba(200,149,107,0.35),0_8px_20px_rgba(0,0,0,0.6)]">
+        <div className="relative w-full overflow-hidden rounded-lg border border-ink/10 bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-shadow duration-300 ease-out group-hover:shadow-[0_24px_56px_rgba(200,149,107,0.35),0_8px_20px_rgba(0,0,0,0.6)]">
           {book.cover ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -78,13 +78,13 @@ export function BookCard({ book }: { book: ReadingEntry }) {
               draggable={false}
             />
           ) : (
-            <div className="flex aspect-[3/4] w-full items-center justify-center font-sans text-xs uppercase tracking-[0.24em] text-muted">
+            <div className="flex aspect-[3/4] w-full items-center justify-center font-sans text-label uppercase tracking-[0.24em] text-muted">
               No Cover
             </div>
           )}
 
           {book.progress && (
-            <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 font-sans text-[10px] uppercase tracking-[0.18em] text-white backdrop-blur-sm">
+            <span className="absolute left-2 top-2 rounded-full bg-black/60 px-2 py-0.5 font-sans text-annotation uppercase tracking-[0.18em] text-white backdrop-blur-sm">
               {book.progress}
             </span>
           )}
@@ -92,14 +92,14 @@ export function BookCard({ book }: { book: ReadingEntry }) {
       </motion.div>
 
       <div className="mt-3">
-        <h3 className="font-sans text-sm leading-tight text-ink group-hover:text-accent">
+        <h3 className="font-serif text-sm leading-tight text-ink group-hover:text-accent">
           {book.title}
         </h3>
         {book.author && (
-          <p className="mt-1 font-sans text-[11px] text-muted">{book.author}</p>
+          <p className="mt-1 font-sans text-caption text-muted">{book.author}</p>
         )}
         {(book.finishedDate ?? book.lastReadDate) && (
-          <p className="mt-1 font-sans text-[10px] uppercase tracking-[0.18em] text-muted">
+          <p className="mt-1 font-sans text-annotation uppercase tracking-[0.18em] text-muted">
             {book.finishedDate ?? book.lastReadDate}
           </p>
         )}

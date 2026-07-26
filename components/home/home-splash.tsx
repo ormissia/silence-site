@@ -109,7 +109,7 @@ export function HomeSplash() {
             <h1 className="mt-6 font-hairline text-display font-thin leading-[0.95] tracking-[0.4em]">
               SILENCE
             </h1>
-            <p className="mt-6 max-w-column font-sans text-sm leading-relaxed text-ink/60">
+            <p className="mt-6 max-w-column font-sans text-body leading-relaxed text-ink/60">
               寂静无声 · 正在装载光与文字
             </p>
 
@@ -120,7 +120,7 @@ export function HomeSplash() {
                   style={{ width: "100%", scaleX: progress }}
                 />
               </div>
-              <span className="font-sans text-xs uppercase tracking-[0.32em] tabular-nums text-ink/70">
+              <span className="font-sans text-label uppercase tracking-[0.32em] tabular-nums text-ink/70">
                 {String(percent).padStart(3, "0")}%
               </span>
             </div>

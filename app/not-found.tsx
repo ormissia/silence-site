@@ -9,7 +9,7 @@ export default function NotFound() {
       </h1>
       <Link
         href="/"
-        className="mt-12 inline-block border-b border-ink pb-1 font-sans text-sm uppercase tracking-[0.24em] hover:text-accent hover:border-accent"
+        className="mt-12 inline-block border-b border-ink pb-1 font-sans text-label uppercase tracking-[0.24em] hover:text-accent hover:border-accent"
       >
         ← Back to issue
       </Link>

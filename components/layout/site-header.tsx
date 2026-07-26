@@ -90,7 +90,7 @@ function NavMenu({
               <li key={item.href}>
                 <NavProgressLink
                   href={item.href}
-                  className="group/item flex origin-left items-center gap-2 px-4 py-1.5 font-sans text-[11px] uppercase tracking-[0.2em] text-white transition-transform duration-200 ease-out hover:scale-125 active:scale-100 active:opacity-70"
+                  className="group/item flex origin-left items-center gap-2 px-4 py-1.5 font-sans text-caption uppercase tracking-[0.2em] text-white transition-transform duration-200 ease-out hover:scale-125 active:scale-100 active:opacity-70"
                   onClick={() => setOpen(false)}
                 >
                   <span
@@ -116,15 +116,15 @@ export function SiteHeader() {
           href="/"
           className="leading-none text-white transition-opacity duration-150 active:opacity-60"
         >
-          <span className="block font-sans text-2xl uppercase tracking-tighter md:text-3xl">
+          <span className="block text-2xl uppercase tracking-tighter text-gradient-accent md:text-3xl">
             SILENCE
           </span>
-          <span className="mt-1 block font-sans text-[10px] tracking-wider">
+          <span className="mt-1 block font-sans text-annotation tracking-wider">
             Was it a memory, or was it a dream? Even I don&apos;t know.
           </span>
         </NavProgressLink>
 
-        <nav className="hidden items-center gap-8 font-sans text-xs uppercase tracking-[0.24em] md:flex">
+        <nav className="hidden items-center gap-8 font-sans text-label uppercase tracking-[0.24em] md:flex">
           <NavMenu href="/works" label="Works" items={WORKS_MENU} />
           <NavMenu href="/journal" label="Journal" items={JOURNAL_MENU} />
           <NavLink href="/reading">Reading</NavLink>

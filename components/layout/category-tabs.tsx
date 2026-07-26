@@ -65,7 +65,7 @@ export function CategoryTabs({
         />
       ))}
       {totalLabel && (
-        <span className="ml-auto font-sans text-xs uppercase tracking-[0.24em] text-muted">
+        <span className="ml-auto font-sans text-label uppercase tracking-[0.24em] text-muted">
           {totalLabel}
         </span>
       )}
@@ -88,14 +88,14 @@ function TabButton({
     <button
       type="button"
       onClick={onClick}
-      className={`group relative inline-flex items-center gap-2 py-2 font-sans text-sm uppercase tracking-[0.18em] transition-colors duration-200 ${
+      className={`group relative inline-flex items-center gap-2 py-2 font-sans text-label uppercase tracking-[0.18em] transition-colors duration-200 ${
         isActive ? "text-ink" : "text-muted hover:text-ink"
       }`}
     >
       <span>{label}</span>
       {typeof count === "number" && (
         <span
-          className={`font-sans text-[10px] tracking-[0.12em] ${
+          className={`font-sans text-annotation tracking-[0.12em] ${
             isActive ? "text-accent" : "text-muted/70"
           }`}
         >
@@ -103,7 +103,7 @@ function TabButton({
         </span>
       )}
       <span
-        className={`absolute -bottom-0.5 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-ink transition-[width] duration-300 ease-out ${
+        className={`absolute -bottom-0.5 left-1/2 h-[2px] -translate-x-1/2 rounded-full bg-gradient-accent transition-[width] duration-300 ease-out ${
           isActive ? "w-full" : "w-0 group-hover:w-full"
         }`}
       />

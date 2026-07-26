@@ -75,12 +75,12 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
                     <span className="eyebrow">{monthYear}</span>
                   </div>
                   {entry.mood && (
-                    <span className="mt-4 inline-flex items-center justify-center border border-rule px-3 py-1 font-sans text-xs uppercase tracking-[0.24em] text-muted">
+                    <span className="mt-4 inline-flex items-center justify-center rounded-md border border-rule px-3 py-1 font-sans text-label uppercase tracking-[0.24em] text-muted">
                       Mood · {entry.mood}
                     </span>
                   )}
                   {entry.location && (
-                    <p className="mt-3 font-sans text-xs uppercase tracking-[0.18em] text-muted">
+                    <p className="mt-3 font-sans text-label uppercase tracking-[0.18em] text-muted">
                       {entry.location}
                     </p>
                   )}
@@ -88,7 +88,7 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
 
                 <div className="col-span-12 md:col-span-9">
                   {entry.cover && (
-                    <div className="relative mb-6 aspect-[3/2] overflow-hidden bg-ink/5">
+                    <div className="relative mb-6 aspect-[3/2] overflow-hidden rounded-lg border border-ink/10 bg-ink/5">
                       <Image
                         src={buildSrc(entry.cover, "detail")}
                         alt={entry.title}
@@ -101,7 +101,7 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
                   <span className="eyebrow">
                     {entry.category === "tech" ? "Tech / 技术" : "Life / 生活"}
                   </span>
-                  <h2 className="mt-2 font-sans text-headline group-hover:text-accent">
+                  <h2 className="mt-2 font-serif text-headline group-hover:text-accent">
                     {entry.title}
                   </h2>
                   {entry.excerpt && (
@@ -109,7 +109,7 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
                       {entry.excerpt}
                     </p>
                   )}
-                  <span className="mt-4 inline-block font-sans text-xs uppercase tracking-[0.18em] text-muted group-hover:text-accent">
+                  <span className="mt-4 inline-block font-sans text-label uppercase tracking-[0.18em] text-muted group-hover:text-accent">
                     Read note →
                   </span>
                 </div>

@@ -59,12 +59,12 @@ export function TodayHighlight({
             exit="exit"
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            <blockquote className="font-sans text-[clamp(1.25rem,2.4vw,2rem)] leading-[1.55] text-ink/90">
+            <blockquote className="font-serif text-headline leading-[1.55] text-ink/90">
               <span className="mr-2 align-top text-3xl text-accent">“</span>
               {current.text}
               <span className="ml-1 align-top text-3xl text-accent">”</span>
             </blockquote>
-            <figcaption className="mt-8 font-sans text-xs uppercase tracking-[0.24em] text-muted">
+            <figcaption className="mt-8 font-sans text-label uppercase tracking-[0.24em] text-muted">
               —{" "}
               <a
                 href={`/reading/${current.bookSlug}`}
@@ -88,7 +88,7 @@ export function TodayHighlight({
         >
           <span className="text-xl leading-none">‹</span>
         </button>
-        <span className="font-sans text-xs uppercase tracking-[0.24em] text-muted tabular-nums">
+        <span className="font-sans text-label uppercase tracking-[0.24em] text-muted tabular-nums">
           {String(idx + 1).padStart(3, "0")} / {String(total).padStart(3, "0")}
         </span>
         <button

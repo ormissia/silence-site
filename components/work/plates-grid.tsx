@@ -440,7 +440,7 @@ function Lightbox({ src, alt, onClose, onPrev, onNext }: LightboxProps) {
       </div>
 
       {/* 底部快捷键提示 */}
-      <div className="pointer-events-none absolute bottom-4 left-1/2 hidden -translate-x-1/2 select-none text-xs tracking-widest text-white/30 md:block">
+      <div className="pointer-events-none absolute bottom-4 left-1/2 hidden -translate-x-1/2 select-none text-label tracking-widest text-white/30 md:block">
         ESC 关闭 &nbsp;·&nbsp; ← → 切换 &nbsp;·&nbsp; 滚轮缩放
       </div>
     </div>

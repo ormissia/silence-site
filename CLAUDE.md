@@ -17,7 +17,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **框架**：Next.js 14.2.5（App Router，TypeScript，React 18.3）
 - **样式**：Tailwind 3.4（`tailwind.config.ts` 扩展了语义化字号 token：`display` / `headline` / `lede` / `body` / `deck`）
-- **字体**：`next/font` 加载 Inter（西文）+ Noto Sans SC 100（中文 hairline）+ Playfair Display（衬线，备用、当前设计语言不使用）
+- **字体**：`next/font` 加载 Syne（西文 UI）+ Noto Sans SC（中文，含 100/400/700 三个字重）+ Playfair Display（衬线，用于内页标题和卡片名）
+- **设计规范**：详见 [DESIGN.md](./DESIGN.md)（字体、色彩、组件风格的完整定义）
 - **图片**：阿里云 OSS 托管原图；前端用 `next/image` 但 **关闭** Next 优化器（`images.unoptimized=true`），由 OSS 的 `?x-oss-process=image/resize,...` 实时生成缩略/WebP
 - **内容**：MDX/MD + frontmatter（`gray-matter` 解析，`marked` 渲染），不接 CMS、不在运行时调 OSS
 - **包管理**：npm（`package-lock.json`）；改依赖直接走 `npm`，别引入 pnpm/yarn 互踩
@@ -67,33 +68,40 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 
 规则：
 
-- **全站默认走 `font-sans`**（Inter 西文 + 系统中文 PingFang SC 黑体），跟左上角 SILENCE 视觉一致——几何黑体，电影暗调感
-- 中英文都用 `font-sans`，**不要混用 `font-serif`**
-- `font-serif`（Playfair Display 衬线）当前**不在设计语言里**——配置保留是为了将来需要"复古杂志感"区块时再用，新代码里不要默认用它
-- **超大标题**可以用 `font-hairline`（Noto Sans SC 100），给"寂静无声"这种主视觉用，比 PingFang Ultralight 还纤细
+- **全站默认走 `font-sans`**（Syne 西文 + Noto Sans SC 中文），用于导航、按钮、标签、最大标题
+- **内页标题和卡片名用 `font-serif`**（Playfair Display），给页面增添精致的衬线质感
+- **超大标题**可以用 `font-hairline`（Noto Sans SC 100），给"寂静无声"这种主视觉用
+- **强调色**为金色 × 紫色双色渐变（`#C8956B` → `#8B5CF6`），用于 logo、激活状态、按钮光晕
 
-**为什么**：
-- 整站调性是电影暗调，几何黑体跟暗调更搭；衬线带来的"杂志感"跟当前主调冲突
-- Inter 不带中文字形 → 中文回退到系统黑体（PingFang/微软雅黑）→ 中英排版都干净
+**规则**：
+- UI 元素（导航、按钮、标签）→ `font-sans`（Syne）
+- 内页 `<h1>` / `<h2>` / 卡片标题 → `font-serif`（Playfair Display）
+- 中文正文自动走 Noto Sans SC（已配入 `font-sans` 字体栈回退）
+- 按钮统一 `rounded-lg`、细边框、hover 时边框变亮
+- 图片卡片统一 `rounded-lg border border-ink/10`
 
 **反例**：
 ```tsx
-// ❌ 用 font-serif，跟全站调性不搭
-<h1 className="font-serif">The Quiet Hours</h1>
+// ❌ 内页标题用 font-sans
+<h1 className="font-sans text-display">The Quiet Hours</h1>
 
-// ✅ 默认 font-sans
-<h1 className="font-sans">The Quiet Hours</h1>
-<p className="font-sans">这是一段中文</p>
+// ✅ 内页标题用 font-serif
+<h1 className="font-serif text-display">The Quiet Hours</h1>
 
-// ✅ body 已经设了 font-sans，纯文本块可以省略字体类
-<p>这是一段中文</p>
+// ✅ UI 元素默认 font-sans（body 已设）
+<button className="rounded-lg border border-ink/20">Enter</button>
 ```
 
 ### 设计实现注意
 
 - 杂志感来自**字号反差 + 留白 + 网格**，不是动效。新增组件先确认排版层级，再考虑加交互。
-- Tailwind 的语义化字号 token（`text-display` / `text-headline` / `text-lede` / `text-body` / `text-deck`）已经定义，不要在 JSX 里直接写 `text-[72px]` 这种字面量。
-- 颜色 token 也是语义化命名：`paper`（深邃黑）/ `ink`（暖白）/ `muted` / `rule` / `accent` / `ember`。
+- 语义化字号 token 按 DESIGN.md 四层体系定义，不要在 JSX 里写字面量字号：
+  - 层1 标题：`text-display`（72px max）/ `text-headline`（40px max）
+  - 层2 正文：`text-lede`（17px 引导）/ `text-body`（15px）/ `text-deck`（14px 说明）
+  - 层3 标签：`text-label`（13px）/ `text-caption`（11px）
+  - 层4 注释：`text-annotation`（10px）
+- 颜色 token 也是语义化命名：`paper`（深邃黑）/ `ink`（暖白）/ `muted` / `rule` / `accent`（金色）/ `accent-end`（紫色）/ `ember`。
+- 渐变工具类：`text-gradient-accent`（渐变文字）/ `bg-gradient-accent`（渐变背景）/ `divider-gradient`（两端渐隐分隔线）。
 
 ## 命令
 

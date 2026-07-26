@@ -4,6 +4,7 @@
 
 :root {
   color-scheme: dark;
+  --gradient-accent: linear-gradient(135deg, #C8956B, #8B5CF6);
 }
 
 html,
@@ -29,6 +30,22 @@ body::before {
   opacity: 0.06;
   mix-blend-mode: overlay;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+.text-gradient-accent {
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.bg-gradient-accent {
+  background: var(--gradient-accent);
+}
+
+.divider-gradient {
+  border-color: transparent;
+  border-image: linear-gradient(to right, transparent 0%, theme(colors.rule) 15%, theme(colors.rule) 85%, transparent 100%) 1;
 }
 
 .eyebrow {

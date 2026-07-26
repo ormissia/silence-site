@@ -2,6 +2,8 @@
 
 > SILENCE — Personal site by Song. Photographs, reading notes, journal. 个人站：摄影、读书笔记、随笔。Next.js + Tailwind.
 
+> 设计规范详见 [DESIGN.md](./DESIGN.md)（字体、色彩、组件风格）
+
 # TODO
 
 - [x] 跳转优化

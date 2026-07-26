@@ -79,7 +79,7 @@ export function WorksGallery({ works, categoryCounts }: Props) {
 
       {/* Film 模式提示条：胶卷头/批次号信息 */}
       {activeTab === "film" && filtered.length > 0 && (
-        <div className="mt-8 flex items-center gap-4 border-y-2 border-dashed border-amber-500/40 bg-amber-500/5 px-4 py-2 font-sans text-[10px] uppercase tracking-[0.28em] text-amber-200/80">
+        <div className="mt-8 flex items-center gap-4 border-y-2 border-dashed border-amber-500/40 bg-amber-500/5 px-4 py-2 font-sans text-annotation uppercase tracking-[0.28em] text-amber-200/80">
           <span>● Film Roll</span>
           <span className="hidden md:inline">·</span>
           <span className="hidden md:inline">35mm Color Negative</span>
@@ -146,14 +146,14 @@ const renderWorkPhoto: RenderPhoto<AlbumPhoto> = (_, ctx) => {
             : ""
         }`}
       />
-      <span className="absolute left-4 top-4 z-[2] font-sans text-xs uppercase tracking-[0.24em] text-paper mix-blend-difference">
+      <span className="absolute left-4 top-4 z-[2] font-sans text-label uppercase tracking-[0.24em] text-paper mix-blend-difference">
         No. {String(no + 1).padStart(2, "0")}
       </span>
-      <span className="absolute right-4 top-4 z-[2] font-sans text-[10px] uppercase tracking-[0.24em] text-paper mix-blend-difference">
+      <span className="absolute right-4 top-4 z-[2] font-sans text-annotation uppercase tracking-[0.24em] text-paper mix-blend-difference">
         {isAlbum ? `Album · ${String(photoCount).padStart(2, "0")}` : "Single Plate"}
       </span>
       {isFilm && filmStock && (
-        <span className="absolute bottom-3 left-3 z-[3] flex items-center gap-2 border border-white/40 bg-black/55 px-2 py-1 font-sans text-[10px] uppercase tracking-[0.18em] text-white backdrop-blur-sm">
+        <span className="absolute bottom-3 left-3 z-[3] flex items-center gap-2 border border-white/40 bg-black/55 px-2 py-1 font-sans text-annotation uppercase tracking-[0.18em] text-white backdrop-blur-sm">
           <span>{filmStock}</span>
           {filmIso && (
             <span className="border-l border-white/40 pl-2 text-amber-300">ISO {filmIso}</span>
@@ -173,7 +173,7 @@ const renderWorkPhoto: RenderPhoto<AlbumPhoto> = (_, ctx) => {
           <h3 className="mt-1 font-sans text-lg leading-tight md:text-xl">{work.title}</h3>
         </div>
         {isAlbum && (
-          <span className="hidden font-sans text-[10px] uppercase tracking-[0.18em] text-muted group-hover:text-accent md:inline">
+          <span className="hidden font-sans text-annotation uppercase tracking-[0.18em] text-muted group-hover:text-accent md:inline">
             View →
           </span>
         )}

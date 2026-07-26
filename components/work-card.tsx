@@ -31,7 +31,7 @@ export function WorkCard({
 
   const cover = (
     <div
-      className={`relative overflow-hidden bg-ink/5 ${ASPECT[variant]}`}
+      className={`relative overflow-hidden rounded-lg border border-ink/10 bg-ink/5 ${ASPECT[variant]}`}
     >
       {/* Album 视觉：右下两层薄阴影模拟相册叠层 */}
       {isAlbum && (
@@ -58,16 +58,16 @@ export function WorkCard({
         }`}
         sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
       />
-      <span className="absolute left-4 top-4 z-[2] font-sans text-xs uppercase tracking-[0.24em] text-paper mix-blend-difference">
+      <span className="absolute left-4 top-4 z-[2] font-sans text-label uppercase tracking-[0.24em] text-paper mix-blend-difference">
         No. {String(index + 1).padStart(2, "0")}
       </span>
-      <span className="absolute right-4 top-4 z-[2] font-sans text-[10px] uppercase tracking-[0.24em] text-paper mix-blend-difference">
+      <span className="absolute right-4 top-4 z-[2] font-sans text-annotation uppercase tracking-[0.24em] text-paper mix-blend-difference">
         {isAlbum ? `Album · ${String(photoCount).padStart(2, "0")}` : "Single Plate"}
       </span>
 
       {/* 胶片标签：左下角胶卷型号 + ISO（stencil 字号 + 边框） */}
       {isFilm && filmStock && (
-        <span className="absolute bottom-3 left-3 z-[3] flex items-center gap-2 border border-white/40 bg-black/55 px-2 py-1 font-sans text-[10px] uppercase tracking-[0.18em] text-white backdrop-blur-sm">
+        <span className="absolute bottom-3 left-3 z-[3] flex items-center gap-2 border border-white/40 bg-black/55 px-2 py-1 font-sans text-annotation uppercase tracking-[0.18em] text-white backdrop-blur-sm">
           <span>{filmStock}</span>
           {filmIso && (
             <span className="border-l border-white/40 pl-2 text-amber-300">ISO {filmIso}</span>
@@ -84,12 +84,12 @@ export function WorkCard({
           <p className="eyebrow">
             {work.series} — {work.date.slice(0, 4)}
           </p>
-          <h3 className="mt-1 font-sans text-2xl leading-tight md:text-3xl">
+          <h3 className="mt-1 font-serif text-2xl leading-tight md:text-3xl">
             {work.title}
           </h3>
         </div>
         {isAlbum && (
-          <span className="hidden font-sans text-xs uppercase tracking-[0.18em] text-muted group-hover:text-accent md:inline">
+          <span className="hidden font-sans text-label uppercase tracking-[0.18em] text-muted group-hover:text-accent md:inline">
             View →
           </span>
         )}

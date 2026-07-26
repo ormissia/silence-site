@@ -12,7 +12,7 @@ export function Hero({ work }: { work: Work }) {
         <div className="grid grid-cols-12 gap-x-6 gap-y-10">
           <div className="col-span-12 md:col-span-5 md:pt-16">
             <p className="eyebrow">Featured Story No. 01</p>
-            <h1 className="mt-4 font-sans text-display">
+            <h1 className="mt-4 font-serif text-display">
               Quiet
               <br />
               <span className="italic text-accent">Hours.</span>
@@ -24,13 +24,13 @@ export function Hero({ work }: { work: Work }) {
             <div className="mt-10 flex items-center gap-6">
               <Link
                 href={`/works/${work.slug}`}
-                className="border-b border-ink pb-1 font-sans text-sm uppercase tracking-[0.24em] hover:text-accent hover:border-accent"
+                className="border-b border-ink pb-1 font-sans text-label uppercase tracking-[0.24em] hover:text-accent hover:border-accent"
               >
                 Read this issue
               </Link>
               <Link
                 href="/works"
-                className="font-sans text-sm uppercase tracking-[0.24em] text-muted hover:text-ink"
+                className="font-sans text-label uppercase tracking-[0.24em] text-muted hover:text-ink"
               >
                 All works →
               </Link>
@@ -49,7 +49,7 @@ export function Hero({ work }: { work: Work }) {
                 sizes="(min-width: 768px) 58vw, 100vw"
               />
             </div>
-            <figcaption className="mt-3 flex items-center justify-between font-sans text-xs uppercase tracking-[0.18em] text-muted">
+            <figcaption className="mt-3 flex items-center justify-between font-sans text-label uppercase tracking-[0.18em] text-muted">
               <span>Plate No. 01 — {work.location}</span>
               <span>{work.date.slice(0, 4)}</span>
             </figcaption>

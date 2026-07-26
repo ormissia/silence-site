@@ -19,7 +19,7 @@ export default function AboutPage() {
               priority
             />
           </div>
-          <p className="mt-3 font-sans text-xs uppercase tracking-[0.18em] text-muted">
+          <p className="mt-3 font-sans text-label uppercase tracking-[0.18em] text-muted">
             Self portrait, near Mount Gongga, 2025
           </p>
         </div>
@@ -53,27 +53,27 @@ export default function AboutPage() {
 
           <div className="mt-12 grid grid-cols-2 gap-x-8 gap-y-6 font-sans text-sm md:grid-cols-3">
             <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted">Based in</p>
+              <p className="text-label uppercase tracking-[0.18em] text-muted">Based in</p>
               <p className="mt-1">Beijing / Chengdu</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted">Cameras</p>
+              <p className="text-label uppercase tracking-[0.18em] text-muted">Cameras</p>
               <p className="mt-1">Sony A1M2 · Hasselblad X2D · FUJI GSW960</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted">Film Stock</p>
+              <p className="text-label uppercase tracking-[0.18em] text-muted">Film Stock</p>
               <p className="mt-1">Kodak Portra 400 · Fuji Velvia 100</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted">Reading</p>
+              <p className="text-label uppercase tracking-[0.18em] text-muted">Reading</p>
               <p className="mt-1">康德 · 黑格尔 · 黑塞 · 毛姆</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted">Off-screen</p>
+              <p className="text-label uppercase tracking-[0.18em] text-muted">Off-screen</p>
               <p className="mt-1">Reading · Hiking</p>
             </div>
             <div>
-              <p className="text-xs uppercase tracking-[0.18em] text-muted">Print &amp; Press</p>
+              <p className="text-label uppercase tracking-[0.18em] text-muted">Print &amp; Press</p>
               <p className="mt-1">Available on request</p>
             </div>
           </div>
@@ -139,7 +139,7 @@ function SectionCard({
       <p className="mt-3 max-w-prose font-sans text-base leading-relaxed text-ink/85">
         {blurb}
       </p>
-      <span className="mt-4 inline-block font-sans text-xs uppercase tracking-[0.18em] text-muted group-hover:text-accent">
+      <span className="mt-4 inline-block font-sans text-label uppercase tracking-[0.18em] text-muted group-hover:text-accent">
         Visit →
       </span>
     </a>

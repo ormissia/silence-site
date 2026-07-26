@@ -114,7 +114,7 @@ export default function JournalEntryPage({ params }: { params: { slug: string } 
             <h3 className="font-sans text-headline group-hover:text-accent">
               {next.title}
             </h3>
-            <span className="hidden font-sans text-sm uppercase tracking-[0.18em] text-muted group-hover:text-accent md:inline">
+            <span className="hidden font-sans text-label uppercase tracking-[0.18em] text-muted group-hover:text-accent md:inline">
               Continue →
             </span>
           </div>
