@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { NavProgressLink } from "./nav-link";
 
 const WORKS_MENU: Array<{ href: string; label: string }> = [
@@ -25,11 +25,13 @@ function NavLink({
   children,
   onMouseEnter,
   onMouseLeave,
+  expanded,
 }: {
   href: string;
   children: ReactNode;
   onMouseEnter?: () => void;
   onMouseLeave?: () => void;
+  expanded?: boolean;
 }) {
   return (
     <NavProgressLink
@@ -37,6 +39,7 @@ function NavLink({
       className="group relative inline-block py-1 active:scale-95 active:opacity-80 transition-transform"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
+      aria-expanded={expanded}
     >
       <span className="inline-block text-ink transition-transform duration-200 ease-out group-hover:scale-110">
         {children}
@@ -65,6 +68,10 @@ function NavMenu({
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  useEffect(() => () => {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+  }, []);
+
   const handleEnter = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setOpen(true);
@@ -75,29 +82,40 @@ function NavMenu({
   };
 
   return (
-    <div className="relative" onMouseEnter={handleEnter} onMouseLeave={scheduleClose}>
-      <NavLink href={href}>{label}</NavLink>
+    <div
+      className="relative"
+      onMouseEnter={handleEnter}
+      onMouseLeave={scheduleClose}
+      onFocus={handleEnter}
+      onBlur={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === "Escape") {
+          event.currentTarget.querySelector("a")?.focus();
+          setOpen(false);
+        }
+      }}
+    >
+      <NavLink href={href} expanded={open}>{label}</NavLink>
       <div
-        className={`absolute left-1/2 top-full z-50 mt-4 -translate-x-1/2 transition duration-200 ease-out ${
+        className={`absolute left-1/2 top-full z-50 -translate-x-1/2 pt-4 transition-transform duration-200 ease-out motion-reduce:transition-none ${
           open
-            ? "translate-y-0 opacity-100"
-            : "pointer-events-none -translate-y-1 opacity-0"
+            ? "visible translate-y-0"
+            : "pointer-events-none invisible -translate-y-1"
         }`}
       >
-        <div className="w-[210px] overflow-hidden rounded-xl border border-ink/10 bg-white/10 py-2 backdrop-blur-md">
-          <ul className="flex flex-col">
+        <div className="w-60 overflow-hidden rounded-lg border border-white/25 bg-black/5 p-2 shadow-[0_12px_32px_rgba(0,0,0,0.16)] backdrop-blur-[10px]">
+          <ul className="flex flex-col gap-1" aria-label={`${label} 分类`}>
             {items.map((item) => (
               <li key={item.href}>
                 <NavProgressLink
                   href={item.href}
-                  className="group/item flex origin-left items-center gap-2 px-4 py-1.5 font-sans text-caption uppercase tracking-[0.2em] text-white transition-transform duration-200 ease-out hover:scale-125 active:scale-100 active:opacity-70"
+                  className="group/item flex min-h-11 items-center justify-between gap-5 rounded-md px-3 py-2.5 font-sans text-caption tracking-[0.1em] text-ink [text-shadow:0_1px_3px_rgba(0,0,0,0.35)] transition-colors duration-200 hover:bg-white/15 hover:text-white focus-visible:bg-white/15 focus-visible:text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-ink/60"
                   onClick={() => setOpen(false)}
                 >
-                  <span
-                    aria-hidden
-                    className="block h-px w-2 origin-left scale-x-0 bg-white transition-transform duration-200 ease-out group-hover/item:scale-x-100"
-                  />
-                  <span>{item.label}</span>
+                  <span className="uppercase">{item.label.split(" / ")[0]}</span>
+                  <span className="shrink-0 text-label normal-case tracking-normal">{item.label.split(" / ")[1]}</span>
                 </NavProgressLink>
               </li>
             ))}
@@ -110,7 +128,9 @@ function NavMenu({
 
 export function SiteHeader() {
   return (
-    <header className="fixed inset-x-0 top-0 z-50 border-b border-ink/10 backdrop-blur-md">
+    <header className="fixed inset-x-0 top-0 z-50 isolate border-b border-ink/10">
+      {/* 模糊放在独立背景层，避免父级 backdrop-filter 限制下拉面板的背景采样。 */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 backdrop-blur-md" />
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
         <NavProgressLink
           href="/"
