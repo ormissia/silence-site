@@ -129,7 +129,7 @@ export function CinemaHero({ work }: { work: Work }) {
           className="pointer-events-none absolute inset-0 z-[15] bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.8)_100%)]"
         />
 
-        {/* 中央诗句：固定字距与宽松行距，让文字在揭开后安静停留 */}
+        {/* 中央诗句：三句使用统一样式，沿用相同的揭开与停留节奏 */}
         <motion.div
           style={{ opacity: titleRevealOpacity }}
           className="pointer-events-none absolute inset-0 z-[18] flex flex-col items-center justify-center px-6 pb-[10vh]"
@@ -138,7 +138,7 @@ export function CinemaHero({ work }: { work: Work }) {
             aria-hidden
             className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,rgba(10,10,11,0.45)_0%,transparent_65%)]"
           />
-          <motion.h2
+          <motion.div
             style={{
               filter: titleRevealFilter,        // 揭开时模糊 8px → 0
               y: titleRevealY,                  // 揭开时从下方 40px 升起
@@ -149,17 +149,19 @@ export function CinemaHero({ work }: { work: Work }) {
               "font-sans",
               "text-headline",
               "font-normal",
-              "leading-[1.9] tracking-[0.08em]",
+              "leading-[1.65] tracking-[0.04em]",
               "text-ink/95",
               "[text-shadow:0_2px_20px_rgba(0,0,0,0.65)]",
             ].join(" ")}
           >
-            这是一场回忆，
-            <br />
-            还是一场梦
-            <br />
-            我不知道
-          </motion.h2>
+            <h2 className="font-normal">
+              这是一场回忆，
+              <br />
+              还是一场梦，
+              <br />
+              我不知道。
+            </h2>
+          </motion.div>
         </motion.div>
 
         {/* 左右文案 */}
@@ -209,14 +211,9 @@ export function CinemaHero({ work }: { work: Work }) {
         {/* hero 底部标题（仅标题，跟随相机推近一起淡出） */}
         <motion.div
           style={{ opacity: titleOpacity }}
-          className="absolute bottom-0 left-0 right-0 z-30 mx-auto max-w-[1400px] px-6 pb-10 md:px-10 md:pb-14"
+          className="absolute bottom-0 left-0 right-0 z-30 mx-auto max-w-[1400px] px-6 pb-32 md:px-10 md:pb-14"
         >
-          <div className="flex items-end justify-between gap-6">
-            <h1 className="max-w-xl font-sans text-display leading-[1.05]">
-              The Place
-              <br />Where <span className="text-gradient-accent">Works</span> Begin.
-            </h1>
-          </div>
+          <OpeningTitle />
           {/* TODO: 同上，location 跟最新作品挂钩与背景图语义不符，先注释。
           <div className="mt-8 flex items-center justify-end font-sans text-annotation uppercase tracking-[0.32em] text-muted">
             <span>Plate No. 01 — {work.location}</span>
@@ -231,14 +228,14 @@ export function CinemaHero({ work }: { work: Work }) {
         >
           <Link
             href="/works"
-            className="inline-flex items-center gap-3 rounded-lg border border-white/40 bg-white/5 px-6 py-3 font-sans text-label uppercase tracking-[0.24em] text-white backdrop-blur-sm transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+            className="inline-flex items-center gap-4 rounded-lg border border-ink/20 bg-ink/5 px-5 py-3 font-sans text-label tracking-normal text-ink backdrop-blur-sm transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
           >
-            Enter the Works <span aria-hidden>→</span>
+            浏览作品 <span aria-hidden>→</span>
           </Link>
         </motion.div>
 
         {/* 底部中央滚动提示：跳动动效 + 跟随标题一起渐隐 */}
-        {/* pointer-events-none：容器是 inset-x-0 全宽条，否则会盖住右下角的 Enter the Works 按钮 */}
+        {/* pointer-events-none：容器是 inset-x-0 全宽条，否则会盖住右下角的 浏览作品 按钮 */}
         <motion.div
           aria-hidden
           style={{ opacity: titleOpacity }}
@@ -361,10 +358,19 @@ function CinemaHeroStatic({ work }: { work: Work }) {
         className="pointer-events-none absolute inset-x-0 bottom-0 h-[30vh] bg-gradient-to-b from-transparent via-paper/60 to-paper"
       />
       <div className="absolute inset-0 z-10 mx-auto flex max-w-[1400px] flex-col justify-end px-6 pb-16 md:px-10">
-        <h1 className="mt-4 max-w-3xl font-sans text-display">
-          The Place Where <span className="text-gradient-accent">Works</span> Begin.
-        </h1>
+        <OpeningTitle />
       </div>
     </section>
+  );
+}
+
+/** 动态序章与减弱动态模式共用同一套封面文字。 */
+function OpeningTitle() {
+  return (
+    <div className="max-w-xl font-sans text-ink [text-shadow:0_2px_20px_rgba(0,0,0,0.5)]">
+      <p className="text-caption uppercase text-ink/70">Photographs &amp; Notes</p>
+      <h1 className="mt-4 text-display font-normal leading-[1.2] tracking-[0.04em]">寂静无声</h1>
+      <p className="mt-6 text-body leading-relaxed tracking-[0.025em] text-ink/80">收着光、句子与几次远行。</p>
+    </div>
   );
 }

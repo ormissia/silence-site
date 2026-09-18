@@ -71,18 +71,18 @@ export default async function HomePage() {
         <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-24 md:px-10 md:py-32">
           <ReadingReveal>
             <header className="lg:col-span-5">
-              <p className="font-sans text-caption uppercase text-muted">From the Bookshelf</p>
-              <h2 id="reading-heading" className="mt-6 font-sans text-display font-light leading-tight">
-                寂静无声
+              <p className="font-sans text-caption uppercase text-muted">Reading &amp; Notes</p>
+              <h2 id="reading-heading" className="mt-4 font-sans text-headline font-normal leading-[1.35] tracking-[0.04em]">
+                字里行间
               </h2>
               <p className="mt-6 max-w-sm font-sans text-body text-ink/70">
                 划过的句子比走过的路更长。把它们围成一颗星球，每一面都通向一段未完的对话。
               </p>
               <Link
                 href="/reading"
-                className="mt-10 inline-flex items-center gap-4 rounded-lg border border-ink/20 bg-ink/5 px-6 py-3 font-sans text-label uppercase transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+                className="mt-10 inline-flex items-center gap-4 rounded-lg border border-ink/20 bg-ink/5 px-5 py-3 font-sans text-label tracking-normal text-ink/80 transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
               >
-                Enter the Reading <span aria-hidden>→</span>
+                进入书架 <span aria-hidden>→</span>
               </Link>
             </header>
 

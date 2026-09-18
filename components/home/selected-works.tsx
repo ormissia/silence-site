@@ -16,15 +16,15 @@ export function SelectedWorks({ works }: Props) {
         <header className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="font-sans text-caption uppercase text-muted">Selected Works</p>
-            <h2 id="selected-works-heading" className="mt-4 font-sans text-headline font-normal tracking-[0.04em]">
+            <h2 id="selected-works-heading" className="mt-4 font-sans text-headline font-normal leading-[1.35] tracking-[0.04em]">
               光的片段
             </h2>
           </div>
           <Link
             href="/works"
-            className="inline-flex items-center gap-4 rounded-lg border border-ink/20 px-5 py-3 font-sans text-label tracking-normal text-ink/80 transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+            className="inline-flex items-center gap-4 rounded-lg border border-ink/20 bg-ink/5 px-5 py-3 font-sans text-label tracking-normal text-ink/80 transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
           >
-            全部作品 <span aria-hidden>↗</span>
+            全部作品 <span aria-hidden>→</span>
           </Link>
         </header>
 
