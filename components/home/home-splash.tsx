@@ -1,19 +1,13 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
-/**
- * 首页 splash：等首屏关键本地大图加载完 + 至少 1.5s 后再淡出。
- *
- * - 只挂在 / 路由（由 app/page.tsx 引入），其它路由不渲染
- * - 监听 background.jpg / cover.jpg 的 onload；onerror 也算"完成"，避免 404 把 splash 卡死
- * - 同时跑一个 1.5s 的最短时长兜底，避免快网下 splash 一闪而过
- * - 进度条 = min(图片完成比例, 时长完成比例)，给慢网用户明确反馈
- */
+import { CAMERA } from "@/components/camera-spec";
 
-const CRITICAL_IMAGES = ["/images/background.jpg", "/images/cover.jpg"] as const;
-const MIN_DURATION_MS = 1500;
+// 仅等待首屏图片；慢网或解码挂起时最多等待 4 秒。
+const CRITICAL_IMAGES = ["/images/background.jpg", CAMERA.src];
+const MAX_WAIT_MS = 4000;
 
 function preloadImage(src: string): Promise<void> {
   return new Promise((resolve) => {
@@ -35,49 +29,32 @@ function preloadImage(src: string): Promise<void> {
 export function HomeSplash() {
   const [visible, setVisible] = useState(true);
   const [imagesLoaded, setImagesLoaded] = useState(0);
-  const [timeProgress, setTimeProgress] = useState(0);
-
-  // 用 ref 避开 effect 依赖循环：进度变化驱动 visible，不需要让 effect 重跑
-  const imagesLoadedRef = useRef(0);
 
   useEffect(() => {
     let cancelled = false;
+    let completed = 0;
+    const timeout = window.setTimeout(() => {
+      if (!cancelled) setVisible(false);
+    }, MAX_WAIT_MS);
 
-    // 1) 图片预加载：每完成一张就推进图片进度
     CRITICAL_IMAGES.forEach((src) => {
       preloadImage(src).then(() => {
         if (cancelled) return;
-        imagesLoadedRef.current += 1;
-        setImagesLoaded(imagesLoadedRef.current);
+        completed += 1;
+        setImagesLoaded(completed);
+        if (completed === CRITICAL_IMAGES.length) {
+          window.clearTimeout(timeout);
+          setVisible(false);
+        }
       });
     });
-
-    // 2) 最短时长：rAF 平滑驱动 timeProgress 0 → 1
-    const start = performance.now();
-    let raf = 0;
-    const tick = (now: number) => {
-      if (cancelled) return;
-      const p = Math.min(1, (now - start) / MIN_DURATION_MS);
-      setTimeProgress(p);
-      if (p < 1) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-
     return () => {
       cancelled = true;
-      cancelAnimationFrame(raf);
+      window.clearTimeout(timeout);
     };
   }, []);
 
-  // 同时满足"图片全加载完"和"最短时长到"才放行
-  const imageProgress = imagesLoaded / CRITICAL_IMAGES.length;
-  const progress = Math.min(imageProgress, timeProgress);
-
-  useEffect(() => {
-    if (progress >= 1) {
-      setVisible(false);
-    }
-  }, [progress]);
+  const progress = imagesLoaded / CRITICAL_IMAGES.length;
 
   // 锁滚：splash 期间禁止 body 滚动，避免用户滚到下面看到半成品
   useEffect(() => {
@@ -98,9 +75,9 @@ export function HomeSplash() {
           aria-hidden
           className="fixed inset-0 z-[120] flex flex-col items-center justify-center bg-paper"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.6, ease: "easeOut" } }}
+          exit={{ opacity: 0, transition: { duration: 0.3, ease: "easeOut" } }}
           // 淡出阶段不挡按钮
-          style={{ pointerEvents: visible ? "auto" : "none" }}
+          style={{ pointerEvents: "none" }}
         >
           <div className="vignette pointer-events-none absolute inset-0" />
 

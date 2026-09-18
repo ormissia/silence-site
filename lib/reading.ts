@@ -319,9 +319,25 @@ export function getDailyIndex(): number {
   return seed % ALL_HIGHLIGHTS.length;
 }
 
-/** 全量导出，让客户端组件能在本地切换上一/下一句而不用走 API */
-export function listHighlights(): Highlight[] {
-  return ALL_HIGHLIGHTS;
+/** 每次只返回目标位置附近的五条书摘，索引保持全局顺序并支持首尾循环。 */
+export type HighlightBatch = {
+  total: number;
+  items: Array<{ index: number; highlight: Highlight }>;
+};
+
+export function getHighlightBatch(index: number): HighlightBatch {
+  const total = ALL_HIGHLIGHTS.length;
+  if (total === 0) return { total, items: [] };
+  const center = ((index % total) + total) % total;
+  const count = Math.min(5, total);
+  const start = center - Math.floor(count / 2);
+  return {
+    total,
+    items: Array.from({ length: count }, (_, offset) => {
+      const index = ((start + offset) % total + total) % total;
+      return { index, highlight: ALL_HIGHLIGHTS[index] };
+    }),
+  };
 }
 
 /**

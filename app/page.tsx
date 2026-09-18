@@ -4,10 +4,11 @@ import { CinemaHero } from "@/components/cinema-hero";
 import { BookSphere } from "@/components/home/book-sphere";
 import { HomeSplash } from "@/components/home/home-splash";
 import { TodayHighlight } from "@/components/home/today-highlight";
+import { ReadingBackground } from "@/components/home/reading-background";
 import { ReadingReveal } from "@/components/home/reading-reveal";
 import { SelectedWorks } from "@/components/home/selected-works";
 import { listFeatured, listWorks } from "@/lib/works";
-import { getDailyIndex, listHighlights, pickSphereBooks } from "@/lib/reading";
+import { getDailyIndex, getHighlightBatch, pickSphereBooks } from "@/lib/reading";
 
 // 球面书籍每次刷新都换一批，依赖运行时随机 seed → 不能预渲染。
 export const dynamic = "force-dynamic";
@@ -25,8 +26,8 @@ export default async function HomePage() {
     cover: b.cover,
   }));
 
-  const highlights = listHighlights();
   const startIndex = getDailyIndex();
+  const highlights = getHighlightBatch(startIndex);
 
   return (
     <>
@@ -38,16 +39,7 @@ export default async function HomePage() {
       <SelectedWorks works={featured} />
 
       {/* 阅读区：3D 书球 + 今日一句，背景用 cover.jpg */}
-      <section
-        aria-labelledby="reading-heading"
-        className="relative z-20 -mt-px overflow-hidden bg-paper"
-        style={{
-          backgroundImage: "url('/images/cover.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundAttachment: "fixed",
-        }}
-      >
+      <ReadingBackground>
         {/* 暗化叠层让书球与文字立得住 */}
         <div
           aria-hidden
@@ -93,13 +85,13 @@ export default async function HomePage() {
             )}
           </ReadingReveal>
 
-          {highlights.length > 0 && (
+          {highlights.total > 0 && (
             <div className="mt-16 pt-16 md:mt-24 md:pt-20">
-              <TodayHighlight highlights={highlights} startIndex={startIndex} />
+              <TodayHighlight initialBatch={highlights} startIndex={startIndex} />
             </div>
           )}
         </div>
-      </section>
+      </ReadingBackground>
     </>
   );
 }
