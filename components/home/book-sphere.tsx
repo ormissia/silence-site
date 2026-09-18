@@ -48,7 +48,7 @@ export function BookSphere({
   const points = useMemo(() => fibonacciSphere(sliced.length), [sliced.length]);
 
   // 鼠标位置 → 叠加在自转之上的方向偏移
-  // 鼠标即使不在容器内，球也会持续自转——光标进入后才方向偏移
+  // 球在视口内持续自转，光标进入后叠加方向偏移
   const mouseX = useMotionValue(0); // -0.5 ~ 0.5
   const mouseY = useMotionValue(0);
   const autoYaw = useMotionValue(0);
@@ -77,19 +77,53 @@ export function BookSphere({
     return () => observer.disconnect();
   }, []);
 
-  // 自转 loop —— 永久跑，速率不随 hover 改变
+  // 仅在视口内运行动画；恢复时重置计时，避免补算离屏时间而跳转。
+  const hasBooks = sliced.length > 0;
   useEffect(() => {
+    const el = containerRef.current;
+    if (!el || !hasBooks) return;
+
     let raf = 0;
-    let prev = performance.now();
+    let prev: number | null = null;
+    let inViewport = false;
+    let running = false;
     const tick = (t: number) => {
-      const dt = (t - prev) / 1000;
+      if (!running || document.hidden) return;
+      if (prev !== null) {
+        // 浏览器后台节流、休眠或主线程卡顿后，不追赶丢失的时间。
+        const dt = Math.min(Math.max(t - prev, 0), 50) / 1000;
+        autoYaw.set(autoYaw.get() + 6 * dt); // 6°/s
+      }
       prev = t;
-      autoYaw.set(autoYaw.get() + 6 * dt); // 6°/s 持续自转
       raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [autoYaw]);
+    const syncPlayback = () => {
+      const shouldRun = inViewport && !document.hidden;
+      if (running === shouldRun) return;
+      running = shouldRun;
+      prev = null;
+      cancelAnimationFrame(raf);
+      if (running) {
+        raf = requestAnimationFrame(tick);
+      } else {
+        yaw.stop();
+        pitch.stop();
+      }
+    };
+    const observer = new IntersectionObserver(([entry]) => {
+      inViewport = entry.isIntersecting;
+      syncPlayback();
+    });
+    observer.observe(el);
+    document.addEventListener("visibilitychange", syncPlayback);
+
+    return () => {
+      running = false;
+      observer.disconnect();
+      document.removeEventListener("visibilitychange", syncPlayback);
+      cancelAnimationFrame(raf);
+    };
+  }, [autoYaw, hasBooks, yaw, pitch]);
 
   // 鼠标移动归一化到 -0.5~0.5
   const onMouseMove = (e: React.MouseEvent) => {
