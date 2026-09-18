@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
+import { buildSrc } from "@/lib/oss";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 type SphereBook = {
   slug: string;
@@ -62,6 +64,18 @@ export function BookSphere({
   const pitch = useSpring(targetPitch, { stiffness: 50, damping: 20, mass: 0.6 });
 
   const containerRef = useRef<HTMLDivElement>(null);
+  const [availableWidth, setAvailableWidth] = useState(radius * 2.4);
+  const scale = Math.min(1, availableWidth / (radius * 2.4));
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setAvailableWidth(entry.contentRect.width);
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // 自转 loop —— 永久跑，速率不随 hover 改变
   useEffect(() => {
@@ -108,7 +122,7 @@ export function BookSphere({
       className="relative mx-auto flex items-center justify-center"
       style={{
         perspective: "1200px",
-        height: radius * 2.4,
+        height: radius * 2.4 * scale,
         width: radius * 2.4,
         maxWidth: "100%",
       }}
@@ -127,8 +141,8 @@ export function BookSphere({
             key={book.slug}
             book={book}
             point={points[i]}
-            radius={radius}
-            size={size}
+            radius={radius * scale}
+            size={size * scale}
             yaw={yaw}
             pitch={pitch}
           />
@@ -210,14 +224,15 @@ function SphereItem({
       <Link
         href={`/reading/${book.slug}`}
         title={book.title + (book.author ? ` · ${book.author}` : "")}
-        className="block h-full w-full overflow-hidden bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.5)] transition hover:shadow-[0_12px_32px_rgba(200,149,107,0.4)]"
+        className="group block h-full w-full overflow-hidden rounded-lg border border-ink/10 bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.5)] transition hover:shadow-[0_12px_32px_rgba(200,149,107,0.4)]"
       >
         {book.cover && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={book.cover}
+          <Image
+            src={buildSrc(book.cover, "portrait")}
+            width={size}
+            height={Math.round(size * 1.4)}
             alt={book.title}
-            className="h-full w-full object-cover"
+            className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]"
             draggable={false}
             loading="lazy"
           />

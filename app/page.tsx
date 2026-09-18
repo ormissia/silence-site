@@ -35,6 +35,7 @@ export default async function HomePage() {
 
       {/* 阅读区：3D 书球 + 今日一句，背景用 cover.jpg */}
       <section
+        aria-labelledby="reading-heading"
         className="relative z-20 -mt-px overflow-hidden bg-paper"
         style={{
           backgroundImage: "url('/images/cover.jpg')",
@@ -53,35 +54,33 @@ export default async function HomePage() {
           className="vignette pointer-events-none absolute inset-0"
         />
 
-        <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-32 md:px-10 md:py-40">
-          <header className="mx-auto max-w-[900px] text-center">
-            <p className="eyebrow">From the Bookshelf</p>
-            <h2 className="mt-3 font-hairline text-display font-thin leading-[0.95] tracking-[0.05em]">
-              寂静无声
-            </h2>
-            <p className="mx-auto mt-6 max-w-column font-sans text-lede text-ink/80">
-              划过的句子比走过的路更长。把它们围成一颗星球，每一面都通向一段未完的对话。
-            </p>
-          </header>
+        <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-24 md:px-10 md:py-32">
+          <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8">
+            <header className="lg:col-span-5">
+              <p className="font-sans text-caption uppercase text-muted">From the Bookshelf</p>
+              <h2 id="reading-heading" className="mt-6 font-sans text-display font-light leading-tight">
+                寂静无声
+              </h2>
+              <p className="mt-6 max-w-sm font-sans text-body text-ink/70">
+                划过的句子比走过的路更长。把它们围成一颗星球，每一面都通向一段未完的对话。
+              </p>
+              <Link
+                href="/reading"
+                className="mt-10 inline-flex items-center gap-4 rounded-lg border border-ink/20 bg-ink/5 px-6 py-3 font-sans text-label uppercase transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+              >
+                Enter the Reading <span aria-hidden>→</span>
+              </Link>
+            </header>
 
-          {sphereBooks.length > 0 && (
-            <div className="mt-16 flex justify-center md:mt-24">
-              <BookSphere books={sphereBooks} radius={320} size={96} />
-            </div>
-          )}
-
-          {/* Enter the Reading：放在 3D 球下方，作为视觉收口 */}
-          <div className="mt-12 flex justify-center md:mt-16">
-            <Link
-              href="/reading"
-              className="inline-flex items-center gap-3 border border-ink/30 bg-ink/5 px-6 py-3 font-sans text-label uppercase tracking-[0.24em] backdrop-blur-sm transition hover:scale-105 hover:border-accent hover:text-accent"
-            >
-              Enter the Reading <span aria-hidden>→</span>
-            </Link>
+            {sphereBooks.length > 0 && (
+              <div className="min-w-0 lg:col-span-7">
+                <BookSphere books={sphereBooks} radius={240} size={76} />
+              </div>
+            )}
           </div>
 
           {highlights.length > 0 && (
-            <div className="mt-24 md:mt-32">
+            <div className="divider-gradient mt-16 border-t pt-16 md:mt-24 md:pt-20">
               <TodayHighlight highlights={highlights} startIndex={startIndex} />
             </div>
           )}

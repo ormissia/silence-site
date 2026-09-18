@@ -105,10 +105,10 @@ export function HomeSplash() {
           <div className="vignette pointer-events-none absolute inset-0" />
 
           <div className="relative z-10 flex flex-col items-center px-6 text-center">
-            <p className="eyebrow text-muted">Now Loading</p>
-            <h1 className="mt-6 font-hairline text-display font-thin leading-[0.95] tracking-[0.4em]">
+            <p className="font-sans text-caption uppercase text-muted">Now Loading</p>
+            <p className="mt-6 font-sans text-display font-light leading-tight tracking-[0.12em]">
               SILENCE
-            </h1>
+            </p>
             <p className="mt-6 max-w-column font-sans text-body leading-relaxed text-ink/60">
               寂静无声 · 正在装载光与文字
             </p>
@@ -116,7 +116,7 @@ export function HomeSplash() {
             <div className="mt-16 flex flex-col items-center gap-3">
               <div className="relative h-px w-[280px] overflow-hidden bg-ink/15">
                 <motion.div
-                  className="absolute inset-y-0 left-0 origin-left bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.7)]"
+                  className="absolute inset-y-0 left-0 origin-left bg-gradient-accent"
                   style={{ width: "100%", scaleX: progress }}
                 />
               </div>

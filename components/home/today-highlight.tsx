@@ -41,10 +41,10 @@ export function TodayHighlight({
   const current = highlights[idx];
 
   return (
-    <div className="mx-auto max-w-[900px] px-6 text-center md:px-10">
-      <p className="eyebrow">Today&apos;s Highlight</p>
+    <div className="grid gap-8 lg:grid-cols-12 lg:gap-x-8">
+      <p className="font-sans text-caption uppercase text-muted lg:col-span-3 lg:pt-2">Today&apos;s Highlight</p>
 
-      <div className="relative mt-8 min-h-[200px]">
+      <div className="relative min-w-0 lg:col-span-9">
         <AnimatePresence mode="wait" custom={direction}>
           <motion.figure
             key={idx}
@@ -59,12 +59,12 @@ export function TodayHighlight({
             exit="exit"
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-            <blockquote className="font-serif text-headline leading-[1.55] text-ink/90">
-              <span className="mr-2 align-top text-3xl text-accent">“</span>
+            <blockquote className="max-w-prose font-sans text-body leading-loose text-ink/90">
+              <span className="mr-2 align-top text-label text-accent">“</span>
               {current.text}
-              <span className="ml-1 align-top text-3xl text-accent">”</span>
+              <span className="ml-1 align-top text-label text-accent">”</span>
             </blockquote>
-            <figcaption className="mt-8 font-sans text-label uppercase tracking-[0.24em] text-muted">
+            <figcaption className="mt-6 font-sans text-caption leading-relaxed tracking-normal text-muted">
               —{" "}
               <a
                 href={`/reading/${current.bookSlug}`}
@@ -79,25 +79,25 @@ export function TodayHighlight({
       </div>
 
       {/* 控制条：←  序号  → */}
-      <div className="mt-10 flex items-center justify-center gap-6">
+      <div className="flex items-center gap-4 lg:col-span-9 lg:col-start-4">
         <button
           type="button"
           onClick={prev}
-          className="group flex h-10 w-10 items-center justify-center rounded-full border border-ink/20 text-ink/70 transition hover:scale-110 hover:border-accent hover:text-accent"
+          className="group flex h-11 w-11 items-center justify-center rounded-lg border border-ink/20 text-ink/70 transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
           aria-label="上一句"
         >
-          <span className="text-xl leading-none">‹</span>
+          <span className="text-label leading-none">‹</span>
         </button>
-        <span className="font-sans text-label uppercase tracking-[0.24em] text-muted tabular-nums">
+        <span className="font-sans text-annotation text-muted tabular-nums">
           {String(idx + 1).padStart(3, "0")} / {String(total).padStart(3, "0")}
         </span>
         <button
           type="button"
           onClick={next}
-          className="group flex h-10 w-10 items-center justify-center rounded-full border border-ink/20 text-ink/70 transition hover:scale-110 hover:border-accent hover:text-accent"
+          className="group flex h-11 w-11 items-center justify-center rounded-lg border border-ink/20 text-ink/70 transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
           aria-label="下一句"
         >
-          <span className="text-xl leading-none">›</span>
+          <span className="text-label leading-none">›</span>
         </button>
       </div>
     </div>
