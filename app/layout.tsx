@@ -42,14 +42,14 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
 
             <main className="relative z-10">{children}</main>
 
-            <footer className="relative z-10 border-t divider-gradient">
+            <footer className="relative z-10 bg-paper">
                 <div
-                    className="mx-auto flex max-w-[1400px] flex-col gap-6 px-6 py-10 font-sans text-sm text-muted md:flex-row md:items-center md:justify-between md:px-10">
-                    <span className="eyebrow">© {new Date().getFullYear()} SILENCE — Photographs &amp; Notes by Song</span>
-                    <div className="flex gap-6 uppercase tracking-[0.18em]">
+                    className="mx-auto flex max-w-[1400px] flex-col gap-3 px-6 pb-8 pt-5 font-sans text-caption leading-relaxed tracking-[0.06em] text-muted md:flex-row md:items-center md:justify-between md:px-10">
+                    <span>© {new Date().getFullYear()} SILENCE <span className="mx-2 text-ink/20" aria-hidden>·</span> Photographs &amp; Notes by Song</span>
+                    <div className="flex gap-6">
                         {/*<a href="#" className="hover:text-ink">Instagram</a>*/}
                         {/*<a href="#" className="hover:text-ink">VSCO</a>*/}
-                        <a href="mailto:ormissia@outlook.com" className="hover:text-ink">ormissia@outlook.com</a>
+                        <a href="mailto:ormissia@outlook.com" className="transition-colors hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">ormissia@outlook.com</a>
                     </div>
                 </div>
             </footer>

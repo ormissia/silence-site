@@ -4,6 +4,7 @@ import { CinemaHero } from "@/components/cinema-hero";
 import { BookSphere } from "@/components/home/book-sphere";
 import { HomeSplash } from "@/components/home/home-splash";
 import { TodayHighlight } from "@/components/home/today-highlight";
+import { ReadingReveal } from "@/components/home/reading-reveal";
 import { listFeatured, listWorks } from "@/lib/works";
 import { getDailyIndex, listHighlights, pickSphereBooks } from "@/lib/reading";
 
@@ -47,15 +48,25 @@ export default async function HomePage() {
         {/* 暗化叠层让书球与文字立得住 */}
         <div
           aria-hidden
-          className="absolute inset-0 bg-gradient-to-b from-paper/95 via-paper/80 to-paper/95"
+          className="pointer-events-none absolute inset-0 bg-paper/70"
+        />
+        {/* 与序章尾部同色，背景从近黑底色中逐渐显露。 */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 top-0 h-[30vh] bg-gradient-to-b from-paper to-transparent"
         />
         <div
           aria-hidden
           className="vignette pointer-events-none absolute inset-0"
         />
+        {/* 背景在页尾融入全站底色，文字与控件保持原有清晰度。 */}
+        <div
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[clamp(12rem,30vh,24rem)] bg-gradient-to-b from-transparent via-paper/60 to-paper"
+        />
 
         <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-24 md:px-10 md:py-32">
-          <div className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8">
+          <ReadingReveal>
             <header className="lg:col-span-5">
               <p className="font-sans text-caption uppercase text-muted">From the Bookshelf</p>
               <h2 id="reading-heading" className="mt-6 font-sans text-display font-light leading-tight">
@@ -77,10 +88,10 @@ export default async function HomePage() {
                 <BookSphere books={sphereBooks} radius={240} size={76} />
               </div>
             )}
-          </div>
+          </ReadingReveal>
 
           {highlights.length > 0 && (
-            <div className="divider-gradient mt-16 border-t pt-16 md:mt-24 md:pt-20">
+            <div className="mt-16 pt-16 md:mt-24 md:pt-20">
               <TodayHighlight highlights={highlights} startIndex={startIndex} />
             </div>
           )}

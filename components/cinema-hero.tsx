@@ -262,6 +262,11 @@ export function CinemaHero({ work }: { work: Work }) {
           </motion.div>
         </motion.div>
       </div>
+      {/* 跟随序章底边进入视口，不占用诗句的 sticky 停留行程。 */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-[30vh] bg-gradient-to-b from-transparent via-paper/60 to-paper"
+      />
     </section>
   );
 }
@@ -351,6 +356,10 @@ function CinemaHeroStatic({ work }: { work: Work }) {
         style={{ backgroundImage: "url('/images/background.jpg')" }}
       />
       <div className="vignette absolute inset-0" />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[30vh] bg-gradient-to-b from-transparent via-paper/60 to-paper"
+      />
       <div className="absolute inset-0 z-10 mx-auto flex max-w-[1400px] flex-col justify-end px-6 pb-16 md:px-10">
         <h1 className="mt-4 max-w-3xl font-sans text-display">
           The Place Where <span className="text-gradient-accent">Works</span> Begin.
