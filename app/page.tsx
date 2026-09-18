@@ -5,6 +5,7 @@ import { BookSphere } from "@/components/home/book-sphere";
 import { HomeSplash } from "@/components/home/home-splash";
 import { TodayHighlight } from "@/components/home/today-highlight";
 import { ReadingReveal } from "@/components/home/reading-reveal";
+import { SelectedWorks } from "@/components/home/selected-works";
 import { listFeatured, listWorks } from "@/lib/works";
 import { getDailyIndex, listHighlights, pickSphereBooks } from "@/lib/reading";
 
@@ -33,6 +34,8 @@ export default async function HomePage() {
       <Suspense fallback={<div className="h-screen bg-paper" />}>
         <CinemaHero work={hero} />
       </Suspense>
+
+      <SelectedWorks works={featured} />
 
       {/* 阅读区：3D 书球 + 今日一句，背景用 cover.jpg */}
       <section
