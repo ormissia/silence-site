@@ -9,7 +9,7 @@ import type { Work } from "@/lib/works";
 
 /**
  * 电影感序章。
- * - 容器高 300vh，内层 sticky 钉住
+ * - 容器高 250vh，内层 sticky 钉住，实际固定滚动行程为 150vh
  * - 相机模型在屏幕中央随滚动 scale 放大，最终 LCD 取景器恰好占满屏
  * - 左右两侧白色文案纵向滚入
  * - prefers-reduced-motion 用户得到静态版（无 scale，无 sticky）
@@ -26,29 +26,51 @@ export function CinemaHero({ work }: { work: Work }) {
     offset: ["start start", "end end"],
   });
 
-  // 相机推近：1 → 9，前 50% 平滑指数加速到 9（每段速率比上段快 ~1.5x，无突变）
-  // hold 段缓慢继续推（9 → 9.6），让滚动有反馈但画面几乎不变
+  // 前段保持原推近节奏，40% 起平滑接到按视口计算的铺满尺寸。
   const cameraScale = useTransform(
     scrollYProgress,
     [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.85, 1],
     [1, 1.15, 1.5, 2.3, 4, 9, 9.4, 9.6],
   );
+  // 按实际尺寸重绘照片，避免把初始 LCD 的低分辨率合成层放大。
+  // 位移补偿保持原有以 LCD 中心为原点的推近轨迹。
+  const [lcdX, lcdY] = lcdCenter().split(" ").map(parseFloat);
+  const baseWidth = "min(60vh, 48vw, 720px)";
+  const lcdWidth = parseFloat(CAMERA.lcd.width) / 100;
+  const lcdHeight = parseFloat(CAMERA.lcd.height) / 100;
+  // 同一张 LCD 照片推近至覆盖视口；不再交接给另一张全屏图片。
+  const fitProgress = useTransform(scrollYProgress, [0.4, 0.5], [0, 1]);
+  const cameraWidth = useTransform(() => {
+    const fit = fitProgress.get();
+    const zoom = Math.min(cameraScale.get(), 4);
+    const hold = 1 + Math.max(0, scrollYProgress.get() - 0.5) * 0.08;
+    const coverWidth = `max(100vw / ${lcdWidth}, 100vh * ${CAMERA.aspect / lcdHeight})`;
+    return `calc(${baseWidth} * ${zoom * (1 - fit)} + ${coverWidth} * ${fit * hold})`;
+  });
+  const cameraLeft = useTransform(cameraWidth, (width) => `calc(${lcdX}% - ${width} * ${lcdX / 100})`);
+  const cameraTop = useTransform(cameraWidth, (width) => `calc(${lcdY}% - ${width} * ${lcdY / 100 / CAMERA.aspect})`);
+  // LCD 中心随推近移到视口中心，外壳和照片始终保持对齐。
+  const anchorLeft = useTransform(fitProgress, (fit) =>
+    `calc(${60 - 10 * fit}% + ${baseWidth} * ${(0.5 - lcdX / 100) * fit})`
+  );
+  const anchorTop = useTransform(fitProgress, (fit) =>
+    `calc(${55 - 5 * fit}% + ${baseWidth} * ${(0.5 - lcdY / 100) / CAMERA.aspect * fit})`
+  );
+
   // 相机外壳更早淡出
   const shellOpacity = useTransform(scrollYProgress, [0.42, 0.5], [1, 0]);
-  // 全屏前景 bg：相机淡出阶段同步淡入
-  const fgBgOpacity = useTransform(scrollYProgress, [0.46, 0.55], [0, 1]);
-  // 全屏 bg 在 hold 段缓慢推近 + 加深 vignette，制造"还在前进"的微反馈
-  const fgBgScale = useTransform(scrollYProgress, [0.46, 1], [1.15, 1.05]);
+  // 原 LCD 照片成为背景后，仅叠加逐渐加深的暗角。
   const fgVignette = useTransform(scrollYProgress, [0.5, 1], [0, 0.5]);
-  // Hold 段中央 reveal 标题：bg 落定后揭开，揭开后保持，跟随 sticky 解除自然滚出屏幕
-  const titleRevealOpacity = useTransform(scrollYProgress, [0.55, 0.7], [0, 1]);
-  const titleRevealBlur = useTransform(scrollYProgress, [0.55, 0.72], [12, 0]);
-  const titleRevealY = useTransform(scrollYProgress, [0.55, 0.72], [40, 0]);
+  // 文案提前缓慢浮现，60% 时完成揭开；最后 40% 留给阅读。
+  // 250vh 容器的 sticky 行程为 150vh，因此清晰静止的停留段约为 60vh。
+  const titleRevealOpacity = useTransform(scrollYProgress, [0.18, 0.6, 1], [0, 1, 1]);
+  const titleRevealBlur = useTransform(scrollYProgress, [0.18, 0.56, 1], [8, 0, 0]);
+  const titleRevealY = useTransform(scrollYProgress, [0.18, 0.6, 1], [40, 0, 0]);
   const titleRevealFilter = useMotionTemplate`blur(${titleRevealBlur}px)`;
   // 整场不再淡出，靠 sticky 容器到底后自然滚出屏幕，让标题/背景一起被推走
   const sceneOpacity = useTransform(scrollYProgress, [0, 1], [1, 1]);
 
-  // 左侧文案：从下方滚入，再向上推走（在切到 fg 之前结束）
+  // 左侧文案：从下方滚入，再向上推走（在照片铺满前结束）
   const leftY = useTransform(scrollYProgress, [0.05, 0.22, 0.4], [120, 0, -160]);
   const leftOpacity = useTransform(scrollYProgress, [0.05, 0.12, 0.3, 0.4], [0, 1, 1, 0]);
 
@@ -59,12 +81,19 @@ export function CinemaHero({ work }: { work: Work }) {
   // 标题渐隐（hero 底部那行 display 字）
   const titleOpacity = useTransform(scrollYProgress, [0, 0.18], [1, 0]);
 
+  // 作品入口随开场文案提前出现，之后持续可用，不再等待相机转场结束。
+  const worksOpacity = useTransform(scrollYProgress, [0.06, 0.16], [0, 1]);
+  const worksY = useTransform(scrollYProgress, [0.06, 0.16], [12, 0]);
+  const worksVisibility = useTransform(scrollYProgress, (progress) =>
+    progress <= 0.06 ? "hidden" : "visible"
+  );
+
   if (reduced) {
     return <CinemaHeroStatic work={work} />;
   }
 
   return (
-    <section ref={ref} className="relative h-[400vh]">
+    <section ref={ref} className="relative h-[250vh]">
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-paper">
         {/* 工作室底图：用 CSS background 绕开 next/image 优化器，避免 dev 下大图加载失败 */}
         <motion.div className="absolute inset-0" style={{ opacity: sceneOpacity }}>
@@ -76,43 +105,29 @@ export function CinemaHero({ work }: { work: Work }) {
           <div className="vignette absolute inset-0" />
         </motion.div>
 
-        {/* 相机模型：scale 时以 LCD 中心为原点，LCD 钻进 viewport */}
-        <div className="pointer-events-none absolute left-[60%] top-[55%] z-10 -translate-x-1/2 -translate-y-1/2">
+        {/* 基准框只负责定位，内部照片按真实宽度推近并成为全屏背景。 */}
+        <motion.div
+          className="pointer-events-none absolute z-10 w-[min(60vh,48vw)] max-w-[720px] -translate-x-1/2 -translate-y-1/2"
+          style={{ aspectRatio: String(CAMERA.aspect), left: anchorLeft, top: anchorTop }}
+        >
           <motion.div
             style={{
-              scale: cameraScale,
-              transformOrigin: lcdCenter(),
+              width: cameraWidth,
+              left: cameraLeft,
+              top: cameraTop,
             }}
-            className="will-change-transform"
+            className="absolute"
           >
             <CameraBody shellOpacity={shellOpacity} debugLcd={debugLcd} />
           </motion.div>
-        </div>
+        </motion.div>
 
-        {/* 全屏前景：相机淡出时这层同步淡入。
-            原始尺寸图 + 100vw/100vh 容器，永远 1:1 像素匹配，不糊不超屏。
-            hold 段还在轻微 zoom + vignette 加深，制造"还在前进"的粘滞反馈。 */}
+        {/* 只覆盖暗角，背景始终是相机 LCD 中持续放大的那张照片。 */}
         <motion.div
           aria-hidden
-          style={{ opacity: fgBgOpacity, scale: fgBgScale }}
-          className="pointer-events-none absolute inset-0 z-[15] will-change-transform"
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="/images/background.jpg"
-            alt=""
-            className="h-full w-full object-cover"
-            draggable={false}
-          />
-          {/* hold 段渐深的暗角，让画面"沉下去"的感觉更足 */}
-          <motion.div
-            aria-hidden
-            style={{ opacity: fgVignette }}
-            className="pointer-events-none absolute inset-0"
-          >
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.8)_100%)]" />
-          </motion.div>
-        </motion.div>
+          style={{ opacity: fgVignette }}
+          className="pointer-events-none absolute inset-0 z-[15] bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.8)_100%)]"
+        />
 
         {/* 中央诗句：固定字距与宽松行距，让文字在揭开后安静停留 */}
         <motion.div
@@ -125,7 +140,7 @@ export function CinemaHero({ work }: { work: Work }) {
           />
           <motion.h2
             style={{
-              filter: titleRevealFilter,        // 揭开时模糊 12px → 0
+              filter: titleRevealFilter,        // 揭开时模糊 8px → 0
               y: titleRevealY,                  // 揭开时从下方 40px 升起
             }}
             className={[
@@ -209,9 +224,9 @@ export function CinemaHero({ work }: { work: Work }) {
           */}
         </motion.div>
 
-        {/* Enter the Works 按钮：相机放大消失之后才揭开（跟中央标题同步），放在屏幕右下角 */}
+        {/* 作品入口：开场文案阶段淡入，固定在屏幕右下角直到序章结束 */}
         <motion.div
-          style={{ opacity: titleRevealOpacity, y: titleRevealY }}
+          style={{ opacity: worksOpacity, y: worksY, visibility: worksVisibility }}
           className="pointer-events-auto absolute bottom-10 right-6 z-30 md:bottom-14 md:right-10"
         >
           <Link
@@ -254,8 +269,8 @@ export function CinemaHero({ work }: { work: Work }) {
 /**
  * 相机本体：
  * - 容器 aspect-ratio 跟随 CAMERA.aspect，换图后自动适配
- * - LCD 嵌 background.jpg，跟外层 motion 一起放大
- * - LCD 用 <img> 而非 background-image：浏览器保留原始 source，scale 时按需重新光栅化，避免糊
+ * - LCD 嵌 background.jpg，随容器实际尺寸重绘
+ * - 照片不经过父级 scale / will-change 合成层，保留推近时的细节
  * - 相机外壳 PNG 随滚动淡出，露出"屏幕里的世界"
  */
 function CameraBody({
@@ -267,7 +282,7 @@ function CameraBody({
 }) {
   return (
     <div
-      className="relative w-[min(60vh,48vw)] max-w-[720px]"
+      className="relative w-full"
       style={{ aspectRatio: String(CAMERA.aspect) }}
     >
       {/* 底座阴影 */}
@@ -285,8 +300,7 @@ function CameraBody({
         />
       </motion.div>
 
-      {/* LCD 槽位：嵌一张 background 让"屏幕通电"。
-          它最终会被全屏前景层覆盖，所以即使 scale 中段略糊也看不到。 */}
+      {/* LCD 槽位随相机尺寸变化，始终从原图按当前显示尺寸绘制。 */}
       <div className="absolute overflow-hidden" style={CAMERA.lcd}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
