@@ -169,7 +169,7 @@ function transformCallouts(md: string): string {
     const title = head[2].trim();
     const content: string[] = [];
     i++;
-    while (i < lines.length && /^>\s?/.test(lines[i])) {
+    while (i < lines.length && /^>\s?/.test(lines[i]) && !/^>\s*\[!\w+\]/.test(lines[i])) {
       content.push(lines[i].replace(/^>\s?/, ""));
       i++;
     }
@@ -178,7 +178,7 @@ function transformCallouts(md: string): string {
       ? `<p class="md-callout-title">${escapeHtml(title)}</p>`
       : "";
     out.push(
-      `<div class="md-callout md-callout-${type}">${titleHtml}${innerHtml}</div>`
+      `\n<div class="md-callout md-callout-${type}">${titleHtml}${innerHtml}</div>\n`
     );
   }
   return out.join("\n");
@@ -199,8 +199,8 @@ function escapeHtml(s: string): string {
  */
 function stripBlockIds(md: string): string {
   return md
-    .replace(/\s*\^[\w\d-]+\s*$/gm, "") // 行尾块 ID
-    .replace(/^\^[\w\d-]+\s*$/gm, ""); // 独占一行的块 ID
+    .replace(/^[\t ]*(?:>[\t ]*)?\^[\w-]+[\t ]*$/gm, "") // 独占一行的块 ID，保留段落边界
+    .replace(/[\t ]+\^[\w-]+[\t ]*$/gm, ""); // 行尾块 ID，不吞掉换行
 }
 
 /**

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { RowsPhotoAlbum } from "react-photo-album";
 import "react-photo-album/rows.css";
 import { buildSrc } from "@/lib/oss";
@@ -32,9 +33,11 @@ const FALLBACK_H = 2;
 export function PlatesGrid({
   photos,
   workTitle,
+  film = false,
 }: {
   photos: Photo[];
   workTitle: string;
+  film?: boolean;
 }) {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const isOpen = activeIdx !== null;
@@ -71,12 +74,28 @@ export function PlatesGrid({
 
   return (
     <>
+      {film ? (
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          {albumPhotos.map((photo, index) => (
+            <button key={photo.key} type="button" onClick={() => setActiveIdx(index)} aria-label={`查看 ${photo.alt}`}
+              className="group overflow-hidden bg-black text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
+              <div className="film-sprockets" aria-hidden />
+              <div className="relative aspect-[3/2] overflow-hidden">
+                <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-contain transition-transform duration-700 motion-safe:group-hover:scale-[1.015]" />
+              </div>
+              <div className="flex items-center justify-between px-4 pt-2 text-[9px] uppercase tracking-[0.2em] text-accent/70"><span>{String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}</span><span>Silence · Film archive</span></div>
+              <div className="film-sprockets" aria-hidden />
+            </button>
+          ))}
+        </div>
+      ) : (
       <RowsPhotoAlbum
         photos={albumPhotos}
         targetRowHeight={420}
         spacing={24}
         onClick={({ index }) => setActiveIdx(index)}
       />
+      )}
 
       {isOpen && (
         <Lightbox

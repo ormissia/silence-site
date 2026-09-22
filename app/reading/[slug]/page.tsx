@@ -1,132 +1,90 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getReadingEntry, listReading } from "@/lib/reading";
+import { BookDialog } from "@/components/reading/book-dialog";
+import { getReadingEntry, getReadingSections, listReading } from "@/lib/reading";
 
 export function generateStaticParams() {
-  return listReading().map((b) => ({ slug: b.slug }));
+  return listReading().map((book) => ({ slug: book.slug }));
 }
 
 export function generateMetadata({ params }: { params: { slug: string } }) {
   const book = getReadingEntry(params.slug);
-  return {
-    title: book ? `${book.title} — SILENCE` : "Reading — SILENCE",
-  };
+  return { title: book ? `${book.title} — SILENCE` : "Reading — SILENCE" };
 }
 
 export default function ReadingEntryPage({ params }: { params: { slug: string } }) {
   const book = getReadingEntry(params.slug);
   if (!book) notFound();
-
+  const sections = getReadingSections(book.slug);
   const all = listReading();
-  const idx = all.findIndex((e) => e.slug === book.slug);
-  const next = all[(idx + 1) % all.length];
+  const next = all[(all.findIndex((entry) => entry.slug === book.slug) + 1) % all.length];
+  const shelfHref = `/reading?cat=${encodeURIComponent(book.category)}`;
+  const stats = [
+    ["Progress", book.progress], ["Rating", book.rating],
+    ["Reading time", book.readingTime], ["Finished", book.finishedDate],
+    ["Category", book.category], ["Started", book.readingDate],
+    ["Last read", book.lastReadDate],
+    ["Total words", book.totalWords?.toLocaleString()],
+  ].filter(([, value]) => Boolean(value));
 
   return (
-    <article className="mx-auto max-w-[1400px] px-6 pt-32 md:px-10 md:pt-40">
-      {/* 书籍头部信息卡 */}
-      <header className="grid grid-cols-12 gap-x-8 gap-y-10 border-b border-rule pb-16">
-        {/* 封面 */}
-        <div className="col-span-12 md:col-span-4 lg:col-span-3">
-          <div className="relative mx-auto w-full max-w-[320px] overflow-hidden bg-ink/5 shadow-[0_12px_36px_rgba(0,0,0,0.5)] md:mx-0">
-            {book.cover && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={book.cover}
-                alt={book.title}
-                className="block h-auto w-full object-contain"
-              />
-            )}
-          </div>
-        </div>
-
-        {/* 元数据 */}
-        <div className="col-span-12 md:col-span-8 lg:col-span-9">
-          <p className="eyebrow">Reading Notes</p>
-          <h1 className="mt-3 font-sans text-display">{book.title}</h1>
-          {book.author && (
-            <p className="mt-3 font-sans text-lede italic text-ink/80">{book.author}</p>
-          )}
-
-          <dl className="mt-10 grid grid-cols-2 gap-x-8 gap-y-5 font-sans text-sm md:grid-cols-3">
-            {book.progress && (
-              <Field label="Progress">{book.progress}</Field>
-            )}
-            {book.rating && (
-              <Field label="Rating">{book.rating}</Field>
-            )}
-            {book.readingTime && (
-              <Field label="Reading Time">{book.readingTime}</Field>
-            )}
-            {book.readingDate && (
-              <Field label="Started">{book.readingDate}</Field>
-            )}
-            {book.lastReadDate && (
-              <Field label="Last Read">{book.lastReadDate}</Field>
-            )}
-            {book.finishedDate && (
-              <Field label="Finished">{book.finishedDate}</Field>
-            )}
-            {book.category && (
-              <Field label="Category">{book.category}</Field>
-            )}
-            {book.totalWords && (
-              <Field label="Total Words">{book.totalWords.toLocaleString()}</Field>
-            )}
-            {book.isbn && (
-              <Field label="ISBN">{book.isbn}</Field>
-            )}
-          </dl>
-
-          {book.tags && book.tags.length > 0 && (
-            <div className="mt-8 flex flex-wrap gap-2">
-              {book.tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center border border-rule px-3 py-1 font-sans text-label uppercase tracking-[0.2em] text-muted"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </header>
-
-      {/* 笔记正文 */}
-      <section className="mx-auto mt-16 max-w-[1100px] md:mt-20">
-        <div
-          className="md-content mx-auto max-w-column"
-          dangerouslySetInnerHTML={{ __html: book.bodyHtml }}
-        />
-      </section>
-
-      {all.length > 1 && (
-        <section className="mx-auto mt-32 max-w-[1400px]">
-          <Link
-            href={`/reading/${next.slug}`}
-            className="group block border-t border-rule pt-8"
-          >
-            <p className="eyebrow">Next Book</p>
-            <div className="mt-3 flex items-baseline justify-between gap-6">
-              <h3 className="font-sans text-headline group-hover:text-accent">
-                {next.title}
-              </h3>
-              <span className="hidden font-sans text-label uppercase tracking-[0.18em] text-muted group-hover:text-accent md:inline">
-                Continue →
-              </span>
-            </div>
+    <BookDialog key={book.slug} returnHref={shelfHref} titleId="book-detail-title">
+    <article>
+      <div className="reading-detail-panel relative bg-[#161616]">
+        <div className="sticky top-0 z-20 flex items-center justify-between bg-[#161616]/95 px-6 py-4 backdrop-blur-md md:px-10">
+          <Link replace scroll={false} href={shelfHref} className="text-annotation uppercase tracking-[0.2em] text-muted transition-colors hover:text-ink">← Reading / 返回书架</Link>
+          <Link replace scroll={false} href={shelfHref} aria-label="关闭书籍详情，返回书架" className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] text-muted transition-colors hover:bg-white/10 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
+            <svg aria-hidden width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="m3 3 8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.2" /></svg>
           </Link>
-        </section>
-      )}
-    </article>
-  );
-}
+        </div>
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <dt className="text-label uppercase tracking-[0.18em] text-muted">{label}</dt>
-      <dd className="mt-1 text-ink">{children}</dd>
-    </div>
+        <header className="grid gap-8 px-6 pb-10 pt-6 md:grid-cols-[180px_minmax(0,1fr)] md:gap-10 md:px-10 lg:grid-cols-[224px_minmax(0,1fr)] lg:gap-14">
+          <div className="mx-auto w-40 self-start overflow-hidden rounded-xl border border-white/10 bg-black/20 shadow-[0_16px_40px_rgba(0,0,0,0.35)] md:w-full">
+            {book.cover ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={book.cover} alt={book.title} className="block h-auto w-full" />
+            ) : <div className="flex aspect-[2/3] items-center justify-center px-5 text-center font-serif text-lg text-muted">{book.title}</div>}
+          </div>
+          <div className="min-w-0 pt-1">
+            <p className="text-annotation uppercase tracking-[0.26em] text-muted">Reading Notes</p>
+            <div className="mt-5 flex flex-wrap items-center gap-4">
+              <h1 id="book-detail-title" className="break-words text-[clamp(1.75rem,3.5vw,2.5rem)] font-semibold leading-tight tracking-tight">{book.title}</h1>
+              {book.progress && <span className="silence-pill shrink-0 text-muted"><span className="h-1.5 w-1.5 rounded-full bg-gradient-accent" />{book.progress}</span>}
+            </div>
+            {book.author && <p className="mt-3 text-sm italic leading-relaxed text-muted">{book.author}</p>}
+            <dl className="mt-7 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3">
+              {stats.map(([label, value]) => (
+                <div key={label} className="min-w-0 border-t divider-gradient pt-4 text-center">
+                  <dt className="silence-pill silence-pill-accent !px-2.5 !py-1.5 !text-[9px] uppercase text-ink/75">{label}</dt>
+                  <dd className="mt-3 break-words text-sm leading-relaxed text-ink/80">{value}</dd>
+                </div>
+              ))}
+            </dl>
+            {!!book.tags?.length && <div className="mt-6 flex flex-wrap gap-2">{book.tags.map(tag => <span key={tag} className="rounded-full border border-white/10 px-3 py-1 text-annotation text-muted">{tag}</span>)}</div>}
+          </div>
+        </header>
+
+        <div className="mx-6 border-t divider-gradient md:mx-10" />
+        <div className="grid md:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)]">
+          <aside aria-label="书籍资料" className="min-w-0 px-6 py-8 md:px-10 md:py-10">
+            <h2 className="mb-6 text-annotation uppercase tracking-[0.22em] text-muted">Book details / 书籍资料</h2>
+            {sections.metadataHtml ? <div className="md-content reading-book-metadata" dangerouslySetInnerHTML={{ __html: sections.metadataHtml }} /> : (
+              <dl className="space-y-6 text-sm leading-relaxed">
+                {[["书名", book.title], ["作者", book.author], ["分类", book.rawCategory ?? book.category], ["ISBN", book.isbn]].filter(([, value]) => value).map(([label, value]) => <div key={label}><dt className="mb-2 text-annotation text-muted">{label}</dt><dd>{value}</dd></div>)}
+              </dl>
+            )}
+          </aside>
+          <section aria-label="划线与笔记" className="min-w-0 border-t border-dashed border-white/10 px-6 py-8 md:my-8 md:border-l md:border-t-0 md:px-10 md:py-2">
+            {sections.notesHtml ? <div className="md-content reading-book-notes" dangerouslySetInnerHTML={{ __html: sections.notesHtml }} /> : <p className="text-sm text-muted">这本书还没有留下划线或笔记。</p>}
+          </section>
+        </div>
+      </div>
+
+      {all.length > 1 && <Link href={`/reading/${next.slug}`} className="group mx-6 mb-8 mt-6 flex items-center justify-between gap-6 border-t divider-gradient pt-6 md:mx-10">
+        <div><p className="text-annotation uppercase tracking-[0.22em] text-muted">Next book</p><h2 className="mt-2 text-lg text-ink/80 transition-colors group-hover:text-accent">{next.title}</h2></div>
+        <span className="silence-pill shrink-0 text-muted">Continue →</span>
+      </Link>}
+    </article>
+    </BookDialog>
   );
 }

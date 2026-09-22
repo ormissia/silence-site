@@ -4,6 +4,7 @@
 
 :root {
   color-scheme: dark;
+  --site-header-height: 90px;
   --gradient-accent: linear-gradient(125deg, #C9994A, #7C6CF0);
 }
 
@@ -102,7 +103,7 @@ body::before {
 }
 
 /* lightbox 打开时隐藏全局 header（PlatesGrid 会在 body 上加这个属性） */
-body[data-lightbox-open="true"] header {
+body[data-lightbox-open="true"] .site-header {
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.2s ease-out;
@@ -557,3 +558,100 @@ body[data-lightbox-open="true"] header {
 .silence-marquee { display: flex; width: max-content; animation: silence-scroll 38s linear infinite; }
 @keyframes silence-scroll { to { transform: translateX(-50%); } }
 @media (prefers-reduced-motion: reduce) { .silence-marquee { animation: none; } }
+
+/* Film contact sheets and the archival sleeve stay local to film works. */
+.film-sleeve { min-height: 430px; }
+.film-note-paragraph + .film-note-paragraph {
+  border-top: 1px dashed rgba(201,153,74,.3);
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+}
+.film-sprockets {
+  height: 30px;
+  background: repeating-linear-gradient(90deg, #252525 0 16px, transparent 16px 32px) center / calc(100% - 32px) 9px no-repeat;
+  opacity: .8;
+}
+.silence-pill-accent {
+  border-color: transparent;
+  background: linear-gradient(#0C0C0C,#0C0C0C) padding-box, var(--gradient-accent) border-box;
+}
+.site-header::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #C9994A 35%, #7C6CF0 65%, transparent);
+  opacity: .65;
+}
+@media (max-width: 639px) {
+  :root { --site-header-height: 120px; }
+  .site-header nav .silence-pill { font-size: 10px; padding: .55rem .7rem; }
+}
+
+/* Book detail: local overrides keep journal Markdown unchanged. */
+.reading-book-metadata,
+.reading-book-notes { font-size: 13px; line-height: 1.85; overflow-wrap: anywhere; }
+.reading-book-metadata .md-callout {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.reading-book-metadata .md-callout-title { display: none; }
+.reading-book-metadata ul { list-style: none; padding: 0; }
+.reading-book-metadata li { margin: 0 0 1.5rem; color: #a5a5a5; }
+.reading-book-metadata li strong { display: block; margin-bottom: .5rem; font-size: 11px; font-weight: 400; letter-spacing: .12em; color: #d0d0cd; }
+.reading-book-notes > h1 {
+  margin: 0 0 1.5rem;
+  padding: 0;
+  border: 0;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: .18em;
+  color: #898989;
+}
+.reading-book-notes h2,
+.reading-book-notes h3,
+.reading-book-notes h4 { margin-top: 1.75rem; font-size: 13px; line-height: 1.6; font-weight: 400; color: #b6b6b4; }
+.reading-book-notes .md-callout {
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 12px;
+  padding: 1.25rem;
+  background: rgba(255,255,255,.025);
+}
+.reading-book-notes .md-callout .md-callout-title {
+  font-size: 9px;
+  font-weight: 400;
+  letter-spacing: .2em;
+  color: #C9994A;
+}
+.reading-book-notes .md-callout p { color: #c0c0bd; }
+.reading-book-notes > p:first-child::first-letter,
+.reading-book-metadata > p:first-child::first-letter {
+  float: none;
+  font: inherit;
+  padding: 0;
+  color: inherit;
+}
+
+/* showModal() promotes this dialog to the browser top layer, above all site chrome. */
+.book-dialog {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: calc(100% - 60px);
+  max-width: 1400px;
+  max-height: calc(100dvh - 60px);
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 16px;
+  background: #161616;
+  color: #EFEFED;
+  box-shadow: 0 32px 80px rgba(0,0,0,.7);
+}
+.book-dialog::backdrop { background: rgba(8,8,8,.78); backdrop-filter: blur(6px); }
+@media (max-width: 639px) {
+  .book-dialog { width: calc(100% - 24px); max-height: calc(100dvh - 24px); border-radius: 12px; }
+}

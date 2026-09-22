@@ -16,11 +16,7 @@ const JOURNAL_MENU: Array<{ href: string; label: string }> = [
   { href: "/journal?cat=life", label: "Life / 生活" },
 ];
 
-/**
- * 圆角下划线 hover 动画的导航项。
- * 使用 group + 子 span 实现宽度从中心展开，避免布局抖动。
- * Click 时通过 NavProgressLink 触发顶部进度条；active:scale-95 给即时按压反馈。
- */
+/** 胶囊导航保留真实链接、当前页状态和路由进度反馈。 */
 function NavLink({
   href,
   children,
@@ -100,13 +96,13 @@ function NavMenu({
     >
       <NavLink href={href} expanded={open}>{label}</NavLink>
       <div
-        className={`absolute left-1/2 top-full z-50 -translate-x-1/2 pt-4 transition-transform duration-200 ease-out motion-reduce:transition-none ${
+        className={`absolute left-0 top-full z-50 md:left-1/2 md:-translate-x-1/2 pt-4 transition-transform duration-200 ease-out motion-reduce:transition-none ${
           open
             ? "visible translate-y-0"
             : "pointer-events-none invisible -translate-y-1"
         }`}
       >
-        <div className="w-60 overflow-hidden rounded-lg border border-white/25 bg-black/5 p-2 shadow-[0_12px_32px_rgba(0,0,0,0.16)] backdrop-blur-[10px]">
+        <div className="w-60 overflow-hidden rounded-lg border border-white/25 bg-paper/95 p-2 shadow-[0_12px_32px_rgba(0,0,0,0.16)] backdrop-blur-[10px]">
           <ul className="flex flex-col gap-1" aria-label={`${label} 分类`}>
             {items.map((item) => (
               <li key={item.href}>
@@ -128,8 +124,18 @@ function NavMenu({
 }
 
 export function SiteHeader() {
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const header = headerRef.current;
+    if (!header) return;
+    const updateHeight = () => document.documentElement.style.setProperty("--site-header-height", `${header.getBoundingClientRect().height}px`);
+    const observer = new ResizeObserver(updateHeight);
+    observer.observe(header);
+    updateHeight();
+    return () => observer.disconnect();
+  }, []);
   return (
-    <header className="fixed inset-x-0 top-0 z-50 isolate border-b border-ink/10 bg-paper/85">
+    <header ref={headerRef} className="site-header fixed inset-x-0 top-0 z-50 isolate border-b border-ink/10 bg-paper/85">
       {/* 模糊放在独立背景层，避免父级 backdrop-filter 限制下拉面板的背景采样。 */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 backdrop-blur-md" />
       <div className="mx-auto flex max-w-[1400px] items-center justify-between flex-wrap gap-4 px-6 py-4 md:px-12">
@@ -143,7 +149,7 @@ export function SiteHeader() {
 
         </NavProgressLink>
 
-        <nav className="flex flex-wrap items-center gap-2 font-sans uppercase">
+        <nav className="flex flex-wrap items-center gap-1.5 font-sans uppercase sm:gap-2">
           <NavMenu href="/works" label="Works" items={WORKS_MENU} />
           <NavMenu href="/journal" label="Journal" items={JOURNAL_MENU} />
           <NavLink href="/reading">Reading</NavLink>

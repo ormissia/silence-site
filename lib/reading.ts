@@ -1,5 +1,6 @@
 import { readAllReadingMdx } from "./mdx";
 import { renderMarkdown } from "./markdown";
+import { splitReadingMarkdown } from "./reading-sections";
 
 /**
  * 一本书的元数据 + 笔记。
@@ -167,6 +168,14 @@ const ALL: ReadingEntry[] = readAllReadingMdx()
 
 export function listReading(): ReadingEntry[] {
   return ALL;
+}
+
+/** Detail-only presentation, leaving the original body and shelf data intact. */
+export function getReadingSections(slug: string) {
+  const raw = readAllReadingMdx().find(({ fileName, data }) => resolveSlug(fileName, data) === slug);
+  if (!raw) return { metadataHtml: "", notesHtml: "" };
+  const parts = splitReadingMarkdown(raw.storyMd, String(raw.data.title ?? raw.fileName));
+  return { metadataHtml: renderMarkdown(parts.metadata), notesHtml: renderMarkdown(parts.notes) };
 }
 
 export function getReadingEntry(slug: string): ReadingEntry | undefined {

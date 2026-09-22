@@ -21,7 +21,7 @@ export function WorkCard({ work, index, variant = "wide" }: {
           <span className="rounded-full border border-white/20 bg-black/30 px-3 py-1 text-annotation text-white/75 backdrop-blur-sm">{work.series}</span>
         </div>
         <p className={`absolute text-caption tracking-[0.12em] text-white/70 ${isFilm ? "bottom-7 left-7" : "bottom-4 left-4"}`}>
-          {[work.location, work.date.slice(0, 4)].filter(Boolean).join(" · ")}
+          {[work.location !== "—" ? work.location : "", work.date.slice(0, 4)].filter(Boolean).join(" · ")}
         </p>
       </div>
       <div className="flex items-start justify-between gap-4 border-t border-white/[0.07] px-4 py-4">

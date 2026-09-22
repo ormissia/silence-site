@@ -2,48 +2,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildSrc } from "@/lib/oss";
-import { getWork, listWorks, type Work } from "@/lib/works";
+import { getWork, listWorks } from "@/lib/works";
 import { PlatesGrid } from "@/components/work/plates-grid";
 
-/**
- * 胶片作品专属 EXIF 面板：胶卷信封 / 冲洗单的视觉。
- * 排版接近真实底片信封：胶卷型号大字、ISO、相机、镜头、冲洗法、底片号。
- */
-function FilmExifPanel({ work }: { work: Work }) {
-  const filmStock = work.exif.film;
-  const filmIso = filmStock ? /\b(\d{2,4})\b/.exec(filmStock)?.[1] : undefined;
-  const plateCount = work.photos.length;
-  return (
-    <div className="relative border border-white/10 bg-[#141414] p-8 font-sans">
-      <p className="eyebrow text-amber-300/80">Film Sleeve</p>
-      <p className="mt-4 text-2xl font-semibold leading-tight text-amber-100">
-        {filmStock ?? "Unknown Stock"}
-      </p>
-      {filmIso && (
-        <p className="mt-1 text-label uppercase tracking-[0.24em] text-amber-200/70">
-          ISO {filmIso}
-        </p>
-      )}
-      <dl className="mt-6 space-y-3 text-sm">
-        <div>
-          <dt className="text-label uppercase tracking-[0.18em] text-muted">Camera</dt>
-          <dd className="text-ink">{work.exif.camera}</dd>
-        </div>
-        <div>
-          <dt className="text-label uppercase tracking-[0.18em] text-muted">Lens</dt>
-          <dd className="text-ink">{work.exif.lens}</dd>
-        </div>
-        <div>
-          <dt className="text-label uppercase tracking-[0.18em] text-muted">Negatives</dt>
-          <dd className="text-ink">
-            No. {String(1).padStart(2, "0")} – {String(plateCount).padStart(2, "0")}
-          </dd>
-        </div>
-      </dl>
-      <Image src="/images/film/film-sleeve.webp" alt="" fill sizes="340px" className="pointer-events-none object-fill opacity-40" aria-hidden />
-    </div>
-  );
-}
+import { FilmNotes } from "@/components/work/film-notes";
 
 export async function generateStaticParams() {
   return (await listWorks()).map((w) => ({ slug: w.slug }));
@@ -65,19 +27,19 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
 
   const isFilm = work.series === "胶片";
   return (
-    <article>
+    <article className="pb-20">
       {/* Cover hero：单独占满一屏，只显示封面 + 标题 */}
-      <header className="relative h-screen min-h-[560px] w-full overflow-hidden bg-ink/5">
+      <header className={`relative w-full overflow-hidden bg-black ${isFilm ? "mt-[var(--site-header-height)] h-[calc(100svh-var(--site-header-height))] min-h-[440px]" : "h-screen min-h-[560px]"}`}>
         <Image
           src={buildSrc(work.cover, "hero")}
           alt={work.title}
           fill
           priority
-          className={isFilm ? "object-cover" : "cinema-tone-soft object-cover"}
+          className={isFilm ? "object-cover p-4 md:p-5" : "cinema-tone-soft object-cover"}
           sizes="100vw"
         />
         {isFilm && <Image src="/images/film/film-hero-overlay.webp" alt="" fill sizes="100vw" className="pointer-events-none z-[1] object-fill opacity-60 mix-blend-screen" aria-hidden />}
-        <Link href={isFilm ? "/works?tab=film" : "/works"} className="silence-pill absolute left-6 top-36 z-20 bg-black/40 text-white backdrop-blur-sm md:left-12">← Works</Link>
+        <Link href={isFilm ? "/works?tab=film" : "/works"} className={`silence-pill absolute left-6 z-20 bg-black/40 text-white backdrop-blur-sm md:left-12 ${isFilm ? "top-8" : "top-36"}`}>← Works</Link>
         {/* 暗化让标题在亮区也立得住 */}
         <div
           aria-hidden
@@ -85,9 +47,9 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
         />
         <div className="vignette absolute inset-0" />
 
-        <div className="relative z-10 mx-auto flex h-full max-w-[1100px] flex-col items-center justify-end px-6 pb-20 text-center md:px-10 md:pb-28">
-          <p className="eyebrow text-white/80">
-            {work.series} — {work.location} — {work.date.slice(0, 4)}
+        <div className={`relative z-10 mx-auto flex h-full max-w-[1100px] flex-col items-center px-6 text-center md:px-10 ${isFilm ? "justify-center py-24" : "justify-end pb-20 md:pb-28"}`}>
+          <p className="font-sans text-caption uppercase tracking-[0.24em] text-white/80">
+            {[work.series, work.location !== "—" ? work.location : "", work.date.slice(0, 4)].filter(Boolean).join(" — ")}
           </p>
           <h1 className={`mt-4 text-display text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.5)] ${isFilm ? "font-sans font-semibold" : "font-serif"}`}>
             {work.title.split(",")[0]}
@@ -105,13 +67,9 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
       </header>
 
       {/* Story + EXIF rail */}
-      <section className="mx-auto mt-16 max-w-[1400px] px-6 md:mt-20 md:px-10">
+      {isFilm ? <FilmNotes work={work} /> : <section className="mx-auto mt-16 max-w-[1400px] px-6 md:mt-20 md:px-10">
         <div className="grid grid-cols-12 gap-x-8 gap-y-10 border-t border-rule pt-12">
           <aside className="col-span-12 md:col-span-3">
-            {work.series === "胶片" ? (
-              <FilmExifPanel work={work} />
-            ) : (
-              <>
                 <p className="eyebrow">Plate Notes</p>
                 <dl className="mt-4 space-y-3 font-sans text-sm">
                   <div>
@@ -129,8 +87,6 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
                     </div>
                   )}
                 </dl>
-              </>
-            )}
           </aside>
 
           <div className="col-span-12 md:col-span-9 md:col-start-4">
@@ -146,11 +102,12 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
             ))}
           </div>
         </div>
-      </section>
+      </section>}
 
       {/* Plates grid */}
-      <section className="mx-auto mt-24 max-w-[1400px] px-6 md:px-10">
-        <PlatesGrid photos={work.photos} workTitle={work.title} />
+      <section className={`mx-auto max-w-[1400px] px-6 md:px-12 ${isFilm ? "mt-4" : "mt-24"}`}>
+        {isFilm && <div className="mb-6 flex items-center justify-between border-t divider-gradient pt-6 text-annotation uppercase tracking-[0.2em] text-muted"><span>Contact sheets</span><span>{work.photos.length} frames · Click to view</span></div>}
+        <PlatesGrid photos={work.photos} workTitle={work.title} film={isFilm} />
       </section>
 
       {/* Next */}
