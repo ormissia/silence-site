@@ -215,9 +215,9 @@ export async function listWorks(): Promise<Work[]> {
   return ensureLoaded();
 }
 
-/** 首页用：当前语义为"按 date 倒序前 3 条"——发新影集自动顶替 */
+/** 首页用：当前语义为"按 date 倒序前 5 条"——发新影集自动顶替 */
 export async function listFeatured(): Promise<Work[]> {
-  return (await ensureLoaded()).slice(0, 3);
+  return (await ensureLoaded()).slice(0, 5);
 }
 
 export async function listSeries(): Promise<string[]> {

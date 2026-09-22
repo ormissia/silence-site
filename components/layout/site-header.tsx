@@ -102,7 +102,7 @@ function NavMenu({
             : "pointer-events-none invisible -translate-y-1"
         }`}
       >
-        <div className="w-60 overflow-hidden rounded-lg border border-white/25 bg-paper/95 p-2 shadow-[0_12px_32px_rgba(0,0,0,0.16)] backdrop-blur-[10px]">
+        <div className="w-60 overflow-hidden rounded-lg border border-white/20 bg-paper/[0.55] p-2 shadow-[0_12px_32px_rgba(0,0,0,0.16)] backdrop-blur-[18px]">
           <ul className="flex flex-col gap-1" aria-label={`${label} 分类`}>
             {items.map((item) => (
               <li key={item.href}>
@@ -135,9 +135,9 @@ export function SiteHeader() {
     return () => observer.disconnect();
   }, []);
   return (
-    <header ref={headerRef} className="site-header fixed inset-x-0 top-0 z-50 isolate border-b border-ink/10 bg-paper/85">
+    <header ref={headerRef} className="site-header fixed inset-x-0 top-0 z-50 isolate border-b border-white/10">
       {/* 模糊放在独立背景层，避免父级 backdrop-filter 限制下拉面板的背景采样。 */}
-      <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 backdrop-blur-md" />
+      <div aria-hidden className="site-header-glass pointer-events-none absolute inset-0 -z-10" />
       <div className="mx-auto flex max-w-[1400px] items-center justify-between flex-wrap gap-4 px-6 py-4 md:px-12">
         <NavProgressLink
           href="/"
@@ -156,7 +156,7 @@ export function SiteHeader() {
           <NavLink href="/about">About</NavLink>
         </nav>
       </div>
-      <div className="overflow-hidden border-t border-ink/5 py-1.5 text-[9px] uppercase tracking-[0.22em] text-muted/60" aria-hidden="true">
+      <div className="site-header-marquee overflow-hidden border-t border-white/[0.06] py-1.5 text-[9px] uppercase tracking-[0.22em]" aria-hidden="true">
         <div className="silence-marquee">{[0, 1].map(i => <span key={i} className="whitespace-nowrap pr-12">SILENCE — PHOTOGRAPHS & NOTES — LANDSCAPE — PORTRAIT — SNAPSHOTS — FILM — READING — JOURNAL — </span>)}</div>
       </div>
     </header>

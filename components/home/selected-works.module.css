@@ -1,0 +1,83 @@
+.gallery {
+  display: grid;
+  gap: 24px;
+}
+
+.card {
+  position: relative;
+  display: block;
+  min-width: 0;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  isolation: isolate;
+}
+
+.image {
+  transition: filter 0.5s ease;
+}
+
+.caption {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 64px 24px 24px;
+  background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+@media (min-width: 768px) and (max-width: 1023px) {
+  .gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Touch layouts keep every title visible and every link directly tappable. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .gallery {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    height: clamp(400px, 38vw, 520px);
+  }
+
+  .card {
+    flex: 0 1 180px;
+    aspect-ratio: auto;
+    transition: flex-basis 0.65s cubic-bezier(0.2, 0.75, 0.2, 1);
+  }
+
+  .image {
+    filter: grayscale(1);
+  }
+
+  .caption {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  /* Keyboard focus takes precedence when the pointer remains over another card. */
+  .card:focus-visible,
+  .gallery:not(:has(:focus-visible)) .card:hover {
+    flex-basis: 560px;
+  }
+
+  .card:focus-visible .image,
+  .gallery:not(:has(:focus-visible)) .card:hover .image {
+    filter: grayscale(0);
+  }
+
+  .card:focus-visible .caption,
+  .gallery:not(:has(:focus-visible)) .card:hover .caption {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .image,
+  .caption {
+    transition: none;
+  }
+}
