@@ -38,28 +38,8 @@ export default async function HomePage() {
 
       <SelectedWorks works={featured} />
 
-      {/* 阅读区：3D 书球 + 今日一句，背景用 cover.jpg */}
+      {/* 阅读区保持深色底，照片留给页脚揭幕，避免同一画面重复裁切。 */}
       <ReadingBackground>
-        {/* 暗化叠层让书球与文字立得住 */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-0 bg-paper/70"
-        />
-        {/* 与序章尾部同色，背景从近黑底色中逐渐显露。 */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 top-0 h-[30vh] bg-gradient-to-b from-paper to-transparent"
-        />
-        <div
-          aria-hidden
-          className="vignette pointer-events-none absolute inset-0"
-        />
-        {/* 背景在页尾融入全站底色，文字与控件保持原有清晰度。 */}
-        <div
-          aria-hidden
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-[clamp(12rem,30vh,24rem)] bg-gradient-to-b from-transparent via-paper/60 to-paper"
-        />
-
         <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-24 md:px-10 md:py-32">
           <ReadingReveal>
             <header className="lg:col-span-5">

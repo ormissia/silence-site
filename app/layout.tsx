@@ -5,6 +5,7 @@ import "./globals.css";
 import {SiteHeader} from "@/components/layout/site-header";
 import {RouteProgress, RouteProgressProvider} from "@/components/layout/route-progress";
 import {MobileGate} from "@/components/layout/mobile-gate";
+import {SiteFooter} from "@/components/layout/site-footer";
 
 const serif = Playfair_Display({
     subsets: ["latin"],
@@ -41,19 +42,9 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
             <div aria-hidden className="silence-glow pointer-events-none absolute inset-x-0 top-0 h-[800px]" />
             <SiteHeader />
 
-            <main className="relative z-10">{children}</main>
+            <main id="page-top" tabIndex={-1} className="relative z-10 outline-none">{children}</main>
 
-            <footer className="relative z-10 border-t divider-gradient bg-paper">
-                <div
-                    className="mx-auto flex max-w-[1400px] flex-col gap-3 px-6 pb-8 pt-5 font-sans text-caption leading-relaxed tracking-[0.06em] text-muted md:flex-row md:items-center md:justify-between md:px-10">
-                    <span>© {new Date().getFullYear()} SILENCE <span className="mx-2 text-ink/20" aria-hidden>·</span> Photographs &amp; Notes by Song</span>
-                    <div className="flex gap-6">
-                        {/*<a href="#" className="hover:text-ink">Instagram</a>*/}
-                        {/*<a href="#" className="hover:text-ink">VSCO</a>*/}
-                        <a href="mailto:ormissia@outlook.com" className="transition-colors hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">ormissia@outlook.com</a>
-                    </div>
-                </div>
-            </footer>
+            <SiteFooter year={new Date().getFullYear()} />
 
             <MobileGate />
         </RouteProgressProvider>
