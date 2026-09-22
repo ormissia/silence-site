@@ -58,6 +58,22 @@
   color: rgba(255, 255, 255, 0.7);
 }
 
+.headline {
+  display: inline-flex;
+}
+
+.letterClip {
+  display: inline-block;
+  overflow: hidden;
+  padding-block: 0.12em;
+  margin-block: -0.12em;
+}
+
+.letter {
+  display: inline-block;
+  transform-origin: center bottom;
+}
+
 .description {
   margin-top: 18px;
   color: rgba(255, 255, 255, 0.8);
@@ -107,4 +123,13 @@
 @media (prefers-reduced-motion: reduce), (max-height: 639px) {
   .scene { position: absolute; }
   .info a { transition: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eyebrow,
+  .description,
+  .letter {
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
