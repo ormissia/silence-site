@@ -13,19 +13,23 @@ export function generateMetadata({ params }: { params: { slug: string } }) {
   return { title: book ? `${book.title} — SILENCE` : "Reading — SILENCE" };
 }
 
-export default function ReadingEntryPage({ params }: { params: { slug: string } }) {
+export default function ReadingEntryPage({ params, searchParams }: {
+  params: { slug: string };
+  searchParams: { cat?: string | string[] };
+}) {
   const book = getReadingEntry(params.slug);
   if (!book) notFound();
   const sections = getReadingSections(book.slug);
   const all = listReading();
   const next = all[(all.findIndex((entry) => entry.slug === book.slug) + 1) % all.length];
-  const shelfHref = `/reading?cat=${encodeURIComponent(book.category)}`;
+  const category = typeof searchParams.cat === "string" ? searchParams.cat : undefined;
+  const shelfQuery = category && category !== "all" ? `?cat=${encodeURIComponent(category)}` : "";
+  const shelfHref = `/reading${shelfQuery}`;
   const stats = [
     ["Progress", book.progress], ["Rating", book.rating],
     ["Reading time", book.readingTime], ["Finished", book.finishedDate],
     ["Category", book.category], ["Started", book.readingDate],
     ["Last read", book.lastReadDate],
-    ["Total words", book.totalWords?.toLocaleString()],
   ].filter(([, value]) => Boolean(value));
 
   return (
@@ -76,7 +80,7 @@ export default function ReadingEntryPage({ params }: { params: { slug: string } 
         </div>
       </div>
 
-      {all.length > 1 && <Link href={`/reading/${next.slug}`} className="group mx-6 mb-8 mt-6 flex items-center justify-between gap-6 border-t divider-gradient pt-6 md:mx-10">
+      {all.length > 1 && <Link href={`/reading/${next.slug}${shelfQuery}`} className="group mx-6 mb-8 mt-6 flex items-center justify-between gap-6 border-t divider-gradient pt-6 md:mx-10">
         <div><p className="text-annotation uppercase tracking-[0.22em] text-muted">Next book</p><h2 className="mt-2 text-lg text-ink/80 transition-colors group-hover:text-accent">{next.title}</h2></div>
         <span className="silence-pill shrink-0 text-muted">Continue →</span>
       </Link>}

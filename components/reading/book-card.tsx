@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useRef } from "react";
 import {
   motion,
@@ -24,6 +25,8 @@ import type { ReadingEntry } from "@/lib/reading";
  */
 export function BookCard({ book }: { book: ReadingEntry }) {
   const ref = useRef<HTMLDivElement>(null);
+  const category = useSearchParams().get("cat");
+  const shelfQuery = category && category !== "all" ? `?cat=${encodeURIComponent(category)}` : "";
 
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -51,7 +54,7 @@ export function BookCard({ book }: { book: ReadingEntry }) {
 
   return (
     <Link
-      href={`/reading/${book.slug}`}
+      href={`/reading/${book.slug}${shelfQuery}`}
       className="group block"
       style={{ perspective: "900px" }}
     >
