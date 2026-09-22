@@ -11,6 +11,9 @@ import {
   type JournalCategory,
 } from "@/lib/journal-categories";
 import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tabs";
+import { CoverFocusFrame } from "@/components/cover-focus-frame";
+import { OverflowText } from "@/components/overflow-text";
+import styles from "@/components/cover-hover.module.css";
 
 const MONTH_EN = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -61,7 +64,7 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
             const { day, monthYear } = formatDate(entry.date);
             return (
               <Link key={entry.slug} href={`/journal/${entry.slug}`}
-                className="group flex w-[85vw] max-w-[900px] shrink-0 snap-start flex-col gap-5 md:w-[78vw] md:flex-row">
+                className={`${styles.link} flex w-[85vw] max-w-[900px] shrink-0 snap-start flex-col gap-5 rounded-xl md:w-[78vw] md:flex-row`}>
                 <div className="editorial-card flex flex-col justify-between p-6 md:w-[220px] md:shrink-0">
                   <div>
                     <span className="text-7xl font-light leading-none text-ink/85">{day}</span>
@@ -74,15 +77,16 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
                     <h2 className="mt-2 font-serif text-sm leading-relaxed">{entry.title}</h2>
                   </div>
                 </div>
-                <div className="editorial-card min-w-0 flex-1">
-                  <div className="relative aspect-video overflow-hidden bg-ink/5">
-                    {entry.cover ? <Image src={buildSrc(entry.cover, "detail")} alt={entry.title} fill sizes="(min-width: 768px) 50vw, 85vw" className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.03]" /> : <div className="flex h-full items-center justify-center font-serif text-4xl italic text-muted/40">Notes & essays</div>}
+                <div className={`${styles.cover} editorial-card aspect-[3/2] min-w-0 flex-1 md:min-h-[360px]`}>
+                    {entry.cover ? <Image src={buildSrc(entry.cover, "detail")} alt={entry.title} fill sizes="(min-width: 768px) 50vw, 85vw" className={styles.image} /> : <div className="absolute inset-0 flex items-center justify-center font-serif text-4xl italic text-muted/40">Notes & essays</div>}
                     <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                    <span className="absolute left-5 top-5 text-caption text-white/60">{String(i + 1).padStart(2, "0")}</span>
-                  </div>
-                  <div className="flex items-start justify-between gap-4 px-5 py-4">
-                    <div><p className="font-serif text-sm italic">{entry.title}</p>{entry.excerpt && <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-muted">{entry.excerpt}</p>}</div>
-                    <span className="silence-pill shrink-0 text-muted">View →</span>
+                    <span className={`${styles.topMetadata} text-caption text-white/60`}>{String(i + 1).padStart(2, "0")}</span>
+                  {entry.cover && <CoverFocusFrame />}
+                  <div className={styles.info}>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-serif text-sm italic leading-snug text-ink/85"><OverflowText text={entry.title} /></p>
+                      <p className="mt-1.5 text-xs leading-relaxed text-muted"><OverflowText text={entry.excerpt ?? ""} /></p>
+                    </div>
                   </div>
                 </div>
               </Link>

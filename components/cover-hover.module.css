@@ -1,0 +1,116 @@
+.link:focus-visible {
+  outline: 2px solid #c9994a;
+  outline-offset: 4px;
+}
+
+.cover {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.image {
+  object-fit: cover;
+  transition: transform 0.4s ease;
+}
+
+.topMetadata {
+  position: absolute;
+  top: calc(var(--frame-inset, 24px) + 12px);
+  left: calc(var(--frame-inset, 24px) + 28px);
+  right: calc(var(--frame-inset, 24px) + 28px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.info {
+  position: absolute;
+  z-index: 2;
+  bottom: 10px;
+  left: 10px;
+  right: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  background: rgba(17, 17, 17, 0.48);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: transform 0.4s ease;
+}
+
+.film {
+  --frame-inset: 28px;
+}
+
+.film .info {
+  bottom: 20px;
+  left: 20px;
+  right: 20px;
+}
+
+.frame {
+  position: absolute;
+  inset: var(--frame-inset, 24px);
+  z-index: 1;
+  opacity: 0;
+  color: white;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.frame i {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border: solid currentColor;
+}
+
+.frame i:nth-child(1) { top: 0; left: 0; border-width: 1px 0 0 1px; }
+.frame i:nth-child(2) { top: 0; right: 0; border-width: 1px 1px 0 0; }
+.frame i:nth-child(3) { bottom: 0; left: 0; border-width: 0 0 1px 1px; }
+.frame i:nth-child(4) { bottom: 0; right: 0; border-width: 0 1px 1px 0; }
+
+.frame > span,
+.frame > span::after {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 36px;
+  height: 36px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.frame > span::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+}
+
+.link:focus-visible .image { transform: scale(1.03); }
+.link:focus-visible .frame { opacity: 1; }
+
+@media (hover: hover) and (pointer: fine) {
+  .cover:hover .image { transform: scale(1.03); }
+  .cover:hover .frame { opacity: 1; }
+}
+
+/* Keep the title readable for keyboard navigation and touch. */
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .link:not(:focus-visible) .cover:hover .info {
+    transform: translateY(calc(100% + 24px));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image,
+  .info,
+  .frame { transition: none; }
+}

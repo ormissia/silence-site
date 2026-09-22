@@ -1,0 +1,26 @@
+.viewport {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.content {
+  display: inline-block;
+  vertical-align: top;
+  white-space: nowrap;
+}
+
+.content[data-overflow="true"] {
+  animation: drift var(--scroll-duration) var(--scroll-easing, ease-in-out) infinite alternate;
+}
+
+@keyframes drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(var(--scroll-distance)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .viewport { text-overflow: ellipsis; }
+  .content[data-overflow="true"] { animation: none; }
+}
