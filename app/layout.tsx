@@ -38,11 +38,12 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
             <Suspense fallback={null}>
                 <RouteProgress />
             </Suspense>
+            <div aria-hidden className="silence-glow pointer-events-none absolute inset-x-0 top-0 h-[800px]" />
             <SiteHeader />
 
             <main className="relative z-10">{children}</main>
 
-            <footer className="relative z-10 bg-paper">
+            <footer className="relative z-10 border-t divider-gradient bg-paper">
                 <div
                     className="mx-auto flex max-w-[1400px] flex-col gap-3 px-6 pb-8 pt-5 font-sans text-caption leading-relaxed tracking-[0.06em] text-muted md:flex-row md:items-center md:justify-between md:px-10">
                     <span>© {new Date().getFullYear()} SILENCE <span className="mx-2 text-ink/20" aria-hidden>·</span> Photographs &amp; Notes by Song</span>

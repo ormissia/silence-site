@@ -12,8 +12,9 @@ export default function ReadingPage() {
   const categories = listReadingCategories();
 
   return (
-    <section className="mx-auto max-w-[1400px] px-6 pt-32 md:px-10 md:pt-40">
+    <section className="mx-auto max-w-[1400px] px-6 pb-20 pt-40 md:px-12 md:pt-44">
       <SecondaryPageHeader
+        count={`${books.length} Books`}
         eyebrow="Reading — Notes from Books"
         titleEn="READING"
         titleZh="读书笔记"

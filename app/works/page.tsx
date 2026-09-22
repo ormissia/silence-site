@@ -14,8 +14,9 @@ export default async function WorksPage() {
   ]);
 
   return (
-    <section className="mx-auto max-w-[1400px] px-6 pt-32 md:px-10 md:pt-40">
+    <section className="mx-auto max-w-[1400px] px-6 pb-20 pt-40 md:px-12 md:pt-44">
       <SecondaryPageHeader
+        count={`${works.length} Works`}
         eyebrow="Index of Works — 2024 / Ongoing"
         titleEn="WORKS"
         titleZh="作品"

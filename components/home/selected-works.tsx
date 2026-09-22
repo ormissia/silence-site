@@ -22,7 +22,7 @@ export function SelectedWorks({ works }: Props) {
           </div>
           <Link
             href="/works"
-            className="inline-flex items-center gap-4 rounded-lg border border-ink/20 bg-ink/5 px-5 py-3 font-sans text-label tracking-normal text-ink/80 transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+            className="silence-pill font-sans text-ink/80"
           >
             全部作品 <span aria-hidden>→</span>
           </Link>

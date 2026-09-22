@@ -4,7 +4,7 @@
 
 :root {
   color-scheme: dark;
-  --gradient-accent: linear-gradient(135deg, #C8956B, #8B5CF6);
+  --gradient-accent: linear-gradient(125deg, #C9994A, #7C6CF0);
 }
 
 html,
@@ -524,3 +524,36 @@ body[data-lightbox-open="true"] header {
 .md-content .md-callout ol {
   padding-left: 1.2em;
 }
+
+/* Shared Silence editorial surfaces */
+.editorial-card {
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.09);
+  border-radius: 12px;
+  background: #111;
+  box-shadow: 0 4px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+}
+.silence-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  border: 1px solid rgba(255,255,255,.15);
+  border-radius: 999px;
+  padding: .55rem .9rem;
+  font-size: 11px;
+  line-height: 1.2;
+  letter-spacing: .15em;
+  transition: border-color .2s, color .2s, background .2s;
+}
+.silence-pill:hover { border-color: rgba(255,255,255,.35); color: #EFEFED; }
+.silence-pill[aria-current="page"], .silence-pill[aria-pressed="true"] {
+  border-color: transparent;
+  background: linear-gradient(#0C0C0C,#0C0C0C) padding-box, var(--gradient-accent) border-box;
+  color: #EFEFED;
+}
+.silence-pill:focus-visible { outline: 2px solid #C9994A; outline-offset: 4px; }
+.silence-glow { background: radial-gradient(ellipse 80% 550px at 50% 0%, rgba(35,28,50,.5), transparent 70%); }
+.silence-marquee { display: flex; width: max-content; animation: silence-scroll 38s linear infinite; }
+@keyframes silence-scroll { to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .silence-marquee { animation: none; } }

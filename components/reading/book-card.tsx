@@ -64,10 +64,10 @@ export function BookCard({ book }: { book: ReadingEntry }) {
           transformStyle: "preserve-3d",
           transform,
         }}
-        whileHover={{ scale: 1.08, z: 24 }}
+        whileHover={{ scale: 1.04, z: 12 }}
         transition={{ type: "spring", stiffness: 220, damping: 22, mass: 0.7 }}
       >
-        <div className="relative w-full overflow-hidden rounded-lg border border-ink/10 bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-shadow duration-300 ease-out group-hover:shadow-[0_24px_56px_rgba(200,149,107,0.35),0_8px_20px_rgba(0,0,0,0.6)]">
+        <div className="relative w-full overflow-hidden rounded-lg border border-ink/10 bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-shadow duration-300 ease-out group-hover:shadow-[0_24px_56px_rgba(124,108,240,0.16),0_8px_20px_rgba(0,0,0,0.6)]">
           {book.cover ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -92,7 +92,7 @@ export function BookCard({ book }: { book: ReadingEntry }) {
       </motion.div>
 
       <div className="mt-3">
-        <h3 className="font-serif text-sm leading-tight text-ink group-hover:text-accent">
+        <h3 className="font-sans text-xs leading-tight text-ink group-hover:text-accent">
           {book.title}
         </h3>
         {book.author && (

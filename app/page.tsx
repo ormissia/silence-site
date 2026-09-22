@@ -72,7 +72,7 @@ export default async function HomePage() {
               </p>
               <Link
                 href="/reading"
-                className="mt-10 inline-flex items-center gap-4 rounded-lg border border-ink/20 bg-ink/5 px-5 py-3 font-sans text-label tracking-normal text-ink/80 transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+                className="mt-10 silence-pill font-sans text-ink/80"
               >
                 进入书架 <span aria-hidden>→</span>
               </Link>

@@ -5,12 +5,12 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: "#0A0A0B",
-        ink: "#F2EEE6",
-        muted: "#8A857C",
+        paper: "#0C0C0C",
+        ink: "#EFEFED",
+        muted: "#898989",
         rule: "#1F1E1C",
-        accent: "#C8956B",
-        "accent-end": "#8B5CF6",
+        accent: "#C9994A",
+        "accent-end": "#7C6CF0",
         ember: "#7A1F12",
       },
       fontFamily: {

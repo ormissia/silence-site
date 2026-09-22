@@ -56,62 +56,34 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
       {filtered.length === 0 ? (
         <p className="mt-24 text-center font-sans text-muted">这个分类下还没有文章。</p>
       ) : (
-        <div className="mt-16 flex flex-col">
+        <div className="flex snap-x snap-proximity gap-5 overflow-x-auto pb-16 pt-2">
           {filtered.map((entry, i) => {
             const { day, monthYear } = formatDate(entry.date);
             return (
-              <Link
-                key={entry.slug}
-                href={`/journal/${entry.slug}`}
-                className={`group grid grid-cols-12 gap-x-8 gap-y-6 py-12 transition-colors md:py-16 ${
-                  i > 0 ? "border-t border-rule/60" : ""
-                }`}
-              >
-                <div className="col-span-12 md:col-span-3">
-                  <div className="flex items-baseline gap-3 md:flex-col md:items-start md:gap-1">
-                    <span className="font-sans text-6xl leading-none text-ink md:text-7xl">
-                      {day}
-                    </span>
-                    <span className="eyebrow">{monthYear}</span>
+              <Link key={entry.slug} href={`/journal/${entry.slug}`}
+                className="group flex w-[85vw] max-w-[900px] shrink-0 snap-start flex-col gap-5 md:w-[78vw] md:flex-row">
+                <div className="editorial-card flex flex-col justify-between p-6 md:w-[220px] md:shrink-0">
+                  <div>
+                    <span className="text-7xl font-light leading-none text-ink/85">{day}</span>
+                    <p className="mt-3 text-caption uppercase tracking-[0.22em] text-muted">{monthYear}</p>
+                    {entry.mood && <span className="silence-pill mt-4 text-muted">Mood · {entry.mood}</span>}
+                    {entry.location && <p className="mt-4 text-annotation uppercase tracking-widest text-muted">{entry.location}</p>}
                   </div>
-                  {entry.mood && (
-                    <span className="mt-4 inline-flex items-center justify-center rounded-md border border-rule px-3 py-1 font-sans text-label uppercase tracking-[0.24em] text-muted">
-                      Mood · {entry.mood}
-                    </span>
-                  )}
-                  {entry.location && (
-                    <p className="mt-3 font-sans text-label uppercase tracking-[0.18em] text-muted">
-                      {entry.location}
-                    </p>
-                  )}
+                  <div className="mt-8 border-t border-white/10 pt-4">
+                    <p className="text-annotation uppercase tracking-widest text-accent">{entry.category === "tech" ? "Tech / 技术" : "Life / 生活"}</p>
+                    <h2 className="mt-2 font-serif text-sm leading-relaxed">{entry.title}</h2>
+                  </div>
                 </div>
-
-                <div className="col-span-12 md:col-span-9">
-                  {entry.cover && (
-                    <div className="relative mb-6 aspect-[3/2] overflow-hidden rounded-lg border border-ink/10 bg-ink/5">
-                      <Image
-                        src={buildSrc(entry.cover, "detail")}
-                        alt={entry.title}
-                        fill
-                        className="cinema-tone-soft object-cover transition duration-700 ease-out group-hover:scale-[1.02]"
-                        sizes="(min-width: 768px) 66vw, 100vw"
-                      />
-                    </div>
-                  )}
-                  <span className="eyebrow">
-                    {entry.category === "tech" ? "Tech / 技术" : "Life / 生活"}
-                  </span>
-                  <h2 className="mt-2 font-serif text-headline group-hover:text-accent">
-                    {entry.title}
-                  </h2>
-                  {entry.excerpt && (
-                    <p className="mt-3 max-w-column font-sans text-lede text-ink/80">
-                      {entry.excerpt}
-                    </p>
-                  )}
-                  <span className="mt-4 inline-block font-sans text-label uppercase tracking-[0.18em] text-muted group-hover:text-accent">
-                    Read note →
-                  </span>
+                <div className="editorial-card min-w-0 flex-1">
+                  <div className="relative aspect-video overflow-hidden bg-ink/5">
+                    {entry.cover ? <Image src={buildSrc(entry.cover, "detail")} alt={entry.title} fill sizes="(min-width: 768px) 50vw, 85vw" className="object-cover transition-transform duration-700 motion-safe:group-hover:scale-[1.03]" /> : <div className="flex h-full items-center justify-center font-serif text-4xl italic text-muted/40">Notes & essays</div>}
+                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                    <span className="absolute left-5 top-5 text-caption text-white/60">{String(i + 1).padStart(2, "0")}</span>
+                  </div>
+                  <div className="flex items-start justify-between gap-4 px-5 py-4">
+                    <div><p className="font-serif text-sm italic">{entry.title}</p>{entry.excerpt && <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-muted">{entry.excerpt}</p>}</div>
+                    <span className="silence-pill shrink-0 text-muted">View →</span>
+                  </div>
                 </div>
               </Link>
             );

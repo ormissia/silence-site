@@ -14,14 +14,14 @@ function FilmExifPanel({ work }: { work: Work }) {
   const filmIso = filmStock ? /\b(\d{2,4})\b/.exec(filmStock)?.[1] : undefined;
   const plateCount = work.photos.length;
   return (
-    <div className="border border-amber-500/30 bg-amber-500/5 p-5 font-sans">
+    <div className="relative border border-white/10 bg-[#141414] p-8 font-sans">
       <p className="eyebrow text-amber-300/80">Film Sleeve</p>
       <p className="mt-4 text-2xl font-semibold leading-tight text-amber-100">
         {filmStock ?? "Unknown Stock"}
       </p>
       {filmIso && (
         <p className="mt-1 text-label uppercase tracking-[0.24em] text-amber-200/70">
-          ISO {filmIso} · 35mm · C-41
+          ISO {filmIso}
         </p>
       )}
       <dl className="mt-6 space-y-3 text-sm">
@@ -34,16 +34,13 @@ function FilmExifPanel({ work }: { work: Work }) {
           <dd className="text-ink">{work.exif.lens}</dd>
         </div>
         <div>
-          <dt className="text-label uppercase tracking-[0.18em] text-muted">Develop</dt>
-          <dd className="text-ink">C-41 / Standard</dd>
-        </div>
-        <div>
           <dt className="text-label uppercase tracking-[0.18em] text-muted">Negatives</dt>
           <dd className="text-ink">
             No. {String(1).padStart(2, "0")} – {String(plateCount).padStart(2, "0")}
           </dd>
         </div>
       </dl>
+      <Image src="/images/film/film-sleeve.webp" alt="" fill sizes="340px" className="pointer-events-none object-fill opacity-40" aria-hidden />
     </div>
   );
 }
@@ -66,6 +63,7 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
   const idx = all.findIndex((w) => w.slug === work.slug);
   const next = all[(idx + 1) % all.length];
 
+  const isFilm = work.series === "胶片";
   return (
     <article>
       {/* Cover hero：单独占满一屏，只显示封面 + 标题 */}
@@ -75,9 +73,11 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
           alt={work.title}
           fill
           priority
-          className="cinema-tone object-cover"
+          className={isFilm ? "object-cover" : "cinema-tone-soft object-cover"}
           sizes="100vw"
         />
+        {isFilm && <Image src="/images/film/film-hero-overlay.webp" alt="" fill sizes="100vw" className="pointer-events-none z-[1] object-fill opacity-60 mix-blend-screen" aria-hidden />}
+        <Link href={isFilm ? "/works?tab=film" : "/works"} className="silence-pill absolute left-6 top-36 z-20 bg-black/40 text-white backdrop-blur-sm md:left-12">← Works</Link>
         {/* 暗化让标题在亮区也立得住 */}
         <div
           aria-hidden
@@ -89,7 +89,7 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
           <p className="eyebrow text-white/80">
             {work.series} — {work.location} — {work.date.slice(0, 4)}
           </p>
-          <h1 className="mt-4 font-serif text-display text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.5)]">
+          <h1 className={`mt-4 text-display text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.5)] ${isFilm ? "font-sans font-semibold" : "font-serif"}`}>
             {work.title.split(",")[0]}
             {work.title.includes(",") && (
               <>

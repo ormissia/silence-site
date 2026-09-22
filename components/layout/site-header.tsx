@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { NavProgressLink } from "./nav-link";
 
 const WORKS_MENU: Array<{ href: string; label: string }> = [
@@ -33,21 +34,21 @@ function NavLink({
   onMouseLeave?: () => void;
   expanded?: boolean;
 }) {
+  const pathname = usePathname();
+  const active = pathname === href || pathname.startsWith(`${href}/`);
   return (
     <NavProgressLink
       href={href}
-      className="group relative inline-block py-1 active:scale-95 active:opacity-80 transition-transform"
+      aria-current={active ? "page" : undefined}
+      className="silence-pill group relative text-muted active:opacity-80"
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       aria-expanded={expanded}
     >
-      <span className="inline-block text-ink transition-transform duration-200 ease-out group-hover:scale-110">
+      <span className="inline-block">
         {children}
       </span>
-      <span
-        aria-hidden
-        className="absolute -bottom-1 left-1/2 h-[2px] w-0 -translate-x-1/2 rounded-full bg-ink transition-[width] duration-300 ease-out group-hover:w-full"
-      />
+
     </NavProgressLink>
   );
 }
@@ -128,28 +129,29 @@ function NavMenu({
 
 export function SiteHeader() {
   return (
-    <header className="fixed inset-x-0 top-0 z-50 isolate border-b border-ink/10">
+    <header className="fixed inset-x-0 top-0 z-50 isolate border-b border-ink/10 bg-paper/85">
       {/* 模糊放在独立背景层，避免父级 backdrop-filter 限制下拉面板的背景采样。 */}
       <div aria-hidden className="pointer-events-none absolute inset-0 -z-10 backdrop-blur-md" />
-      <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-5 md:px-10">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between flex-wrap gap-4 px-6 py-4 md:px-12">
         <NavProgressLink
           href="/"
           className="leading-none text-white transition-opacity duration-150 active:opacity-60"
         >
-          <span className="block text-2xl uppercase tracking-tighter text-gradient-accent md:text-3xl">
+          <span className="block text-xl font-semibold uppercase tracking-[0.28em] text-gradient-accent">
             SILENCE
           </span>
-          <span className="mt-1 block font-sans text-annotation tracking-wider">
-            Was it a memory, or was it a dream? Even I don&apos;t know.
-          </span>
+
         </NavProgressLink>
 
-        <nav className="hidden items-center gap-8 font-sans text-label uppercase tracking-[0.24em] md:flex">
+        <nav className="flex flex-wrap items-center gap-2 font-sans uppercase">
           <NavMenu href="/works" label="Works" items={WORKS_MENU} />
           <NavMenu href="/journal" label="Journal" items={JOURNAL_MENU} />
           <NavLink href="/reading">Reading</NavLink>
           <NavLink href="/about">About</NavLink>
         </nav>
+      </div>
+      <div className="overflow-hidden border-t border-ink/5 py-1.5 text-[9px] uppercase tracking-[0.22em] text-muted/60" aria-hidden="true">
+        <div className="silence-marquee">{[0, 1].map(i => <span key={i} className="whitespace-nowrap pr-12">SILENCE — PHOTOGRAPHS & NOTES — LANDSCAPE — PORTRAIT — SNAPSHOTS — FILM — READING — JOURNAL — </span>)}</div>
       </div>
     </header>
   );
