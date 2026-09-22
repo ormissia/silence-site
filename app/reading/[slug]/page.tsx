@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BookToolbar } from "@/components/reading/book-toolbar";
 import { BookDialog } from "@/components/reading/book-dialog";
 import { getReadingEntry, getReadingSections, listReading } from "@/lib/reading";
 
@@ -31,12 +32,7 @@ export default function ReadingEntryPage({ params }: { params: { slug: string } 
     <BookDialog key={book.slug} returnHref={shelfHref} titleId="book-detail-title">
     <article>
       <div className="reading-detail-panel relative bg-[#161616]">
-        <div className="sticky top-0 z-20 flex items-center justify-between bg-[#161616]/95 px-6 py-4 backdrop-blur-md md:px-10">
-          <Link replace scroll={false} href={shelfHref} className="text-annotation uppercase tracking-[0.2em] text-muted transition-colors hover:text-ink">← Reading / 返回书架</Link>
-          <Link replace scroll={false} href={shelfHref} aria-label="关闭书籍详情，返回书架" className="flex h-8 w-8 items-center justify-center rounded-full bg-white/[0.06] text-muted transition-colors hover:bg-white/10 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
-            <svg aria-hidden width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="m3 3 8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.2" /></svg>
-          </Link>
-        </div>
+        <BookToolbar title={book.title} cover={book.cover} author={book.author} rating={book.rating} readingTime={book.readingTime} titleId="book-detail-title" returnHref={shelfHref} />
 
         <header className="grid gap-8 px-6 pb-10 pt-6 md:grid-cols-[180px_minmax(0,1fr)] md:gap-10 md:px-10 lg:grid-cols-[224px_minmax(0,1fr)] lg:gap-14">
           <div className="mx-auto w-40 self-start overflow-hidden rounded-xl border border-white/10 bg-black/20 shadow-[0_16px_40px_rgba(0,0,0,0.35)] md:w-full">
