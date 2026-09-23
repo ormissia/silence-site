@@ -2,6 +2,7 @@ const DESCRIPTIONS: Record<string, string> = {
   WORKS: "Selected photographs, collected along the way.",
   JOURNAL: "Small observations. Notes on work and life.",
   READING: "Books, marked passages, and unfinished conversations.",
+  ABOUT: "A note on the person behind the camera.",
 };
 
 export function SecondaryPageHeader({ eyebrow, titleEn, titleZh, lede, count }: {

@@ -10,7 +10,7 @@ export function WorkCard({ work, index, variant = "wide" }: {
   work: Work; index: number; variant?: "tall" | "wide" | "square";
 }) {
   const isFilm = work.series === "胶片";
-  const aspect = variant === "tall" ? "aspect-[4/5]" : variant === "square" ? "aspect-square" : "aspect-[3/2]";
+  const aspect = variant === "tall" ? "aspect-[4/5]" : variant === "square" ? "aspect-square" : "aspect-video";
   return (
     <Link href={`/works/${work.slug}`} className={`${styles.link} editorial-card block`}>
       <div className={`${styles.cover} ${isFilm ? styles.film : ""} bg-black ${aspect}`}>

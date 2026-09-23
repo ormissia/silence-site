@@ -14,7 +14,7 @@ const config: Config = {
         ember: "#7A1F12",
       },
       fontFamily: {
-        serif: ["var(--font-serif)", "ui-serif", "Georgia", "serif"],
+        serif: ["var(--font-serif)", "var(--font-cn)", "ui-serif", "Georgia", "serif"],
         sans: ["var(--font-sans)", "var(--font-cn)", "ui-sans-serif", "system-ui"],
         hairline: ["var(--font-cn)", "var(--font-sans)", "ui-sans-serif", "system-ui"],
       },

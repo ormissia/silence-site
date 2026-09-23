@@ -17,7 +17,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **框架**：Next.js 14.2.5（App Router，TypeScript，React 18.3）
 - **样式**：Tailwind 3.4（`tailwind.config.ts` 扩展了语义化字号 token：`display` / `headline` / `lede` / `body` / `deck`）
-- **字体**：`next/font` 加载 Syne（西文 UI）+ Noto Sans SC（中文，含 100/400/700 三个字重）+ Playfair Display（衬线，用于内页标题和卡片名）
+- **字体**：`next/font` 加载 Syne（西文 UI 与主标题）+ Noto Sans SC（中文，含 100/400/700 三个字重）+ Playfair Display（英文说明、作品标题与编辑性小标题中的西文）
 - **设计规范**：详见 [DESIGN.md](./DESIGN.md)（字体、色彩、组件风格的完整定义）
 - **图片**：阿里云 OSS 托管原图；前端用 `next/image` 但 **关闭** Next 优化器（`images.unoptimized=true`），由 OSS 的 `?x-oss-process=image/resize,...` 实时生成缩略/WebP
 - **内容**：MDX/MD + frontmatter（`gray-matter` 解析，`marked` 渲染），不接 CMS、不在运行时调 OSS
@@ -66,31 +66,13 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 **适用范围**：`app/**/*.tsx`、`components/**/*.tsx` 里直接写在 JSX className 上的字体类。
 **不适用**：`content/**/*.mdx` 里的 frontmatter 与正文（那是数据，由组件决定字体）；任何 markdown 渲染器内部的 typography 默认。
 
-规则：
+按 [DESIGN.md](./DESIGN.md) 执行：
 
-- **全站默认走 `font-sans`**（Syne 西文 + Noto Sans SC 中文），用于导航、按钮、标签、最大标题
-- **内页标题和卡片名用 `font-serif`**（Playfair Display），给页面增添精致的衬线质感
-- **超大标题**可以用 `font-hairline`（Noto Sans SC 100），给"寂静无声"这种主视觉用
-- **强调色**为金色 × 紫色双色渐变（`#C8956B` → `#8B5CF6`），用于 logo、激活状态、按钮光晕
-
-**规则**：
-- UI 元素（导航、按钮、标签）→ `font-sans`（Syne）
-- 内页 `<h1>` / `<h2>` / 卡片标题 → `font-serif`（Playfair Display）
-- 中文正文自动走 Noto Sans SC（已配入 `font-sans` 字体栈回退）
-- 按钮统一 `rounded-lg`、细边框、hover 时边框变亮
-- 图片卡片统一 `rounded-lg border border-ink/10`
-
-**反例**：
-```tsx
-// ❌ 内页标题用 font-sans
-<h1 className="font-sans text-display">The Quiet Hours</h1>
-
-// ✅ 内页标题用 font-serif
-<h1 className="font-serif text-display">The Quiet Hours</h1>
-
-// ✅ UI 元素默认 font-sans（body 已设）
-<button className="rounded-lg border border-ink/20">Enter</button>
-```
+- `font-sans` 是默认字体栈：西文使用 Syne，中文回退到 Noto Sans SC；导航、按钮、标签、英文主标题与中文标题正文使用它。
+- `font-serif` 用于英文说明、作品标题与编辑性小标题中的西文；其中的中文同样回退到 Noto Sans SC。不要按 `<h1>` / `<h2>` 标签一律指定衬线。
+- 超大中文主视觉可以用 `font-hairline`（Noto Sans SC 100）。
+- 强调渐变为 `125deg`、`#C9994A` → `#7C6CF0`，主要用于 Logo、选中胶囊和少量联系入口。
+- 公共分类与导航按钮使用 `silence-pill`；内容卡片使用 `editorial-card`（12px 圆角、细边框）。Works 列表封面默认 16:9；Reading 窄屏书架两列、书封完整显示。
 
 ### 设计实现注意
 
@@ -101,7 +83,7 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
   - 层3 标签：`text-label`（13px）/ `text-caption`（11px）
   - 层4 注释：`text-annotation`（10px）
 - 颜色 token 也是语义化命名：`paper`（深邃黑）/ `ink`（暖白）/ `muted` / `rule` / `accent`（金色）/ `accent-end`（紫色）/ `ember`。
-- 渐变工具类：`text-gradient-accent`（渐变文字）/ `bg-gradient-accent`（渐变背景）/ `divider-gradient`（两端渐隐分隔线）。
+- 渐变工具类：`text-gradient-accent`（渐变文字）/ `bg-gradient-accent`（渐变背景）/ `divider-gradient`（两端渐隐分隔线）。渐变文字只用于少量强调，不铺满正文。
 
 ## 命令
 

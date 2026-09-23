@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { SecondaryPageHeader } from "@/components/layout/secondary-page-header";
 
 export const metadata = { title: "About — SILENCE" };
 
@@ -20,11 +21,15 @@ const sections = [
 
 export default function AboutPage() {
   return (
-    <section className="mx-auto max-w-[1400px] px-6 pb-24 pt-44 md:px-12 md:pt-48">
-      <div className="mx-auto max-w-[800px] text-center">
-        <h1 className="font-serif text-headline leading-tight">Hi, I&apos;m Song.</h1>
-        <p className="text-gradient-accent mt-4 text-body leading-relaxed">相机是借口，散步才是正事；划线是借口，重新决定如何活着才是正事。</p>
-        <div className="my-8 border-t divider-gradient" />
+    <section className="mx-auto max-w-[1400px] px-6 pb-24 pt-40 md:px-12 md:pt-44">
+      <SecondaryPageHeader
+        eyebrow="About — Song"
+        titleEn="ABOUT"
+        titleZh="关于"
+        lede="相机是借口，散步才是正事；划线是借口，重新决定如何活着才是正事。"
+      />
+
+      <div className="mx-auto mt-16 max-w-[800px]">
         <div className="space-y-4 text-body leading-[1.95] text-ink/75">
           <p>这里收着我从 2024 年起拿得出手的几组瞬间——风光是行走的回礼，人像是与陌生人交换的三秒钟，日常是被路过的物件，胶片则是我学着对“现在”按一次快门、不再回看的练习。</p>
           <p>最近在德国古典哲学里待得最久——康德把“人”放进了一个倔强的位置：人是目的，永远不只是手段。这句话我一直记得，也尝试用它衡量自己每天的工作与镜头。读书笔记里那些划线，是我用别人的句子，给自己留的借据。</p>
@@ -32,7 +37,7 @@ export default function AboutPage() {
         <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3">
           {facts.map(([label, value]) => (
             <div key={label} className="border-t divider-gradient pt-5">
-              <dt className="silence-pill silence-pill-accent !px-3 !py-1.5 !text-[9px] uppercase text-ink/75">{label}</dt>
+              <dt className="text-annotation uppercase tracking-[0.2em] text-muted">{label}</dt>
               <dd className="mt-3 text-label leading-relaxed tracking-normal text-ink/70">{value}</dd>
             </div>
           ))}

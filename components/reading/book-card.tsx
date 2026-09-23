@@ -55,7 +55,7 @@ export function BookCard({ book }: { book: ReadingEntry }) {
   return (
     <Link
       href={`/reading/${book.slug}${shelfQuery}`}
-      className="group block"
+      className="group block min-w-0"
       style={{ perspective: "900px" }}
     >
       <motion.div
@@ -70,18 +70,18 @@ export function BookCard({ book }: { book: ReadingEntry }) {
         whileHover={{ scale: 1.04, z: 12 }}
         transition={{ type: "spring", stiffness: 220, damping: 22, mass: 0.7 }}
       >
-        <div className="relative w-full overflow-hidden rounded-lg border border-ink/10 bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-shadow duration-300 ease-out group-hover:shadow-[0_24px_56px_rgba(124,108,240,0.16),0_8px_20px_rgba(0,0,0,0.6)]">
+        <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg border border-ink/10 bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-shadow duration-300 ease-out group-hover:shadow-[0_24px_56px_rgba(124,108,240,0.16),0_8px_20px_rgba(0,0,0,0.6)]">
           {book.cover ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={book.cover}
               alt={book.title}
-              className="block h-auto w-full object-contain"
+              className="block h-full w-full object-contain"
               loading="lazy"
               draggable={false}
             />
           ) : (
-            <div className="flex aspect-[3/4] w-full items-center justify-center font-sans text-label uppercase tracking-[0.24em] text-muted">
+            <div className="flex h-full w-full items-center justify-center font-sans text-label uppercase tracking-[0.24em] text-muted">
               No Cover
             </div>
           )}
@@ -95,7 +95,7 @@ export function BookCard({ book }: { book: ReadingEntry }) {
       </motion.div>
 
       <div className="mt-3">
-        <h3 className="font-sans text-xs leading-tight text-ink group-hover:text-accent">
+        <h3 className="break-words font-sans text-xs leading-snug text-ink group-hover:text-accent">
           {book.title}
         </h3>
         {book.author && (

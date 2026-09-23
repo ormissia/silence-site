@@ -41,7 +41,7 @@ export function ReadingShelf({
       {filtered.length === 0 ? (
         <p className="mt-24 text-center font-sans text-muted">这个分类下还没有书。</p>
       ) : (
-        <div className="mt-8 grid grid-cols-3 gap-x-4 gap-y-8 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 xl:grid-cols-8">
+        <div className="mt-8 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-8">
           {filtered.map((book) => (
             <BookCard key={book.slug} book={book} />
           ))}
