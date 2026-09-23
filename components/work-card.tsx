@@ -22,7 +22,7 @@ export function WorkCard({ work, index, variant = "wide", tab = "all" }: {
           sizes="(min-width: 768px) 50vw, 100vw"
           className={styles.image} />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/15" />
-        {isFilm && <div aria-hidden className="pointer-events-none absolute inset-0 border-[15px] border-solid" style={{ borderImageSource: 'url("/images/film/film-kodak-frame.webp")', borderImageSlice: 45, borderImageRepeat: "stretch" }} />}
+        {isFilm && <div aria-hidden className="pointer-events-none absolute inset-0 z-[3] border-[15px] border-solid" style={{ borderImageSource: 'url("/images/film/film-kodak-frame.webp")', borderImageSlice: 45, borderImageRepeat: "stretch" }} />}
         <div className={styles.topMetadata}>
           <span className="text-caption tracking-[0.25em] text-white/60">{String(index + 1).padStart(2, "0")}</span>
           <span className="rounded-full border border-white/20 bg-black/30 px-3 py-1 text-annotation text-white/75 backdrop-blur-sm">{work.series}</span>

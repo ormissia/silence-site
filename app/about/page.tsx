@@ -62,7 +62,7 @@ export default function AboutPage() {
             <h1 className="mt-4 font-sans text-display font-semibold text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.45)]">About</h1>
             <p className="mt-5 font-serif text-sm italic text-white/90 [text-shadow:0_2px_8px_rgba(0,0,0,0.9),0_0_24px_rgba(0,0,0,0.7)]">A note on the person behind the camera.</p>
           </div>
-          <p className="ml-auto max-w-[32ch] whitespace-pre-line text-right text-sm leading-[1.9] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.6)] md:text-base">
+          <p className="ml-auto w-max max-w-full whitespace-pre text-right text-[clamp(12px,3.5vw,16px)] leading-[1.9] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">
             {"我在代码里寻找秩序，在书页间追问命运\n走进群山，用镜头留下那些尚未来得及命名的光"}
           </p>
         </div>

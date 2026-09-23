@@ -28,20 +28,16 @@
 .info {
   position: absolute;
   z-index: 2;
-  bottom: 10px;
-  left: 10px;
-  right: 10px;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 14px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  border-radius: 8px;
-  background: rgba(17, 17, 17, 0.48);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  transition: transform 0.4s ease;
+  padding: 44px 24px 20px;
+  background: linear-gradient(to bottom, transparent, rgba(12, 12, 12, 0.45) 45%, rgba(12, 12, 12, 0.94));
+  transition: opacity 0.3s ease, transform 0.4s ease;
 }
 
 .film {
@@ -49,9 +45,9 @@
 }
 
 .film .info {
-  bottom: 20px;
-  left: 20px;
-  right: 20px;
+  padding-right: 34px;
+  padding-bottom: 30px;
+  padding-left: 34px;
 }
 
 .frame {
@@ -100,6 +96,8 @@
 @media (hover: hover) and (pointer: fine) {
   .cover:hover .image { transform: scale(1.03); }
   .cover:hover .frame { opacity: 1; }
+  .cover:hover .info { opacity: 0; transform: translateY(12px); }
+  .link:focus-visible .info { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
