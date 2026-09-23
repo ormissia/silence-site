@@ -46,16 +46,15 @@ export default function ReadingEntryPage({ params, searchParams }: {
             ) : <div className="flex aspect-[2/3] items-center justify-center px-5 text-center font-serif text-lg text-muted">{book.title}</div>}
           </div>
           <div className="min-w-0 pt-1">
-            <p className="text-annotation uppercase tracking-[0.26em] text-muted">Reading Notes</p>
+            <p className="text-xs uppercase tracking-[0.2em] text-muted">Reading Notes</p>
             <div className="mt-5 flex flex-wrap items-center gap-4">
               <h1 id="book-detail-title" className="break-words text-[clamp(1.75rem,3.5vw,2.5rem)] font-semibold leading-tight tracking-tight">{book.title}</h1>
-              {book.progress && <span className="silence-pill shrink-0 text-muted"><span className="h-1.5 w-1.5 rounded-full bg-gradient-accent" />{book.progress}</span>}
             </div>
             {book.author && <p className="mt-3 text-sm italic leading-relaxed text-muted">{book.author}</p>}
             <dl className="mt-7 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3">
               {stats.map(([label, value]) => (
                 <div key={label} className="min-w-0 border-t divider-gradient pt-4 text-center">
-                  <dt className="silence-pill silence-pill-accent !px-2.5 !py-1.5 !text-[9px] uppercase text-ink/75">{label}</dt>
+                  <dt className="silence-pill silence-pill-accent !px-2.5 !py-1.5 !text-[11px] uppercase text-ink/80">{label}</dt>
                   <dd className="mt-3 break-words text-sm leading-relaxed text-ink/80">{value}</dd>
                 </div>
               ))}
@@ -70,7 +69,7 @@ export default function ReadingEntryPage({ params, searchParams }: {
             <h2 className="mb-6 text-annotation uppercase tracking-[0.22em] text-muted">Book details / 书籍资料</h2>
             {sections.metadataHtml ? <div className="md-content reading-book-metadata" dangerouslySetInnerHTML={{ __html: sections.metadataHtml }} /> : (
               <dl className="space-y-6 text-sm leading-relaxed">
-                {[["书名", book.title], ["作者", book.author], ["分类", book.rawCategory ?? book.category], ["ISBN", book.isbn]].filter(([, value]) => value).map(([label, value]) => <div key={label}><dt className="mb-2 text-annotation text-muted">{label}</dt><dd>{value}</dd></div>)}
+                {[["分类", book.rawCategory ?? book.category], ["ISBN", book.isbn]].filter(([, value]) => value).map(([label, value]) => <div key={label}><dt className="mb-2 text-annotation text-muted">{label}</dt><dd>{value}</dd></div>)}
               </dl>
             )}
           </aside>

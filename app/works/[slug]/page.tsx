@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildSrc } from "@/lib/oss";
+import { seriesToTab, tabToSeries } from "@/lib/categories";
+import { ReturnToListLink } from "@/components/layout/list-return";
 import { getWork, listWorks } from "@/lib/works";
 import { PlatesGrid } from "@/components/work/plates-grid";
 
@@ -17,14 +19,20 @@ export async function generateMetadata({ params }: { params: { slug: string } })
   return { title: `${work.title} — SILENCE` };
 }
 
-export default async function WorkDetailPage({ params }: { params: { slug: string } }) {
+export default async function WorkDetailPage({ params, searchParams }: {
+  params: { slug: string };
+  searchParams: { tab?: string | string[] };
+}) {
   const work = await getWork(params.slug);
   if (!work) notFound();
 
   const all = await listWorks();
-  const idx = all.findIndex((w) => w.slug === work.slug);
-  const next = all[(idx + 1) % all.length];
-
+  const requestedTab = typeof searchParams.tab === "string" ? searchParams.tab : undefined;
+  const tab = tabToSeries(requestedTab) === work.series ? requestedTab : work.series === "胶片" ? seriesToTab(work.series) : undefined;
+  const query = tab ? `?tab=${encodeURIComponent(tab)}` : "";
+  const visibleWorks = tab ? all.filter((item) => item.series === work.series) : all;
+  const idx = visibleWorks.findIndex((item) => item.slug === work.slug);
+  const next = visibleWorks[(idx + 1) % visibleWorks.length];
   const isFilm = work.series === "胶片";
   return (
     <article className="detail-enter pb-20">
@@ -39,7 +47,7 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
           sizes="100vw"
         />
         {isFilm && <Image src="/images/film/film-hero-overlay.webp" alt="" fill sizes="100vw" className="pointer-events-none z-[1] object-fill opacity-60 mix-blend-screen" aria-hidden />}
-        <Link href={isFilm ? "/works?tab=film" : "/works"} className={`silence-pill absolute left-6 z-20 bg-black/40 text-white backdrop-blur-sm md:left-12 ${isFilm ? "top-8" : "top-36"}`}>← Works</Link>
+        <ReturnToListLink href={`/works${query}`} className={`silence-pill absolute left-6 z-20 bg-black/40 text-white backdrop-blur-sm md:left-12 ${isFilm ? "top-8" : "top-36"}`}>← Works</ReturnToListLink>
         {/* 暗化让标题在亮区也立得住 */}
         <div
           aria-hidden
@@ -111,9 +119,9 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
       </section>
 
       {/* Next */}
-      <section className="mx-auto mt-32 max-w-[1400px] px-6 md:px-10">
+      {visibleWorks.length > 1 && <section className="mx-auto mt-32 max-w-[1400px] px-6 md:px-10">
         <Link
-          href={`/works/${next.slug}`}
+          href={`/works/${next.slug}${query}`}
           className="group block border-t border-rule pt-8"
         >
           <p className="eyebrow">Next Story</p>
@@ -126,7 +134,7 @@ export default async function WorkDetailPage({ params }: { params: { slug: strin
             </span>
           </div>
         </Link>
-      </section>
+      </section>}
     </article>
   );
 }

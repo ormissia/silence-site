@@ -14,6 +14,7 @@ import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tab
 import { CoverFocusFrame } from "@/components/cover-focus-frame";
 import { OverflowText } from "@/components/overflow-text";
 import styles from "@/components/cover-hover.module.css";
+import { rememberListPosition, RestoreListScroll } from "@/components/layout/list-return";
 
 const MONTH_EN = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -32,6 +33,7 @@ function formatDate(iso: string): { day: string; monthYear: string } {
 export function JournalList({ entries }: { entries: JournalEntry[] }) {
   const params = useSearchParams();
   const cat = (params.get("cat") ?? "all") as "all" | JournalCategory;
+  const categoryQuery = cat === "all" ? "" : `?cat=${encodeURIComponent(cat)}`;
 
   const filtered = cat === "all" ? entries : entries.filter((e) => e.category === cat);
 
@@ -49,6 +51,7 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
 
   return (
     <>
+      <RestoreListScroll />
       <CategoryTabs
         tabs={tabs}
         paramName="cat"
@@ -59,34 +62,31 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
       {filtered.length === 0 ? (
         <p className="mt-24 text-center font-sans text-muted">这个分类下还没有文章。</p>
       ) : (
-        <div className="flex snap-x snap-proximity gap-5 overflow-x-auto pb-16 pt-2">
+        <div className="space-y-6 pb-16 pt-2">
           {filtered.map((entry, i) => {
             const { day, monthYear } = formatDate(entry.date);
             return (
-              <Link key={entry.slug} href={`/journal/${entry.slug}`}
-                className={`${styles.link} flex w-[85vw] max-w-[900px] shrink-0 snap-start flex-col gap-5 rounded-xl md:w-[78vw] md:flex-row`}>
-                <div className="editorial-card flex flex-col justify-between p-6 md:w-[220px] md:shrink-0">
-                  <div>
-                    <span className="text-7xl font-light leading-none text-ink/85">{day}</span>
-                    <p className="mt-3 text-caption uppercase tracking-[0.22em] text-muted">{monthYear}</p>
-                    {entry.mood && <span className="silence-pill mt-4 text-muted">Mood · {entry.mood}</span>}
-                    {entry.location && <p className="mt-4 text-annotation uppercase tracking-widest text-muted">{entry.location}</p>}
+              <Link key={entry.slug} href={`/journal/${entry.slug}${categoryQuery}`} onClick={() => rememberListPosition(`/journal${categoryQuery}`)}
+                className={`${styles.link} group grid overflow-hidden rounded-xl border border-white/10 bg-[#111] md:grid-cols-[200px_minmax(0,1fr)]`}>
+                <div className="flex items-start justify-between gap-4 p-5 md:flex-col md:p-6">
+                  <div className="shrink-0">
+                    <span className="text-5xl font-light leading-none text-ink/85 md:text-7xl">{day}</span>
+                    <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted">{monthYear}</p>
                   </div>
-                  <div className="mt-8 border-t border-white/10 pt-4">
-                    <p className="text-annotation uppercase tracking-widest text-accent">{entry.category === "tech" ? "Tech / 技术" : "Life / 生活"}</p>
-                    <h2 className="mt-2 font-serif text-sm leading-relaxed">{entry.title}</h2>
+                  <div className="text-right md:mt-auto md:text-left">
+                    <p className="text-xs uppercase tracking-[0.12em] text-accent">{entry.category === "tech" ? "Tech / 技术" : "Life / 生活"}</p>
+                    {entry.mood && <p className="mt-2 text-xs text-muted">Mood · {entry.mood}</p>}
+                    {entry.location && <p className="mt-2 text-xs text-muted">{entry.location}</p>}
                   </div>
                 </div>
-                <div className={`${styles.cover} editorial-card aspect-[3/2] min-w-0 flex-1 md:min-h-[360px]`}>
-                    {entry.cover ? <Image src={buildSrc(entry.cover, "detail")} alt={entry.title} fill sizes="(min-width: 768px) 50vw, 85vw" className={styles.image} /> : <div className="absolute inset-0 flex items-center justify-center font-serif text-4xl italic text-muted/40">Notes & essays</div>}
-                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                    <span className={`${styles.topMetadata} text-caption text-white/60`}>{String(i + 1).padStart(2, "0")}</span>
+                <div className={`${styles.cover} relative aspect-[16/9] min-w-0 bg-[#1b1b22] md:aspect-[5/2]`}>
+                  {entry.cover ? <Image src={buildSrc(entry.cover, "detail")} alt="" fill sizes="(min-width: 768px) 70vw, 100vw" className={styles.image} /> : <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(124,108,240,0.14),transparent_42%),linear-gradient(135deg,rgba(201,153,74,0.12),transparent_55%)]" />}
+                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                    <span className="absolute left-5 top-5 text-xs tracking-[0.2em] text-white/75 md:left-7 md:top-7">{String(i + 1).padStart(2, "0")}</span>
                   {entry.cover && <CoverFocusFrame />}
-                  <div className={styles.info}>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-serif text-sm italic leading-snug text-ink/85"><OverflowText text={entry.title} /></p>
-                      <p className="mt-1.5 text-xs leading-relaxed text-muted"><OverflowText text={entry.excerpt ?? ""} /></p>
-                    </div>
+                  <div className={`absolute inset-x-5 z-10 md:inset-x-7 ${entry.cover ? "bottom-5 md:bottom-7" : "top-1/2 -translate-y-1/2"}`}>
+                    <h2 className="font-serif text-xl leading-snug text-white md:text-3xl"><OverflowText text={entry.title} /></h2>
+                    {entry.excerpt && <p className="mt-2 text-sm leading-relaxed text-white/75"><OverflowText text={entry.excerpt} /></p>}
                   </div>
                 </div>
               </Link>

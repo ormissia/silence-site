@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildSrc } from "@/lib/oss";
 import { getJournalEntry, listJournal, JOURNAL_CATEGORY_LABELS } from "@/lib/journal";
+import { ReturnToListLink } from "@/components/layout/list-return";
 
 export function generateStaticParams() {
   return listJournal().map((e) => ({ slug: e.slug }));
@@ -26,21 +27,29 @@ function formatDateLong(iso: string): string {
   return `${MONTH_EN[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")}, ${d.getFullYear()}`;
 }
 
-export default function JournalEntryPage({ params }: { params: { slug: string } }) {
+export default function JournalEntryPage({ params, searchParams }: {
+  params: { slug: string };
+  searchParams: { cat?: string | string[] };
+}) {
   const entry = getJournalEntry(params.slug);
   if (!entry) notFound();
 
-  // 同分类内取下一篇，没有则全集循环
+  const category = searchParams.cat === entry.category ? entry.category : undefined;
+  const query = category ? `?cat=${encodeURIComponent(category)}` : "";
+  // 优先同分类；若分类只有这一篇，则接到全站下一篇。
   const sameCat = listJournal(entry.category);
-  const idx = sameCat.findIndex((e) => e.slug === entry.slug);
-  const next = sameCat[(idx + 1) % sameCat.length];
+  const all = listJournal();
+  const pool = sameCat.length > 1 ? sameCat : all;
+  const idx = pool.findIndex((e) => e.slug === entry.slug);
+  const next = pool.length > 1 ? pool[(idx + 1) % pool.length] : undefined;
+  const nextQuery = next?.category === entry.category ? query : "";
   const catLabel = JOURNAL_CATEGORY_LABELS[entry.category];
 
   return (
     <article className="detail-enter">
       {entry.cover ? (
         // 有封面：标题压在 hero 底部居中，参考 works 详情页
-        <header className="relative h-screen min-h-[560px] w-full overflow-hidden bg-ink/5">
+        <header className="relative h-[70svh] min-h-[420px] max-h-[720px] w-full overflow-hidden bg-ink/5">
           <Image
             src={buildSrc(entry.cover, "hero")}
             alt={entry.title}
@@ -55,6 +64,7 @@ export default function JournalEntryPage({ params }: { params: { slug: string } 
             className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/75"
           />
           <div className="vignette absolute inset-0" />
+          <ReturnToListLink href={`/journal${query}`} className="silence-pill absolute left-6 top-[calc(var(--site-header-height)+1.5rem)] z-20 bg-black/40 text-white backdrop-blur-sm md:left-12">← Journal</ReturnToListLink>
 
           <div className="relative z-10 mx-auto flex h-full max-w-[1100px] flex-col items-center justify-end px-6 pb-10 text-center md:px-10 md:pb-14">
             <p className="eyebrow text-white/80">
@@ -78,7 +88,8 @@ export default function JournalEntryPage({ params }: { params: { slug: string } 
         </header>
       ) : (
         // 无封面：保留原有"标题居中、留白足"的排版
-        <header className="mx-auto mt-16 max-w-[1100px] px-6 text-center md:mt-24 md:px-10">
+        <header className="mx-auto max-w-[1100px] px-6 pt-[calc(var(--site-header-height)+2rem)] text-center md:px-10">
+          <ReturnToListLink href={`/journal${query}`} className="silence-pill mb-10 text-muted">← Journal</ReturnToListLink>
           <p className="eyebrow">
             {[
               `${catLabel.en} / ${catLabel.zh}`,
@@ -97,16 +108,16 @@ export default function JournalEntryPage({ params }: { params: { slug: string } 
         </header>
       )}
 
-      <section className="mx-auto mt-20 max-w-[1100px] px-6 md:px-10">
+      <section className="mx-auto mt-12 max-w-[1100px] px-6 md:mt-16 md:px-10">
         <div
           className="md-content mx-auto max-w-column border-t border-rule pt-12"
           dangerouslySetInnerHTML={{ __html: entry.bodyHtml }}
         />
       </section>
 
-      <section className="mx-auto mt-32 max-w-[1400px] px-6 md:px-10">
+      {next && <section className="mx-auto mt-32 max-w-[1400px] px-6 md:px-10">
         <Link
-          href={`/journal/${next.slug}`}
+          href={`/journal/${next.slug}${nextQuery}`}
           className="group block border-t border-rule pt-8"
         >
           <p className="eyebrow">Next Note</p>
@@ -119,7 +130,7 @@ export default function JournalEntryPage({ params }: { params: { slug: string } 
             </span>
           </div>
         </Link>
-      </section>
+      </section>}
     </article>
   );
 }

@@ -156,7 +156,7 @@ export function SiteHeader() {
           <NavLink href="/about">About</NavLink>
         </nav>
       </div>
-      <div className="site-header-marquee overflow-hidden border-t border-white/[0.06] py-1.5 text-[9px] uppercase tracking-[0.22em]" aria-hidden="true">
+      <div className="site-header-marquee hidden overflow-hidden border-t border-white/[0.06] py-1.5 text-[9px] uppercase tracking-[0.22em] sm:block" aria-hidden="true">
         <div className="silence-marquee">{[0, 1].map(i => <span key={i} className="whitespace-nowrap pr-12">SILENCE — PHOTOGRAPHS & NOTES — LANDSCAPE — PORTRAIT — SNAPSHOTS — FILM — READING — JOURNAL — </span>)}</div>
       </div>
     </header>

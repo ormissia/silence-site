@@ -11,7 +11,7 @@ export default function JournalPage() {
   const entries = listJournal();
 
   return (
-    <section className="mx-auto max-w-[1400px] px-6 pb-20 pt-40 md:px-12 md:pt-44">
+    <section className="mx-auto max-w-[1400px] px-6 pb-20 pt-28 md:px-12 md:pt-44">
       <SecondaryPageHeader
         count={`${entries.length} Notes`}
         eyebrow="Journal — Notes & Essays"

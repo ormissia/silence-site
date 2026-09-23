@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { buildSrc } from "@/lib/oss";
@@ -5,14 +7,16 @@ import type { Work } from "@/lib/works";
 import { CoverFocusFrame } from "@/components/cover-focus-frame";
 import { OverflowText } from "@/components/overflow-text";
 import styles from "./cover-hover.module.css";
+import { rememberListPosition } from "@/components/layout/list-return";
 
-export function WorkCard({ work, index, variant = "wide" }: {
-  work: Work; index: number; variant?: "tall" | "wide" | "square";
+export function WorkCard({ work, index, variant = "wide", tab = "all" }: {
+  work: Work; index: number; variant?: "tall" | "wide" | "square"; tab?: string;
 }) {
   const isFilm = work.series === "胶片";
   const aspect = variant === "tall" ? "aspect-[4/5]" : variant === "square" ? "aspect-square" : "aspect-video";
+  const query = tab === "all" ? "" : `?tab=${encodeURIComponent(tab)}`;
   return (
-    <Link href={`/works/${work.slug}`} className={`${styles.link} editorial-card block`}>
+    <Link href={`/works/${work.slug}${query}`} onClick={() => rememberListPosition(`/works${query}`)} className={`${styles.link} editorial-card block`}>
       <div className={`${styles.cover} ${isFilm ? styles.film : ""} bg-black ${aspect}`}>
         <Image src={buildSrc(work.cover, "gridThumb")} alt={work.title} fill
           sizes="(min-width: 768px) 50vw, 100vw"

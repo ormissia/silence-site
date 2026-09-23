@@ -21,7 +21,7 @@ const sections = [
 
 export default function AboutPage() {
   return (
-    <section className="mx-auto max-w-[1400px] px-6 pb-24 pt-40 md:px-12 md:pt-44">
+    <section className="mx-auto max-w-[1400px] px-6 pb-24 pt-28 md:px-12 md:pt-44">
       <SecondaryPageHeader
         eyebrow="About — Song"
         titleEn="ABOUT"

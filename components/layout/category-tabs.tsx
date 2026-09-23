@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useRef } from "react";
 
 /**
  * 单个 tab 的数据：slug 是 URL 值（与 basePath 拼成 ?paramName=slug），
@@ -33,6 +34,14 @@ export function CategoryTabs({
   const router = useRouter();
   const params = useSearchParams();
   const active = params.get(paramName) ?? defaultSlug;
+  const rowRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const row = rowRef.current;
+    const selected = row?.querySelector<HTMLButtonElement>('[aria-pressed="true"]');
+    if (!row || !selected || row.scrollWidth <= row.clientWidth) return;
+    row.scrollTo({ left: selected.offsetLeft - row.offsetLeft - (row.clientWidth - selected.clientWidth) / 2 });
+  }, [active]);
 
   const onClick = (slug: string) => {
     const next =
@@ -43,7 +52,7 @@ export function CategoryTabs({
   };
 
   return (
-    <div className="my-6 flex flex-wrap items-center gap-2">
+    <div ref={rowRef} role="group" aria-label="分类筛选" className="category-tabs my-4 flex items-center gap-2 overflow-x-auto pb-2 md:my-6 md:flex-wrap md:overflow-visible md:pb-0">
       {tabs.map((t) => (
         <TabButton
           key={t.slug}
@@ -54,7 +63,7 @@ export function CategoryTabs({
         />
       ))}
       {totalLabel && (
-        <span className="ml-auto font-sans text-label uppercase tracking-[0.24em] text-muted">
+        <span className="ml-auto hidden font-sans text-label uppercase tracking-[0.24em] text-muted md:block">
           {totalLabel}
         </span>
       )}
@@ -78,7 +87,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       aria-pressed={isActive}
-      className={`silence-pill font-sans uppercase ${isActive ? "text-ink" : "text-muted"}`}
+      className={`silence-pill shrink-0 font-sans uppercase ${isActive ? "text-ink" : "text-muted"}`}
     >
       <span>{label}</span>
       {typeof count === "number" && (

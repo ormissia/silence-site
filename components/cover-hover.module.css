@@ -102,13 +102,6 @@
   .cover:hover .frame { opacity: 1; }
 }
 
-/* Keep the title readable for keyboard navigation and touch. */
-@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
-  .link:not(:focus-visible) .cover:hover .info {
-    transform: translateY(calc(100% + 24px));
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .image,
   .info,

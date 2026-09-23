@@ -589,6 +589,8 @@ body[data-lightbox-open="true"] .site-header {
   color: #EFEFED;
 }
 .silence-pill:focus-visible { outline: 2px solid #C9994A; outline-offset: 4px; }
+.category-tabs { scrollbar-width: none; }
+.category-tabs::-webkit-scrollbar { display: none; }
 .silence-glow { background: radial-gradient(ellipse 80% 550px at 50% 0%, rgba(35,28,50,.5), transparent 70%); }
 .silence-marquee { display: flex; width: max-content; animation: silence-scroll 38s linear infinite; }
 @keyframes silence-scroll { to { transform: translateX(-50%); } }
@@ -620,7 +622,7 @@ body[data-lightbox-open="true"] .site-header {
 }
 @media (max-width: 639px) {
   :root { --site-header-height: 120px; }
-  .site-header nav .silence-pill { font-size: 10px; padding: .55rem .7rem; }
+  .site-header nav .silence-pill { font-size: 11px; padding: .55rem .7rem; }
 }
 
 /* Book detail: local overrides keep journal Markdown unchanged. */
@@ -655,7 +657,7 @@ body[data-lightbox-open="true"] .site-header {
   background: rgba(255,255,255,.025);
 }
 .reading-book-notes .md-callout .md-callout-title {
-  font-size: 9px;
+  font-size: 11px;
   font-weight: 400;
   letter-spacing: .2em;
   color: #C9994A;

@@ -6,6 +6,7 @@ import { WorkCard } from "@/components/work-card";
 import { tabToSeries, seriesToTab } from "@/lib/categories";
 import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tabs";
 import type { Work } from "@/lib/works";
+import { RestoreListScroll } from "@/components/layout/list-return";
 
 type Props = {
   works: Work[];
@@ -38,6 +39,7 @@ export function WorksGallery({ works, categoryCounts }: Props) {
 
   return (
     <>
+      <RestoreListScroll />
       <CategoryTabs
         tabs={tabs}
         paramName="tab"
@@ -51,7 +53,7 @@ export function WorksGallery({ works, categoryCounts }: Props) {
           <p className="relative py-24 text-center text-muted">这个分类下还没有作品。</p>
         ) : (
           <div className="relative grid grid-cols-1 gap-5 md:grid-cols-2">
-            {filtered.map((work, index) => <WorkCard key={work.slug} work={work} index={index} />)}
+            {filtered.map((work, index) => <WorkCard key={work.slug} work={work} index={index} tab={activeTab} />)}
           </div>
         )}
       </div>

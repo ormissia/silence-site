@@ -4,7 +4,6 @@ import {Syne, Noto_Sans_SC, Playfair_Display} from "next/font/google";
 import "./globals.css";
 import {SiteHeader} from "@/components/layout/site-header";
 import {RouteProgress, RouteProgressProvider} from "@/components/layout/route-progress";
-import {MobileGate} from "@/components/layout/mobile-gate";
 import {SiteFooter} from "@/components/layout/site-footer";
 
 const serif = Playfair_Display({
@@ -46,7 +45,6 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
 
             <SiteFooter year={new Date().getFullYear()} />
 
-            <MobileGate />
         </RouteProgressProvider>
         </body>
         </html>

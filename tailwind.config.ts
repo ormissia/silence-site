@@ -29,9 +29,9 @@ const config: Config = {
         deck: ["0.875rem", { lineHeight: "1.4", letterSpacing: "0.18em" }],
         // 层3: 按钮 13px / 标签 11px
         label: ["0.8125rem", { lineHeight: "1.4", letterSpacing: "0.18em" }],
-        caption: ["0.6875rem", { lineHeight: "1.4", letterSpacing: "0.18em" }],
-        // 层4: 注释 10px
-        annotation: ["0.625rem", { lineHeight: "1.4", letterSpacing: "0.18em" }],
+        caption: ["0.75rem", { lineHeight: "1.4", letterSpacing: "0.14em" }],
+        // 层4: 注释 11px
+        annotation: ["0.6875rem", { lineHeight: "1.4", letterSpacing: "0.14em" }],
       },
       letterSpacing: {
         eyebrow: "0.24em",
