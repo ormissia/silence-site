@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SecondaryPageHeader } from "@/components/layout/secondary-page-header";
 
 export const metadata = { title: "About — SILENCE" };
 
@@ -46,15 +45,31 @@ const mountainNotes = [
 
 export default function AboutPage() {
   return (
-    <section className="mx-auto max-w-[1400px] px-6 pb-24 pt-28 md:px-12 md:pt-44">
-      <SecondaryPageHeader
-        eyebrow="About — Song"
-        titleEn="ABOUT"
-        titleZh="关于"
-        lede={"我在代码里寻找秩序，在书页间追问命运\n走进群山，用镜头留下那些尚未来得及命名的光"}
-      />
+    <>
+      <header className="relative isolate overflow-hidden bg-paper">
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-20 bg-cover bg-center brightness-[0.9] saturate-[0.85]"
+          style={{ backgroundImage: "url('/images/background.jpg')" }}
+        />
+        <div
+          aria-hidden
+          className="absolute inset-0 -z-10 bg-[linear-gradient(to_bottom,rgba(4,8,13,0.46)_0%,rgba(4,8,13,0.12)_25%,rgba(8,9,11,0.12)_30%,#0C0C0C_95%)]"
+        />
+        <div className="relative mx-auto flex min-h-[72svh] max-w-[1400px] flex-col justify-between gap-12 px-6 pb-12 pt-[calc(var(--site-header-height)+2.5rem)] md:min-h-[calc(100svh+16rem)] md:px-12 md:pb-80">
+          <div>
+            <p className="text-xs uppercase tracking-[0.24em] text-white/75">About — Song</p>
+            <h1 className="mt-4 font-sans text-display font-semibold text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.45)]">About</h1>
+            <p className="mt-5 font-serif text-sm italic text-white/90 [text-shadow:0_2px_8px_rgba(0,0,0,0.9),0_0_24px_rgba(0,0,0,0.7)]">A note on the person behind the camera.</p>
+          </div>
+          <p className="ml-auto max-w-[32ch] whitespace-pre-line text-right text-sm leading-[1.9] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.6)] md:text-base">
+            {"我在代码里寻找秩序，在书页间追问命运\n走进群山，用镜头留下那些尚未来得及命名的光"}
+          </p>
+        </div>
+      </header>
 
-      <div className="mx-auto mt-16 max-w-[800px]">
+      <section className="mx-auto max-w-[1400px] px-6 pb-24 md:px-12">
+      <div className="mx-auto mt-12 max-w-[800px] md:mt-0">
         <div className="space-y-10 text-center font-serif text-[clamp(1rem,1.5vw,1.125rem)] leading-[2.05] tracking-[0.02em] text-ink/85">
           {mountainNotes.map((stanza) => (
             <p key={stanza.slice(0, 10)} className="whitespace-pre-line">{stanza}</p>
@@ -92,6 +107,7 @@ export default function AboutPage() {
           <a href="mailto:ormissia@outlook.com" className="silence-pill silence-pill-accent px-6 py-3 text-ink shadow-[0_0_24px_rgba(124,108,240,0.18)]">WRITE TO ME →</a>
         </div>
       </div>
-    </section>
+      </section>
+    </>
   );
 }
