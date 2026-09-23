@@ -331,7 +331,7 @@ function Lightbox({ src, alt, onClose, onPrev, onNext }: LightboxProps) {
   return (
     <div
       ref={containerRef}
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90"
+      className="lightbox-enter fixed inset-0 z-[100] flex items-center justify-center bg-black/90"
       onClick={handleBackgroundClick}
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
@@ -451,10 +451,11 @@ function Lightbox({ src, alt, onClose, onPrev, onNext }: LightboxProps) {
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          key={src}
           src={src}
           alt={alt}
           draggable={false}
-          className="block h-auto max-h-[90vh] w-auto max-w-[90vw] object-contain"
+          className="lightbox-image block h-auto max-h-[90vh] w-auto max-w-[90vw] object-contain"
         />
       </div>
 

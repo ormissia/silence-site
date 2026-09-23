@@ -102,6 +102,41 @@ body::before {
   }
 }
 
+/* Page and photo entrances stay short so navigation never waits for an animation. */
+@keyframes splash-wordmark-in {
+  from { opacity: 0; transform: translateY(12px); letter-spacing: 0.18em; }
+  to { opacity: 1; transform: translateY(0); letter-spacing: 0.12em; }
+}
+@keyframes splash-line-travel {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(250%); }
+}
+@keyframes detail-enter-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes lightbox-enter-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes lightbox-image-in {
+  from { opacity: 0; transform: scale(0.975); }
+  to { opacity: 1; transform: scale(1); }
+}
+.home-splash-wordmark { animation: splash-wordmark-in 650ms ease-out both; }
+.home-splash-line { animation: splash-line-travel 1400ms ease-in-out infinite; }
+.detail-enter > header { animation: detail-enter-in 550ms cubic-bezier(.2,.7,.2,1) both; }
+.lightbox-enter { animation: lightbox-enter-in 220ms ease-out both; }
+.lightbox-image { animation: lightbox-image-in 300ms ease-out both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .home-splash-wordmark,
+  .home-splash-line,
+  .detail-enter > header,
+  .lightbox-enter,
+  .lightbox-image { animation: none; }
+}
+
 /* lightbox 打开时隐藏全局 header（PlatesGrid 会在 body 上加这个属性） */
 body[data-lightbox-open="true"] .site-header {
   opacity: 0;

@@ -28,33 +28,23 @@ function preloadImage(src: string): Promise<void> {
 
 export function HomeSplash() {
   const [visible, setVisible] = useState(true);
-  const [imagesLoaded, setImagesLoaded] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
-    let completed = 0;
     const timeout = window.setTimeout(() => {
       if (!cancelled) setVisible(false);
     }, MAX_WAIT_MS);
 
-    CRITICAL_IMAGES.forEach((src) => {
-      preloadImage(src).then(() => {
-        if (cancelled) return;
-        completed += 1;
-        setImagesLoaded(completed);
-        if (completed === CRITICAL_IMAGES.length) {
-          window.clearTimeout(timeout);
-          setVisible(false);
-        }
-      });
+    Promise.all(CRITICAL_IMAGES.map(preloadImage)).then(() => {
+      if (cancelled) return;
+      window.clearTimeout(timeout);
+      setVisible(false);
     });
     return () => {
       cancelled = true;
       window.clearTimeout(timeout);
     };
   }, []);
-
-  const progress = imagesLoaded / CRITICAL_IMAGES.length;
 
   // 锁滚：splash 期间禁止 body 滚动，避免用户滚到下面看到半成品
   useEffect(() => {
@@ -65,8 +55,6 @@ export function HomeSplash() {
       document.body.style.overflow = prev;
     };
   }, [visible]);
-
-  const percent = Math.round(progress * 100);
 
   return (
     <AnimatePresence>
@@ -83,23 +71,15 @@ export function HomeSplash() {
 
           <div className="relative z-10 flex flex-col items-center px-6 text-center">
             <p className="font-sans text-caption uppercase text-muted">Now Loading</p>
-            <p className="mt-6 font-sans text-display font-light leading-tight tracking-[0.12em]">
+            <p className="home-splash-wordmark mt-6 font-sans text-display font-light leading-tight tracking-[0.12em]">
               SILENCE
             </p>
             <p className="mt-6 max-w-column font-sans text-body leading-relaxed text-ink/60">
               寂静无声 · 正在装载光与文字
             </p>
 
-            <div className="mt-16 flex flex-col items-center gap-3">
-              <div className="relative h-px w-[280px] overflow-hidden bg-ink/15">
-                <motion.div
-                  className="absolute inset-y-0 left-0 origin-left bg-gradient-accent"
-                  style={{ width: "100%", scaleX: progress }}
-                />
-              </div>
-              <span className="font-sans text-label uppercase tracking-[0.32em] tabular-nums text-ink/70">
-                {String(percent).padStart(3, "0")}%
-              </span>
+            <div className="home-splash-track relative mt-16 h-px w-[280px] overflow-hidden bg-ink/15" aria-hidden>
+              <span className="home-splash-line absolute inset-y-0 left-0 w-2/5 bg-gradient-accent" />
             </div>
           </div>
         </motion.div>

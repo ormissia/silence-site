@@ -37,7 +37,7 @@ export default function JournalEntryPage({ params }: { params: { slug: string } 
   const catLabel = JOURNAL_CATEGORY_LABELS[entry.category];
 
   return (
-    <article>
+    <article className="detail-enter">
       {entry.cover ? (
         // 有封面：标题压在 hero 底部居中，参考 works 详情页
         <header className="relative h-screen min-h-[560px] w-full overflow-hidden bg-ink/5">
