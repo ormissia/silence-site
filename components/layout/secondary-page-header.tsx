@@ -20,7 +20,7 @@ export function SecondaryPageHeader({ eyebrow, titleEn, titleZh, lede, count }: 
         </div>
         <div className="max-w-sm md:text-right">
           <p className="mb-2 text-[11px] uppercase tracking-[0.2em] text-muted md:mb-4">{eyebrow}</p>
-          <p className="text-deck tracking-normal text-muted">{lede}</p>
+          <p className="whitespace-pre-line text-deck tracking-normal text-muted">{lede}</p>
         </div>
       </div>
     </header>

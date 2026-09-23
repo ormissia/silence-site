@@ -19,6 +19,31 @@ const sections = [
   { href: "/works?tab=film", label: "Film", zh: "胶片", blurb: "36 张就是 36 张。胶卷把「再来一次」这件事彻底拿走。" },
 ];
 
+const mountainNotes = [
+  `我面前有一座山
+它是年轻人的幻想，迷梦和欲望
+多年来我一直梦到它
+现在我要出发了
+直到它，近在眼前
+直到我，亲眼所见
+我才真正被它的巨大和宏伟所震撼
+它高耸入云，令人炫目
+它覆盖着永恒的白雪和冰川
+我们在它的面前是那么的微不足道
+致命的吸引力让我们就像飞蛾扑火
+飞向这座壮美的高山
+而很多人的翅膀则在冰冷的山脊上燃烧殆尽
+高山和我，都仿佛成为了我梦里的一部分`,
+  `我们行走在生命的边缘
+这个边缘，如此锋利
+当我站在山顶时
+我看见了无比壮丽的美景
+幸好我最终活了下来
+高山给我的奖励是
+峰顶的美景令我终身难忘
+为此，我心满意足...`,
+];
+
 export default function AboutPage() {
   return (
     <section className="mx-auto max-w-[1400px] px-6 pb-24 pt-28 md:px-12 md:pt-44">
@@ -26,13 +51,14 @@ export default function AboutPage() {
         eyebrow="About — Song"
         titleEn="ABOUT"
         titleZh="关于"
-        lede="相机是借口，散步才是正事；划线是借口，重新决定如何活着才是正事。"
+        lede={"我在代码里寻找秩序，在书页间追问命运\n走进群山，用镜头留下那些尚未来得及命名的光"}
       />
 
       <div className="mx-auto mt-16 max-w-[800px]">
-        <div className="space-y-4 text-body leading-[1.95] text-ink/75">
-          <p>这里收着我从 2024 年起拿得出手的几组瞬间——风光是行走的回礼，人像是与陌生人交换的三秒钟，日常是被路过的物件，胶片则是我学着对“现在”按一次快门、不再回看的练习。</p>
-          <p>最近在德国古典哲学里待得最久——康德把“人”放进了一个倔强的位置：人是目的，永远不只是手段。这句话我一直记得，也尝试用它衡量自己每天的工作与镜头。读书笔记里那些划线，是我用别人的句子，给自己留的借据。</p>
+        <div className="space-y-10 text-center font-serif text-[clamp(1rem,1.5vw,1.125rem)] leading-[2.05] tracking-[0.02em] text-ink/85">
+          {mountainNotes.map((stanza) => (
+            <p key={stanza.slice(0, 10)} className="whitespace-pre-line">{stanza}</p>
+          ))}
         </div>
         <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3">
           {facts.map(([label, value]) => (
