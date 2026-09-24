@@ -184,10 +184,15 @@ function ensureLoaded(): Promise<Work[]> {
     const manifest = await ensureManifest(listReqs);
 
     // 2) 映射成 Work,过滤空相册(未上传/列举失败 → 无图,避免 404),按 date 倒序
-    const works = raws
-      .map((r) => mapRawToWork(r, manifest))
+    const mapped = raws.map((r) => mapRawToWork(r, manifest));
+    const excluded = mapped.filter((w) => w.photos.length === 0);
+    for (const work of excluded) {
+      console.warn(`[works] excluded ${work.slug}: no photos`);
+    }
+    const works = mapped
       .filter((w) => w.photos.length > 0)
       .sort((a, b) => b.date.localeCompare(a.date));
+    console.log(`[works] sources=${raws.length}, available=${works.length}, excluded=${excluded.length}`);
 
     // 3) 收集全部 OSS key 探测尺寸,注入 width/height
     const allKeys = Array.from(

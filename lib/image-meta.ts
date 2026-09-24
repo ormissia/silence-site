@@ -31,7 +31,10 @@ function loadCache(): MetaMap {
   try {
     const raw = fs.readFileSync(CACHE_PATH, "utf8");
     return JSON.parse(raw) as MetaMap;
-  } catch {
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
+      console.warn("[image-meta] failed to read cache, probing from OSS:", err);
+    }
     return {};
   }
 }
@@ -39,6 +42,7 @@ function loadCache(): MetaMap {
 function writeCache(map: MetaMap): void {
   try {
     fs.writeFileSync(CACHE_PATH, JSON.stringify(map, null, 2), "utf8");
+    console.log(`[image-meta] wrote content/.image-meta.json (${Object.keys(map).length} images)`);
   } catch (err) {
     // cache 写不进去不阻断渲染，给一行警告就好
     console.warn("[image-meta] failed to persist cache:", err);
@@ -73,26 +77,33 @@ const PICSUM_FALLBACK: Dim = { w: 1600, h: 1067 };
 export async function ensureMeta(keys: string[]): Promise<MetaMap> {
   const ossBase = readOssBase();
   if (!ossBase) {
+    console.warn(`[image-meta] OSS base is unavailable; using placeholder dimensions for ${keys.length} images; cache file not written`);
     return Object.fromEntries(keys.map((k) => [k, PICSUM_FALLBACK]));
   }
 
   const cache = loadCache();
   const missing = keys.filter((k) => !cache[k]);
+  console.log(`[image-meta] content/.image-meta.json: requested=${keys.length}, cached=${keys.length - missing.length}, toProbe=${missing.length}`);
 
-  if (missing.length === 0) return cache;
+  if (missing.length === 0) {
+    console.log("[image-meta] all requested images found in cache; no file written");
+    return cache;
+  }
 
   console.log(`[image-meta] probing ${missing.length} image(s) from OSS...`);
   const results = await mapWithConcurrency(missing, PROBE_CONCURRENCY, async (key) => {
     try {
       const dim = await withRetry(() => probeOss(key, ossBase));
-      return [key, dim] as const;
+      return [key, dim, true] as const;
     } catch (err) {
       console.warn(`[image-meta] ${key} probe failed, fallback used:`, err);
-      return [key, PICSUM_FALLBACK] as const;
+      return [key, PICSUM_FALLBACK, false] as const;
     }
   });
 
   for (const [key, dim] of results) cache[key] = dim;
   writeCache(cache);
+  const probed = results.filter(([, , ok]) => ok).length;
+  console.log(`[image-meta] complete: probed=${probed}, fallback=${results.length - probed}`);
   return cache;
 }

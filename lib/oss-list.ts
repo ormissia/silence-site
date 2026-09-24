@@ -118,7 +118,10 @@ export async function listAlbumFiles(prefix: string): Promise<string[]> {
 function loadManifest(): Manifest {
   try {
     return JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8")) as Manifest;
-  } catch {
+  } catch (err) {
+    if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
+      console.warn("[album-manifest] failed to read cache, listing from OSS:", err);
+    }
     return {};
   }
 }
@@ -126,6 +129,7 @@ function loadManifest(): Manifest {
 function writeManifest(map: Manifest): void {
   try {
     fs.writeFileSync(MANIFEST_PATH, JSON.stringify(map, null, 2), "utf8");
+    console.log(`[album-manifest] wrote content/.album-manifest.json (${Object.keys(map).length} albums)`);
   } catch (err) {
     console.warn("[album-manifest] failed to persist cache:", err);
   }
@@ -138,6 +142,14 @@ function fallbackKeys(prefix: string, count: number): string[] {
 }
 
 export type ListRequest = { prefix: string };
+
+function warnEmptyCachedAlbums(requests: ListRequest[], manifest: Manifest): void {
+  for (const { prefix } of requests) {
+    if (manifest[prefix]?.length === 0) {
+      console.warn(`[album-manifest] ${prefix}: cached album has 0 images`);
+    }
+  }
+}
 
 /**
  * 批量确保每个 prefix 在 manifest 里有列举结果。
@@ -153,6 +165,7 @@ export async function ensureManifest(requests: ListRequest[]): Promise<Manifest>
   const base = readOssBase();
 
   if (!base) {
+    console.warn(`[album-manifest] OSS base is unavailable; using placeholder images for ${requests.length} albums; cache file not written`);
     return Object.fromEntries(
       requests.map((r) => [r.prefix, fallbackKeys(r.prefix, DEFAULT_FALLBACK_COUNT)])
     );
@@ -160,7 +173,12 @@ export async function ensureManifest(requests: ListRequest[]): Promise<Manifest>
 
   const cache = loadManifest();
   const missing = requests.filter((r) => !cache[r.prefix]);
-  if (missing.length === 0) return cache;
+  console.log(`[album-manifest] content/.album-manifest.json: requested=${requests.length}, cached=${requests.length - missing.length}, toList=${missing.length}`);
+  warnEmptyCachedAlbums(requests, cache);
+  if (missing.length === 0) {
+    console.log("[album-manifest] all requested albums found in cache; no file written");
+    return cache;
+  }
 
   console.log(`[album-manifest] listing ${missing.length} folder(s) from OSS...`);
   const results = await mapWithConcurrency(missing, LIST_CONCURRENCY, async (r) => {
@@ -181,6 +199,15 @@ export async function ensureManifest(requests: ListRequest[]): Promise<Manifest>
     }
   }
   if (changed) writeManifest(cache);
+
+  for (const r of results) {
+    if (r.ok) {
+      console.log(`[album-manifest] ${r.prefix}: ${r.files.length} image(s) listed`);
+    }
+  }
+  const listed = results.filter((r) => r.ok).length;
+  const empty = results.filter((r) => r.ok && r.files.length === 0).length;
+  console.log(`[album-manifest] complete: listed=${listed}, empty=${empty}, failed=${results.length - listed}`);
 
   // 失败的 prefix 不入缓存,下游 `manifest[prefix] ?? []` 兜成空,下次构建重试
   return cache;
