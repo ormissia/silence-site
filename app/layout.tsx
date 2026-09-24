@@ -38,12 +38,14 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
             <Suspense fallback={null}>
                 <RouteProgress />
             </Suspense>
+            <div aria-hidden="true" className="site-edge-accent site-edge-accent-top" />
             <div aria-hidden className="silence-glow pointer-events-none absolute inset-x-0 top-0 h-[800px]" />
             <SiteHeader />
 
             <main id="page-top" tabIndex={-1} className="relative z-10 outline-none">{children}</main>
 
             <SiteFooter year={new Date().getFullYear()} />
+            <div aria-hidden="true" className="site-edge-accent site-edge-accent-bottom" />
 
         </RouteProgressProvider>
         </body>

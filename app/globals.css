@@ -612,13 +612,21 @@ body[data-lightbox-open="true"] .site-header {
   border-color: transparent;
   background: linear-gradient(#0C0C0C,#0C0C0C) padding-box, var(--gradient-accent) border-box;
 }
-.site-header::before {
-  content: "";
+.site-edge-accent {
+  height: 1px;
+  width: 100%;
+  pointer-events: none;
+}
+.site-edge-accent-top {
   position: absolute;
   inset: 0 0 auto;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, #C9994A 35%, #7C6CF0 65%, transparent);
-  opacity: .65;
+  z-index: 60;
+  background: linear-gradient(90deg, transparent 0%, #C9994A 35%, #7C6CF0 65%, transparent 100%);
+}
+.site-edge-accent-bottom {
+  position: relative;
+  z-index: 10;
+  background: linear-gradient(90deg, transparent 0%, #7C6CF0 35%, #C9994A 65%, transparent 100%);
 }
 @media (max-width: 639px) {
   :root { --site-header-height: 120px; }
