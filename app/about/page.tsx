@@ -49,13 +49,13 @@ export default function AboutPage() {
     <>
       <AboutScrollScene
         hero={
-          <header className="relative mx-auto flex min-h-[calc(100svh+3rem)] max-w-[1400px] flex-col justify-between gap-12 px-6 pb-24 pt-[calc(var(--site-header-height)+2.5rem)] md:min-h-[calc(100svh+16rem)] md:px-12 md:pb-80">
+          <header className="relative mx-auto flex min-h-[calc(100svh+3rem)] max-w-[1400px] flex-col justify-between gap-12 px-6 pb-24 pt-[calc(var(--site-header-height)+2.5rem)] md:min-h-[calc(100svh+5rem)] md:px-12">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-white/75">About — Song</p>
               <h1 className="mt-4 font-sans text-display font-semibold text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.45)]">About</h1>
               <p className="mt-5 font-serif text-sm italic text-white/90 [text-shadow:0_2px_8px_rgba(0,0,0,0.9),0_0_24px_rgba(0,0,0,0.7)]">A note on the person behind the camera.</p>
             </div>
-            <p className="ml-auto w-max max-w-full whitespace-pre text-right text-[clamp(12px,3.5vw,16px)] leading-[1.9] text-white/90 [text-shadow:0_1px_12px_rgba(0,0,0,0.6)]">
+            <p className="about-hero-quote ml-auto w-max max-w-full whitespace-pre text-right text-[clamp(12px,3.5vw,16px)] leading-[1.9]">
               {"我在代码里寻找秩序，在书页间追问命运\n走进群山，用镜头留下那些尚未来得及命名的光"}
             </p>
           </header>
@@ -73,9 +73,9 @@ export default function AboutPage() {
             <AboutScrollReveal>
               <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3">
                 {facts.map(([label, value]) => (
-                  <div key={label} className="border-t divider-gradient pt-5">
-                    <dt className="text-annotation uppercase tracking-[0.2em] text-muted">{label}</dt>
-                    <dd className="mt-3 text-label leading-relaxed tracking-normal text-ink/70">{value}</dd>
+                  <div key={label} className="flex min-w-0 flex-col items-center gap-3 border-t divider-gradient pt-5 text-center">
+                    <dt className="silence-pill silence-pill-accent !px-2.5 !py-1.5 !text-[9px] uppercase !tracking-[0.22em] text-ink/80">{label}</dt>
+                    <dd className="text-label leading-relaxed tracking-normal text-ink/70">{value}</dd>
                   </div>
                 ))}
               </dl>
@@ -105,7 +105,9 @@ export default function AboutPage() {
                 <figcaption className="px-4 py-3 text-[9px] uppercase tracking-[0.2em] text-muted">Self portrait · Near Mount Gongga, 2025</figcaption>
               </figure>
               <p className="max-w-xs text-center text-xs leading-relaxed text-muted">如果被某一道光或某一句话留住过，欢迎写信来——我都会回。</p>
-              <a href="mailto:ormissia@outlook.com" className="silence-pill silence-pill-accent px-6 py-3 text-ink shadow-[0_0_24px_rgba(124,108,240,0.18)]">WRITE TO ME →</a>
+              <a href="mailto:ormissia@outlook.com" className="silence-pill silence-pill-accent about-contact-button px-6 py-3 text-ink">
+                <span>WRITE TO ME</span><span aria-hidden="true">→</span>
+              </a>
             </div>
           </div>
         </div>
