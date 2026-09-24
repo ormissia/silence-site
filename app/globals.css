@@ -67,6 +67,11 @@ body::before {
   85% { opacity: 1; }
   100% { --pill-orbit-angle: 360deg; opacity: 0; }
 }
+@keyframes nav-pill-orbit-burst {
+  0% { --pill-orbit-angle: 0deg; opacity: 0; }
+  12% { opacity: 1; }
+  100% { --pill-orbit-angle: 360deg; opacity: 1; }
+}
 
 .divider-gradient {
   border-color: transparent;
@@ -639,7 +644,8 @@ body[data-lightbox-open="true"] .site-header {
 }
 .silence-pill-accent::before, .silence-pill-accent::after,
 .silence-pill[aria-current="page"]::before, .silence-pill[aria-current="page"]::after,
-.silence-pill[aria-pressed="true"]::before, .silence-pill[aria-pressed="true"]::after {
+.silence-pill[aria-pressed="true"]::before, .silence-pill[aria-pressed="true"]::after,
+.site-header nav .silence-pill::before, .site-header nav .silence-pill::after {
   content: "";
   position: absolute;
   inset: -1px;
@@ -658,9 +664,9 @@ body[data-lightbox-open="true"] .site-header {
   opacity: 0;
   transition: opacity .1s linear;
 }
-.silence-pill-accent:hover::before, .silence-pill-accent:focus-visible::before,
-.silence-pill[aria-current="page"]:hover::before, .silence-pill[aria-current="page"]:focus-visible::before,
-.silence-pill[aria-pressed="true"]:hover::before, .silence-pill[aria-pressed="true"]:focus-visible::before {
+.silence-pill-accent:hover::before,
+.silence-pill[aria-current="page"]:not([data-nav-pill]):hover::before,
+.silence-pill[aria-pressed="true"]:hover::before {
   opacity: 1;
   animation: pill-orbit 6s linear infinite;
   animation-delay: -5.5s;
@@ -672,9 +678,9 @@ body[data-lightbox-open="true"] .site-header {
   background: conic-gradient(from var(--pill-orbit-angle), transparent 0deg, transparent 235deg, #fff1d2 282deg, #eee0ff 312deg, transparent 350deg);
   opacity: 0;
 }
-.silence-pill-accent:hover::after, .silence-pill-accent:focus-visible::after,
-.silence-pill[aria-current="page"]:hover::after, .silence-pill[aria-current="page"]:focus-visible::after,
-.silence-pill[aria-pressed="true"]:hover::after, .silence-pill[aria-pressed="true"]:focus-visible::after {
+.silence-pill-accent:hover::after,
+.silence-pill[aria-current="page"]:not([data-nav-pill]):hover::after,
+.silence-pill[aria-pressed="true"]:hover::after {
   animation: pill-orbit-burst .5s ease-in-out 1;
 }
 .site-edge-accent {
@@ -800,10 +806,28 @@ body[data-lightbox-open="true"] .site-header {
   text-shadow: 0 1px 4px rgba(0,0,0,.45);
 }
 .site-header nav .silence-pill:hover { color: #fff; border-color: rgba(255,255,255,.5); }
+.site-header nav .silence-pill::before {
+  background: var(--gradient-accent);
+  opacity: 0;
+  animation: none;
+  transition: none;
+}
 .site-header nav .silence-pill[aria-current="page"] {
-  background: rgba(255,255,255,.05);
-  border-color: rgba(201,153,74,.4);
+  background: transparent;
+  border-color: transparent;
   color: #fff;
+}
+.site-header nav .silence-pill[aria-current="page"]::before {
+  opacity: 1;
+}
+.site-header nav .silence-pill::after {
+  background: conic-gradient(from var(--pill-orbit-angle), transparent 0deg, transparent 190deg, rgba(201,153,74,.3) 235deg, #f4d9aa 275deg, #dcc5ff 310deg, #7C6CF0 337deg, transparent 360deg);
+  opacity: 0;
+  animation: none;
+}
+.site-header nav .silence-pill[data-orbit-hover="true"]:hover::after {
+  opacity: 1;
+  animation: nav-pill-orbit-burst .5s ease-in-out 1, pill-orbit 6s linear .5s infinite;
 }
 .site-header-marquee {
   color: rgba(239,239,237,.48);
@@ -813,8 +837,9 @@ body[data-lightbox-open="true"] .site-header {
   .text-gradient-accent, .bg-gradient-accent, .site-edge-accent, .about-hero-quote,
   .silence-pill-accent::before, .silence-pill-accent::after,
   .silence-pill[aria-current="page"]::before, .silence-pill[aria-current="page"]::after,
-  .silence-pill[aria-pressed="true"]::before, .silence-pill[aria-pressed="true"]::after {
-    animation: none;
+  .silence-pill[aria-pressed="true"]::before, .silence-pill[aria-pressed="true"]::after,
+  .site-header nav .silence-pill::before, .site-header nav .silence-pill::after {
+    animation: none !important;
   }
   .about-contact-button:hover { transform: none; }
 }

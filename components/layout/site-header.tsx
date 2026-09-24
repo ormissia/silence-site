@@ -31,14 +31,17 @@ function NavLink({
   expanded?: boolean;
 }) {
   const pathname = usePathname();
+  const [orbitHover, setOrbitHover] = useState(false);
   const active = pathname === href || pathname.startsWith(`${href}/`);
   return (
     <NavProgressLink
       href={href}
       aria-current={active ? "page" : undefined}
+      data-nav-pill=""
+      data-orbit-hover={orbitHover ? "true" : undefined}
       className="silence-pill group relative text-muted active:opacity-80"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      onMouseEnter={() => { setOrbitHover(true); onMouseEnter?.(); }}
+      onMouseLeave={() => { setOrbitHover(false); onMouseLeave?.(); }}
       aria-expanded={expanded}
     >
       <span className="inline-block">

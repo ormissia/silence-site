@@ -4,6 +4,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { HighlightBatch } from "@/lib/reading";
 
+const navButtonClass = "silence-pill silence-pill-accent h-11 w-11 !p-0 font-sans text-ink/75 disabled:pointer-events-none disabled:opacity-40";
+
 export function TodayHighlight({
   initialBatch,
   startIndex,
@@ -121,10 +123,12 @@ export function TodayHighlight({
           type="button"
           disabled={loading}
           onClick={prev}
-          className="disabled:cursor-wait disabled:opacity-40 group flex h-11 w-11 items-center justify-center rounded-lg border border-ink/20 text-ink/70 transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          className={navButtonClass}
           aria-label="上一句"
         >
-          <span className="text-label leading-none">‹</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="h-4 w-4">
+            <path d="m14.5 5.5-6.5 6.5 6.5 6.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
         <span className="font-sans text-annotation text-muted tabular-nums">
           {String(idx + 1).padStart(3, "0")} / {String(total).padStart(3, "0")}
@@ -133,10 +137,12 @@ export function TodayHighlight({
           type="button"
           disabled={loading}
           onClick={next}
-          className="disabled:cursor-wait disabled:opacity-40 group flex h-11 w-11 items-center justify-center rounded-lg border border-ink/20 text-ink/70 transition-colors hover:border-accent hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent"
+          className={navButtonClass}
           aria-label="下一句"
         >
-          <span className="text-label leading-none">›</span>
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" className="h-4 w-4">
+            <path d="m9.5 5.5 6.5 6.5-6.5 6.5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
       </div>
       <p role="status" hidden={!loading && !error} className="text-caption tracking-normal text-muted lg:col-span-9 lg:col-start-4">
