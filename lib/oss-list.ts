@@ -13,8 +13,8 @@ import { mapWithConcurrency, withRetry } from "./concurrency";
  * 与 image-meta.ts 同构:只在 server / RSC 构建阶段执行,运行时读缓存。
  */
 
-/** ListObjects 比 image/info 更重，并发开小一点 */
-const LIST_CONCURRENCY = 6;
+/** 跨区域列举 OSS，限制同时建立的连接数 */
+const LIST_CONCURRENCY = 2;
 
 const MANIFEST_PATH = path.join(process.cwd(), "content/.album-manifest.json");
 

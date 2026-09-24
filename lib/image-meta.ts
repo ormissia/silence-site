@@ -12,7 +12,7 @@ import { mapWithConcurrency, withRetry } from "./concurrency";
  */
 
 /** 构建期对 OSS image/info 的并发上限。北京 endpoint 跨网时一把梭哈会 ConnectTimeout */
-const PROBE_CONCURRENCY = 8;
+const PROBE_CONCURRENCY = 4;
 
 export type Dim = { w: number; h: number };
 export type MetaMap = Record<string, Dim>;
@@ -72,7 +72,7 @@ const PICSUM_FALLBACK: Dim = { w: 1600, h: 1067 };
  * miss 的并发探测后写回 cache。返回 key → {w,h} 的查询表。
  *
  * - demo 模式（无 OSS base）：跳过探测，全部回落到 picsum 默认尺寸
- * - 探测失败的 key：单条静默 fallback，不污染整批结果
+ * - 探测失败的 key：本次使用 fallback，不写入缓存，以便下次构建重试
  */
 export async function ensureMeta(keys: string[]): Promise<MetaMap> {
   const ossBase = readOssBase();
@@ -101,9 +101,17 @@ export async function ensureMeta(keys: string[]): Promise<MetaMap> {
     }
   });
 
-  for (const [key, dim] of results) cache[key] = dim;
-  writeCache(cache);
-  const probed = results.filter(([, , ok]) => ok).length;
+  const fallback: MetaMap = {};
+  let probed = 0;
+  for (const [key, dim, ok] of results) {
+    if (ok) {
+      cache[key] = dim;
+      probed++;
+    } else {
+      fallback[key] = dim;
+    }
+  }
+  if (probed > 0) writeCache(cache);
   console.log(`[image-meta] complete: probed=${probed}, fallback=${results.length - probed}`);
-  return cache;
+  return { ...cache, ...fallback };
 }

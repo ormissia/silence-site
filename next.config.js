@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  experimental: {
+    outputFileTracingIncludes: {
+      "/**": [
+        "./content/.album-manifest.json",
+        "./content/.image-meta.json",
+      ],
+    },
+  },
   images: {
     // OSS 自带 x-oss-process（resize/format/quality）在做同样的事，
     // next/image 优化器再包一层只会触发 403（防盗链）+ 多一跳代理。
