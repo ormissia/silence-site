@@ -87,7 +87,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       aria-pressed={isActive}
-      className={`silence-pill shrink-0 font-sans uppercase ${isActive ? "text-ink" : "text-muted"}`}
+      className="silence-pill silence-pill-nav shrink-0 font-sans uppercase"
     >
       <span>{label}</span>
       {typeof count === "number" && (
@@ -99,7 +99,6 @@ function TabButton({
           {count}
         </span>
       )}
-
     </button>
   );
 }

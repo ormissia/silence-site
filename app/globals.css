@@ -638,7 +638,7 @@ body[data-lightbox-open="true"] .site-header {
   transition: border-color .2s, color .2s, background .2s;
 }
 .silence-pill:hover { border-color: rgba(255,255,255,.35); color: #EFEFED; }
-.silence-pill[aria-current="page"], .silence-pill[aria-pressed="true"] {
+.silence-pill:is([aria-current="page"], [aria-pressed="true"]) {
   border-color: transparent;
   background: linear-gradient(#0C0C0C,#0C0C0C) padding-box, var(--gradient-accent) border-box;
   color: #EFEFED;
@@ -667,10 +667,8 @@ body[data-lightbox-open="true"] .site-header {
   border-color: transparent;
   background: linear-gradient(#0C0C0C,#0C0C0C) padding-box, var(--gradient-accent) border-box;
 }
-.silence-pill-accent::before, .silence-pill-accent::after,
-.silence-pill[aria-current="page"]::before, .silence-pill[aria-current="page"]::after,
-.silence-pill[aria-pressed="true"]::before, .silence-pill[aria-pressed="true"]::after,
-.site-header nav .silence-pill::before, .site-header nav .silence-pill::after {
+.silence-pill:is(.silence-pill-accent, .silence-pill-nav, [aria-current="page"], [aria-pressed="true"])::before,
+.silence-pill:is(.silence-pill-accent, .silence-pill-nav, [aria-current="page"], [aria-pressed="true"])::after {
   content: "";
   position: absolute;
   inset: -1px;
@@ -682,31 +680,53 @@ body[data-lightbox-open="true"] .site-header {
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
 }
-.silence-pill-accent::before,
-.silence-pill[aria-current="page"]::before,
-.silence-pill[aria-pressed="true"]::before {
+.silence-pill:is(.silence-pill-accent, [aria-current="page"], [aria-pressed="true"])::before {
   background: conic-gradient(from var(--pill-orbit-angle), transparent 0deg, transparent 190deg, rgba(201,153,74,.3) 235deg, #f4d9aa 275deg, #dcc5ff 310deg, #7C6CF0 337deg, transparent 360deg);
   opacity: 0;
   transition: opacity .1s linear;
 }
-.silence-pill-accent:hover::before,
-.silence-pill[aria-current="page"]:not([data-nav-pill]):hover::before,
-.silence-pill[aria-pressed="true"]:hover::before {
+.silence-pill:is(.silence-pill-accent, [aria-current="page"], [aria-pressed="true"]):not(.silence-pill-nav):hover::before {
   opacity: 1;
   animation: pill-orbit 6s linear infinite;
   animation-delay: -5.5s;
   transition-delay: .4s;
 }
-.silence-pill-accent::after,
-.silence-pill[aria-current="page"]::after,
-.silence-pill[aria-pressed="true"]::after {
+.silence-pill:is(.silence-pill-accent, [aria-current="page"], [aria-pressed="true"])::after {
   background: conic-gradient(from var(--pill-orbit-angle), transparent 0deg, transparent 235deg, #fff1d2 282deg, #eee0ff 312deg, transparent 350deg);
   opacity: 0;
 }
-.silence-pill-accent:hover::after,
-.silence-pill[aria-current="page"]:not([data-nav-pill]):hover::after,
-.silence-pill[aria-pressed="true"]:hover::after {
+.silence-pill:is(.silence-pill-accent, [aria-current="page"], [aria-pressed="true"]):not(.silence-pill-nav):hover::after {
   animation: pill-orbit-burst .5s ease-in-out 1;
+}
+/* 导航与分类共用描边、选中态和悬停光点。 */
+.silence-pill.silence-pill-nav {
+  color: rgba(239,239,237,.8);
+  border-color: rgba(255,255,255,.22);
+  text-shadow: 0 1px 4px rgba(0,0,0,.45);
+}
+.silence-pill.silence-pill-nav:hover { color: #fff; border-color: rgba(255,255,255,.5); }
+.silence-pill.silence-pill-nav::before {
+  background: var(--gradient-accent);
+  opacity: 0;
+  animation: none;
+  transition: none;
+}
+.silence-pill.silence-pill-nav:is([aria-current="page"], [aria-pressed="true"]) {
+  background: transparent;
+  border-color: transparent;
+  color: #fff;
+}
+.silence-pill.silence-pill-nav:is([aria-current="page"], [aria-pressed="true"])::before {
+  opacity: 1;
+}
+.silence-pill.silence-pill-nav::after {
+  background: conic-gradient(from var(--pill-orbit-angle), transparent 0deg, transparent 190deg, rgba(201,153,74,.3) 235deg, #f4d9aa 275deg, #dcc5ff 310deg, #7C6CF0 337deg, transparent 360deg);
+  opacity: 0;
+  animation: none;
+}
+.silence-pill.silence-pill-nav:hover::after {
+  opacity: 1;
+  animation: nav-pill-orbit-burst .5s ease-in-out 1, pill-orbit 6s linear .5s infinite;
 }
 .site-edge-accent {
   height: 1px;
@@ -821,45 +841,14 @@ body[data-lightbox-open="true"] .site-header {
   -webkit-backdrop-filter: blur(12px) saturate(1.15);
   backdrop-filter: blur(12px) saturate(1.15);
 }
-.site-header nav .silence-pill {
-  color: rgba(239,239,237,.8);
-  border-color: rgba(255,255,255,.22);
-  text-shadow: 0 1px 4px rgba(0,0,0,.45);
-}
-.site-header nav .silence-pill:hover { color: #fff; border-color: rgba(255,255,255,.5); }
-.site-header nav .silence-pill::before {
-  background: var(--gradient-accent);
-  opacity: 0;
-  animation: none;
-  transition: none;
-}
-.site-header nav .silence-pill[aria-current="page"] {
-  background: transparent;
-  border-color: transparent;
-  color: #fff;
-}
-.site-header nav .silence-pill[aria-current="page"]::before {
-  opacity: 1;
-}
-.site-header nav .silence-pill::after {
-  background: conic-gradient(from var(--pill-orbit-angle), transparent 0deg, transparent 190deg, rgba(201,153,74,.3) 235deg, #f4d9aa 275deg, #dcc5ff 310deg, #7C6CF0 337deg, transparent 360deg);
-  opacity: 0;
-  animation: none;
-}
-.site-header nav .silence-pill[data-orbit-hover="true"]:hover::after {
-  opacity: 1;
-  animation: nav-pill-orbit-burst .5s ease-in-out 1, pill-orbit 6s linear .5s infinite;
-}
 .site-header-marquee {
   color: rgba(239,239,237,.48);
   text-shadow: 0 1px 4px rgba(0,0,0,.5);
 }
 @media (prefers-reduced-motion: reduce) {
   .text-gradient-accent, .bg-gradient-accent, .site-edge-accent, .about-hero-quote,
-  .silence-pill-accent::before, .silence-pill-accent::after,
-  .silence-pill[aria-current="page"]::before, .silence-pill[aria-current="page"]::after,
-  .silence-pill[aria-pressed="true"]::before, .silence-pill[aria-pressed="true"]::after,
-  .site-header nav .silence-pill::before, .site-header nav .silence-pill::after {
+  .silence-pill:is(.silence-pill-accent, .silence-pill-nav, [aria-current="page"], [aria-pressed="true"])::before,
+  .silence-pill:is(.silence-pill-accent, .silence-pill-nav, [aria-current="page"], [aria-pressed="true"])::after {
     animation: none !important;
   }
   .about-contact-button:hover { transform: none; }

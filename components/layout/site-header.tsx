@@ -20,34 +20,22 @@ const JOURNAL_MENU: Array<{ href: string; label: string }> = [
 function NavLink({
   href,
   children,
-  onMouseEnter,
-  onMouseLeave,
   expanded,
 }: {
   href: string;
   children: ReactNode;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
   expanded?: boolean;
 }) {
   const pathname = usePathname();
-  const [orbitHover, setOrbitHover] = useState(false);
   const active = pathname === href || pathname.startsWith(`${href}/`);
   return (
     <NavProgressLink
       href={href}
       aria-current={active ? "page" : undefined}
-      data-nav-pill=""
-      data-orbit-hover={orbitHover ? "true" : undefined}
-      className="silence-pill group relative text-muted active:opacity-80"
-      onMouseEnter={() => { setOrbitHover(true); onMouseEnter?.(); }}
-      onMouseLeave={() => { setOrbitHover(false); onMouseLeave?.(); }}
+      className="silence-pill silence-pill-nav active:opacity-80"
       aria-expanded={expanded}
     >
-      <span className="inline-block">
-        {children}
-      </span>
-
+      <span className="inline-block">{children}</span>
     </NavProgressLink>
   );
 }
