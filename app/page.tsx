@@ -52,7 +52,7 @@ export default async function HomePage() {
               </p>
               <Link
                 href="/reading"
-                className="mt-10 silence-pill font-sans text-ink/80"
+                className="mt-10 silence-pill silence-pill-accent font-sans text-ink"
               >
                 进入书架 <span aria-hidden>→</span>
               </Link>

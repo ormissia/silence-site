@@ -51,7 +51,7 @@ export function SelectedWorks({ works }: Props) {
           ))}
         </div>
         <div className="mt-10 flex justify-center md:mt-12">
-          <Link href="/works" className="silence-pill font-sans text-ink/80">
+          <Link href="/works" className="silence-pill silence-pill-accent font-sans text-ink">
             全部作品 <span aria-hidden>→</span>
           </Link>
         </div>

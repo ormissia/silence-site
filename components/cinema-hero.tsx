@@ -1,15 +1,36 @@
 "use client";
 
-import Link from "next/link";
 import { useRef } from "react";
-import { motion, useScroll, useTransform, useReducedMotion, useMotionTemplate, type MotionValue } from "framer-motion";
+import { motion, useScroll, useTransform, useReducedMotion, type MotionValue } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { CAMERA, lcdCenter } from "@/components/camera-spec";
 import type { Work } from "@/lib/works";
 
+const POEM_LINES = ["这是一场回忆，", "还是一场梦，", "我不知道。"];
+
+function PoemLine({ text, index, progress }: {
+  text: string;
+  index: number;
+  progress: MotionValue<number>;
+}) {
+  // 278vh 滚动行程：每隔 70vh 开始下一句，每句用 30vh 缓慢揭开。
+  const start = (69 + index * 70) / 278;
+  const end = start + 30 / 278;
+  const opacity = useTransform(progress, [start, end], [0, 1]);
+  const y = useTransform(progress, [start, end], ["40%", "0%"]);
+
+  return (
+    <span className="block overflow-hidden px-4 -mx-4">
+      <motion.span className="about-hero-quote block" style={{ opacity, y }}>
+        {text}
+      </motion.span>
+    </span>
+  );
+}
+
 /**
  * 电影感序章。
- * - 容器高 250vh，内层 sticky 钉住，实际固定滚动行程为 150vh
+ * - 容器高 378vh，内层 sticky 钉住，实际固定滚动行程为 278vh
  * - 相机模型在屏幕中央随滚动 scale 放大，最终 LCD 取景器恰好占满屏
  * - 左右两侧白色文案纵向滚入
  * - prefers-reduced-motion 用户得到静态版（无 scale，无 sticky）
@@ -21,10 +42,12 @@ export function CinemaHero({ work }: { work: Work }) {
   const debugLcd =
     search?.get("debugLcd") === "1" || process.env.NEXT_PUBLIC_DEBUG_LCD === "1";
 
-  const { scrollYProgress } = useScroll({
+  const { scrollYProgress: sceneProgress } = useScroll({
     target: ref,
     offset: ["start start", "end end"],
   });
+  // 前 75vh 保持原有相机推近节奏，新增行程用于后半段诗句与停留。
+  const scrollYProgress = useTransform(sceneProgress, [0, 75 / 278, 1], [0, 0.5, 1]);
 
   // 前段保持原推近节奏，40% 起平滑接到按视口计算的铺满尺寸。
   const cameraScale = useTransform(
@@ -61,12 +84,8 @@ export function CinemaHero({ work }: { work: Work }) {
   const shellOpacity = useTransform(scrollYProgress, [0.42, 0.5], [1, 0]);
   // 原 LCD 照片成为背景后，仅叠加逐渐加深的暗角。
   const fgVignette = useTransform(scrollYProgress, [0.5, 1], [0, 0.5]);
-  // 文案提前缓慢浮现，60% 时完成揭开；最后 40% 留给阅读。
-  // 250vh 容器的 sticky 行程为 150vh，因此清晰静止的停留段约为 60vh。
-  const titleRevealOpacity = useTransform(scrollYProgress, [0.18, 0.6, 1], [0, 1, 1]);
-  const titleRevealBlur = useTransform(scrollYProgress, [0.18, 0.56, 1], [8, 0, 0]);
-  const titleRevealY = useTransform(scrollYProgress, [0.18, 0.6, 1], [40, 0, 0]);
-  const titleRevealFilter = useMotionTemplate`blur(${titleRevealBlur}px)`;
+  // 诗句在 239vh 时全部显示，最后 39vh 留给阅读。
+  const poemShadeOpacity = useTransform(scrollYProgress, [0.42, 0.52], [0, 1]);
   // 整场不再淡出，靠 sticky 容器到底后自然滚出屏幕，让标题/背景一起被推走
   const sceneOpacity = useTransform(scrollYProgress, [0, 1], [1, 1]);
 
@@ -81,19 +100,12 @@ export function CinemaHero({ work }: { work: Work }) {
   // 标题渐隐（hero 底部那行 display 字）
   const titleOpacity = useTransform(scrollYProgress, [0, 0.18], [1, 0]);
 
-  // 作品入口随开场文案提前出现，之后持续可用，不再等待相机转场结束。
-  const worksOpacity = useTransform(scrollYProgress, [0.06, 0.16], [0, 1]);
-  const worksY = useTransform(scrollYProgress, [0.06, 0.16], [12, 0]);
-  const worksVisibility = useTransform(scrollYProgress, (progress) =>
-    progress <= 0.06 ? "hidden" : "visible"
-  );
-
   if (reduced) {
     return <CinemaHeroStatic work={work} />;
   }
 
   return (
-    <section ref={ref} className="relative h-[250vh]">
+    <section ref={ref} className="relative h-[378vh]">
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-paper">
         {/* 工作室底图：用 CSS background 绕开 next/image 优化器，避免 dev 下大图加载失败 */}
         <motion.div className="absolute inset-0" style={{ opacity: sceneOpacity }}>
@@ -129,40 +141,23 @@ export function CinemaHero({ work }: { work: Work }) {
           className="pointer-events-none absolute inset-0 z-[15] bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(0,0,0,0.8)_100%)]"
         />
 
-        {/* 中央诗句：三句使用统一样式，沿用相同的揭开与停留节奏 */}
-        <motion.div
-          style={{ opacity: titleRevealOpacity }}
+        {/* 固定三行占位，逐句揭开；回滚时沿相同进度收起。 */}
+        <div
           className="pointer-events-none absolute inset-0 z-[18] flex flex-col items-center justify-center px-6 pb-[10vh]"
         >
-          <div
+          <motion.div
             aria-hidden
+            style={{ opacity: poemShadeOpacity }}
             className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_42%,rgba(10,10,11,0.45)_0%,transparent_65%)]"
           />
-          <motion.div
-            style={{
-              filter: titleRevealFilter,        // 揭开时模糊 8px → 0
-              y: titleRevealY,                  // 揭开时从下方 40px 升起
-            }}
-            className={[
-              "relative",
-              "text-center",
-              "font-sans",
-              "text-headline",
-              "font-normal",
-              "leading-[1.65] tracking-[0.04em]",
-              "text-ink/95",
-              "[text-shadow:0_2px_20px_rgba(0,0,0,0.65)]",
-            ].join(" ")}
+          <h2
+            className="relative text-center font-sans text-headline font-normal leading-[1.65] tracking-[0.04em]"
           >
-            <h2 className="font-normal">
-              这是一场回忆，
-              <br />
-              还是一场梦，
-              <br />
-              我不知道。
-            </h2>
-          </motion.div>
-        </motion.div>
+            {POEM_LINES.map((text, index) => (
+              <PoemLine key={text} text={text} index={index} progress={sceneProgress} />
+            ))}
+          </h2>
+        </div>
 
         {/* 左右文案 */}
         <motion.div
@@ -221,21 +216,7 @@ export function CinemaHero({ work }: { work: Work }) {
           */}
         </motion.div>
 
-        {/* 作品入口：开场文案阶段淡入，固定在屏幕右下角直到序章结束 */}
-        <motion.div
-          style={{ opacity: worksOpacity, y: worksY, visibility: worksVisibility }}
-          className="pointer-events-auto absolute bottom-10 right-6 z-30 md:bottom-14 md:right-10"
-        >
-          <Link
-            href="/works"
-            className="silence-pill bg-black/35 font-sans text-white backdrop-blur-sm hover:bg-black/50"
-          >
-            浏览作品 <span aria-hidden>→</span>
-          </Link>
-        </motion.div>
-
         {/* 底部中央滚动提示：跳动动效 + 跟随标题一起渐隐 */}
-        {/* pointer-events-none：容器是 inset-x-0 全宽条，否则会盖住右下角的 浏览作品 按钮 */}
         <motion.div
           aria-hidden
           style={{ opacity: titleOpacity }}
