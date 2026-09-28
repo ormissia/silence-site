@@ -160,44 +160,13 @@ body::before {
   }
 }
 
-/* Shared loading language: stable placeholders and a short decoded-image crossfade. */
+/* Shared loading language for page and route indicators. */
 @keyframes load-reveal {
   from { opacity: 0; }
-}
-@keyframes image-reveal {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-@keyframes image-reveal-blur {
-  from { filter: var(--image-filter, brightness(1)) blur(12px); }
-  to { filter: var(--image-filter, brightness(1)) blur(0); }
-}
-.image-reveal[data-image-effect="blur"] {
-  --image-reveal-animation: image-reveal-blur;
-  --image-reveal-duration: 1000ms;
-}
-.image-blur-placeholder {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transform: scale(1.08);
-  filter: blur(12px) saturate(.8);
-  pointer-events: none;
-}
-.image-blur-placeholder + .image-reveal {
-  --image-reveal-duration: 700ms;
 }
 @keyframes load-shimmer {
   from { transform: translateX(-100%); }
   to { transform: translateX(100%); }
-}
-.image-reveal[data-image-state="pending"],
-.image-content img:not([data-image-state]) { opacity: 0; }
-.image-reveal[data-image-state="ready"] {
-  animation: var(--image-reveal-animation, image-reveal) var(--image-reveal-duration, 420ms) ease-out backwards;
-  animation-delay: var(--image-reveal-delay, 0ms);
 }
 .loading-skeleton,
 .loading-indicator {
@@ -229,7 +198,6 @@ body::before {
   animation: load-reveal var(--load-reveal-duration) var(--load-ease) backwards;
 }
 @media (prefers-reduced-motion: reduce) {
-  .image-reveal[data-image-state="ready"],
   .loading-skeleton::after,
   .loading-indicator::after,
   .home-splash-wordmark,

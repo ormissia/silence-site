@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import {Suspense} from "react";
 import {Syne, Noto_Sans_SC, Playfair_Display} from "next/font/google";
 import "./globals.css";
+import "@/components/media/image-reveal.css";
 import {SiteHeader} from "@/components/layout/site-header";
 import {RouteProgress, RouteProgressProvider} from "@/components/layout/route-progress";
 import {SiteFooter} from "@/components/layout/site-footer";

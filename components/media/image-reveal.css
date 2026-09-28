@@ -1,0 +1,52 @@
+/* Image loading presentation. Tune timing and softness here. */
+:root {
+  --image-fade-duration: 420ms;
+  --image-preview-fade-duration: 700ms;
+  --image-blur-duration: 1000ms;
+  --image-preview-blur: 12px;
+  --image-fade-ease: ease-out;
+}
+
+@keyframes image-reveal-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes image-reveal-blur {
+  from { filter: var(--image-filter, brightness(1)) blur(var(--image-preview-blur)); }
+  to { filter: var(--image-filter, brightness(1)) blur(0); }
+}
+
+.image-reveal[data-image-effect="blur"] {
+  --image-reveal-animation: image-reveal-blur;
+  --image-reveal-duration: var(--image-blur-duration);
+}
+
+.image-blur-placeholder {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.08);
+  filter: blur(var(--image-preview-blur)) saturate(.8);
+  pointer-events: none;
+}
+
+.image-blur-placeholder + .image-reveal {
+  --image-reveal-duration: var(--image-preview-fade-duration);
+}
+
+.image-reveal[data-image-state="pending"],
+.image-content img:not([data-image-state]) {
+  opacity: 0;
+}
+
+.image-reveal[data-image-state="ready"] {
+  animation: var(--image-reveal-animation, image-reveal-fade) var(--image-reveal-duration, var(--image-fade-duration)) var(--image-fade-ease) backwards;
+  animation-delay: var(--image-reveal-delay, 0ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image-reveal[data-image-state="ready"] { animation: none; }
+}
