@@ -47,7 +47,10 @@ export default function JournalEntryPage({ params, searchParams }: {
   const catLabel = JOURNAL_CATEGORY_LABELS[entry.category];
 
   return (
-    <article className="detail-enter">
+    <article className="detail-enter relative">
+      <div data-theme-surface={entry.cover ? "dark" : undefined} className="absolute left-6 top-36 z-20 md:left-12">
+        <ReturnToListLink href={`/journal${query}`} className={`silence-pill ${entry.cover ? "bg-black/40 text-white backdrop-blur-sm" : "text-muted"}`}>← Journal</ReturnToListLink>
+      </div>
       {entry.cover ? (
         // 有封面：标题压在 hero 底部居中，参考 works 详情页
         <header data-theme-surface="dark" className="image-frame relative h-[70svh] min-h-[420px] max-h-[720px] w-full overflow-hidden">
@@ -65,7 +68,6 @@ export default function JournalEntryPage({ params, searchParams }: {
             className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/75"
           />
           <div className="vignette absolute inset-0" />
-          <ReturnToListLink href={`/journal${query}`} className="silence-pill absolute left-6 top-[calc(var(--site-header-height)+1.5rem)] z-20 bg-black/40 text-white backdrop-blur-sm md:left-12">← Journal</ReturnToListLink>
 
           <div className="relative z-10 mx-auto flex h-full max-w-[1100px] flex-col items-center justify-end px-6 pb-10 text-center md:px-10 md:pb-14">
             <p className="eyebrow text-white/80">
@@ -89,8 +91,7 @@ export default function JournalEntryPage({ params, searchParams }: {
         </header>
       ) : (
         // 无封面：保留原有"标题居中、留白足"的排版
-        <header className="mx-auto max-w-[1100px] px-6 pt-[calc(var(--site-header-height)+2rem)] text-center md:px-10">
-          <ReturnToListLink href={`/journal${query}`} className="silence-pill mb-10 text-muted">← Journal</ReturnToListLink>
+        <header className="mx-auto max-w-[1100px] px-6 pt-[calc(var(--site-header-height)+6.25rem)] text-center md:px-10">
           <p className="eyebrow">
             {[
               `${catLabel.en} / ${catLabel.zh}`,

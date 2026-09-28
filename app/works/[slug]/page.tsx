@@ -2,7 +2,7 @@ import { RevealImage as Image } from "@/components/media/reveal-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildSrc } from "@/lib/oss";
-import { seriesToTab, tabToSeries } from "@/lib/categories";
+import { tabToSeries } from "@/lib/categories";
 import { ReturnToListLink } from "@/components/layout/list-return";
 import { getWork, listWorks } from "@/lib/works";
 import { PlatesGrid } from "@/components/work/plates-grid";
@@ -28,16 +28,19 @@ export default async function WorkDetailPage({ params, searchParams }: {
 
   const all = await listWorks();
   const requestedTab = typeof searchParams.tab === "string" ? searchParams.tab : undefined;
-  const tab = tabToSeries(requestedTab) === work.series ? requestedTab : work.series === "胶片" ? seriesToTab(work.series) : undefined;
+  const tab = tabToSeries(requestedTab) === work.series ? requestedTab : undefined;
   const query = tab ? `?tab=${encodeURIComponent(tab)}` : "";
   const visibleWorks = tab ? all.filter((item) => item.series === work.series) : all;
   const idx = visibleWorks.findIndex((item) => item.slug === work.slug);
   const next = visibleWorks[(idx + 1) % visibleWorks.length];
   const isFilm = work.series === "胶片";
   return (
-    <article className="detail-enter pb-20">
+    <article className={`detail-enter relative pb-20 ${isFilm ? "pt-[var(--site-header-height)]" : ""}`}>
+      <div data-theme-surface="dark" className="absolute left-6 top-36 z-20 md:left-12">
+        <ReturnToListLink href={`/works${query}`} className="silence-pill bg-black/40 text-white backdrop-blur-sm">← Works</ReturnToListLink>
+      </div>
       {/* Cover hero：单独占满一屏，只显示封面 + 标题 */}
-      <header data-theme-surface="dark" className={`image-frame relative w-full overflow-hidden ${isFilm ? "mt-[var(--site-header-height)] h-[calc(100svh-var(--site-header-height))] min-h-[440px]" : "h-screen min-h-[560px]"}`}>
+      <header data-theme-surface="dark" className={`image-frame relative w-full overflow-hidden ${isFilm ? "h-[calc(100svh-var(--site-header-height))] min-h-[440px]" : "h-screen min-h-[560px]"}`}>
         <Image
           src={buildSrc(work.cover, "hero")}
           revealEffect="blur"
@@ -48,7 +51,6 @@ export default async function WorkDetailPage({ params, searchParams }: {
           sizes="100vw"
         />
         {isFilm && <Image src="/images/film/film-hero-overlay.webp" alt="" fill sizes="100vw" className="pointer-events-none z-[1] object-fill opacity-60 mix-blend-screen" aria-hidden />}
-        <ReturnToListLink href={`/works${query}`} className={`silence-pill absolute left-6 z-20 bg-black/40 text-white backdrop-blur-sm md:left-12 ${isFilm ? "top-8" : "top-36"}`}>← Works</ReturnToListLink>
         {/* 暗化让标题在亮区也立得住 */}
         <div
           aria-hidden
