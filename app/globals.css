@@ -52,8 +52,8 @@ html:not([data-theme="light"]) #page-top::after {
   content: "";
   position: absolute;
   z-index: 1;
-  inset: auto 0 -3px;
-  height: 6px;
+  inset: auto 0 -2px;
+  height: 4px;
   background: rgb(var(--color-paper));
   pointer-events: none;
 }

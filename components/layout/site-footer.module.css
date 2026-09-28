@@ -16,13 +16,13 @@
   z-index: 1;
   inset: 0 0 auto;
   height: 18px;
-  /* Keep a short shadow at the join while the photo comes into view. */
-  background: linear-gradient(to bottom, rgb(var(--color-paper)) 0% 20%, rgb(var(--color-paper) / .3) 65%, transparent);
+  /* Keep the page edge crisp, then let the shadow fall off within 18px. */
+  background: linear-gradient(to bottom, rgb(var(--color-paper)) 0 2px, rgba(0, 0, 0, .85) 5px, rgba(0, 0, 0, .4) 11px, transparent 100%);
   pointer-events: none;
 }
 
 :global(html[data-theme="light"]) .footer::after {
-  background: linear-gradient(to bottom, rgba(0, 0, 0, .42), rgba(0, 0, 0, .12) 45%, transparent);
+  background: linear-gradient(to bottom, rgba(0, 0, 0, .42) 0 2px, rgba(0, 0, 0, .3) 5px, rgba(0, 0, 0, .12) 11px, transparent 100%);
 }
 
 .scene {
