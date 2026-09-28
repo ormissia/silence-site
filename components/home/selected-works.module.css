@@ -51,6 +51,10 @@
     filter: grayscale(1);
   }
 
+  .card :global(.image-blur-placeholder) {
+    filter: grayscale(1) blur(12px);
+  }
+
   .caption {
     opacity: 0;
     transform: translateY(20px);

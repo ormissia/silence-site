@@ -1,8 +1,8 @@
 export type ImageState = "pending" | "ready" | "seen" | "error";
 
-/** Repeat a short sequence instead of making long shelves wait for every preceding image. */
+/** A slight first-row cadence; later images appear as soon as they are decoded. */
 export function imageRevealDelay(index = 0) {
-  return `${(index % 8) * 100}ms`;
+  return `${index < 4 ? index * 40 : 0}ms`;
 }
 
 // Survives client-side navigation; a full page reload starts a new visit.
@@ -23,7 +23,7 @@ function whenVisible(image: HTMLImageElement, callback: () => void) {
       visibleCallbacks.delete(entry.target);
       viewportObserver?.unobserve(entry.target);
     });
-  });
+  }, { rootMargin: "160px 0px" });
   visibleCallbacks.set(image, callback);
   viewportObserver.observe(image);
   return () => {
@@ -84,4 +84,3 @@ export function observeImage(image: HTMLImageElement, onState: (state: ImageStat
     image.removeEventListener("error", failed);
   };
 }
-

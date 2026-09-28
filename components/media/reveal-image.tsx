@@ -5,7 +5,7 @@ import { useEffect, useRef, useState, type CSSProperties, type ImgHTMLAttributes
 
 import { imageRevealDelay, observeImage, type ImageState } from "./image-reveal";
 
-type RevealOptions = { revealIndex?: number; revealEffect?: "mask" | "blur" };
+type RevealOptions = { revealIndex?: number; revealEffect?: "fade" | "blur" };
 
 function useImageReveal(staggered: boolean) {
   const ref = useRef<HTMLImageElement>(null);
@@ -16,7 +16,7 @@ function useImageReveal(staggered: boolean) {
   return { ref, "data-image-state": state };
 }
 
-function NextImage({ className = "", alt, style, revealIndex, revealEffect = "mask", ...props }: ImageProps & RevealOptions) {
+function NextImage({ className = "", alt, style, revealIndex, revealEffect = "fade", ...props }: ImageProps & RevealOptions) {
   const reveal = useImageReveal(revealIndex !== undefined);
   const delay = useRef(imageRevealDelay(revealIndex)).current;
   return <Image {...props} alt={alt} {...reveal} data-image-effect={revealEffect} style={{ ...style, "--image-reveal-delay": delay } as CSSProperties} className={`image-reveal ${className}`} />;
@@ -29,7 +29,7 @@ export function RevealImage(props: ImageProps & RevealOptions) {
 
 type NativeImageProps = ImgHTMLAttributes<HTMLImageElement> & RevealOptions;
 
-function NativeImage({ className = "", alt = "", style, revealIndex, revealEffect = "mask", ...props }: NativeImageProps) {
+function NativeImage({ className = "", alt = "", style, revealIndex, revealEffect = "fade", ...props }: NativeImageProps) {
   const reveal = useImageReveal(revealIndex !== undefined);
   const delay = useRef(imageRevealDelay(revealIndex)).current;
   // Native images preserve intrinsic sizing in the lightbox, book covers and photo album.

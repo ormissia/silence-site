@@ -1,6 +1,7 @@
 "use client";
 
 import { RevealImage as Image } from "@/components/media/reveal-image";
+import { BlurPlaceholder } from "@/components/media/blur-placeholder";
 import Link from "next/link";
 import { buildSrc } from "@/lib/oss";
 import type { Work } from "@/lib/works";
@@ -18,6 +19,7 @@ export function WorkCard({ work, index, variant = "wide", tab = "all" }: {
   return (
     <Link href={`/works/${work.slug}${query}`} onClick={() => rememberListPosition(`/works${query}`)} className={`${styles.link} editorial-card block`}>
       <div className={`${styles.cover} ${isFilm ? styles.film : ""} bg-black ${aspect}`}>
+        <BlurPlaceholder src={buildSrc(work.cover, "blurThumb")} />
         <Image revealIndex={index} src={buildSrc(work.cover, "gridThumb")} alt={work.title} fill
           sizes="(min-width: 768px) 50vw, 100vw"
           className={styles.image} />

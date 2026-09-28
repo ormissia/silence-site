@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { RevealImage as Image } from "@/components/media/reveal-image";
+import { BlurPlaceholder } from "@/components/media/blur-placeholder";
 import { buildSrc } from "@/lib/oss";
 import type { Work } from "@/lib/works";
 import styles from "./selected-works.module.css";
@@ -28,6 +29,7 @@ export function SelectedWorks({ works }: Props) {
               href={`/works/${work.slug}`}
               className={`${styles.card} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent`}
             >
+              <BlurPlaceholder src={buildSrc(work.cover, "blurThumb")} />
               <Image
                 revealIndex={index}
                 src={buildSrc(work.cover, "gridThumb")}

@@ -4,13 +4,14 @@
  * 仅替换 buildSrc 内部实现 + .env 中的 NEXT_PUBLIC_OSS_BASE_URL，调用方无需改动。
  */
 
-export type ImagePreset = "hero" | "gridThumb" | "detail" | "portrait";
+export type ImagePreset = "hero" | "gridThumb" | "detail" | "portrait" | "blurThumb";
 
 const PRESET_DIM: Record<ImagePreset, { w: number; h: number }> = {
   hero: { w: 2400, h: 1350 },
   gridThumb: { w: 1200, h: 1500 },
   detail: { w: 2000, h: 1333 },
   portrait: { w: 1200, h: 1500 },
+  blurThumb: { w: 64, h: 64 },
 };
 
 function readOssBase(): string {
@@ -46,7 +47,8 @@ export function buildSrc(key: string, preset: ImagePreset): string {
 
   // OSS 图片处理：缩放 + WebP。key 已含扩展名,直接拼;
   // format,webp 会覆盖原扩展名输出 WebP,所以源是 .jpg / .png 都不影响最终格式。
-  const process = `image/resize,w_${w},h_${h},m_lfit/format,webp/quality,q_82`;
+  const quality = preset === "blurThumb" ? 42 : 82;
+  const process = `image/resize,w_${w},h_${h},m_lfit/format,webp/quality,q_${quality}`;
   return `${OSS_BASE}/${key}?x-oss-process=${process}`;
 }
 
