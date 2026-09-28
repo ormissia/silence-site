@@ -16,7 +16,8 @@
   z-index: 1;
   inset: 0 0 auto;
   height: 28px;
-  box-shadow: inset 0 12px 18px -8px rgba(0, 0, 0, .85);
+  /* A vertical fade avoids the side/bottom edges of an inset shadow on this short strip. */
+  background: linear-gradient(to bottom, rgba(0, 0, 0, .6), rgba(0, 0, 0, .18) 40%, transparent);
   pointer-events: none;
 }
 

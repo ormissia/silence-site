@@ -1,6 +1,7 @@
 import { RevealImage as Image } from "@/components/media/reveal-image";
 import Link from "next/link";
 import { AboutScrollReveal, AboutScrollScene } from "@/components/about/about-scroll-scene";
+import coverStyles from "@/components/cover-hover.module.css";
 
 export const metadata = { title: "About — SILENCE" };
 
@@ -100,11 +101,11 @@ export default function AboutPage() {
               ))}
             </div>
             <div className="flex flex-col items-center gap-6 md:pt-2">
-              <figure className="editorial-card w-3/4 max-w-sm">
-                <div className="relative aspect-[4/3]"><Image src="/images/avatar.jpg" alt="Self portrait" fill sizes="(min-width: 768px) 25vw, 70vw" className="object-cover" /></div>
-                <figcaption className="px-4 py-3 text-[9px] uppercase tracking-[0.2em] text-muted">Self portrait · Near Mount Gongga, 2025</figcaption>
+              <figure className={`${coverStyles.cover} editorial-card w-3/4 max-w-sm`}>
+                <div className="relative aspect-square"><Image src="/images/avatar.jpg" alt="Self portrait" fill sizes="(min-width: 768px) 25vw, 70vw" className={coverStyles.image} /></div>
+                <figcaption className={`${coverStyles.info} !px-4 !pb-3 !pt-8 text-[9px] uppercase tracking-[0.2em] text-white/85`}>Self portrait · Near Mount Gongga, 2025</figcaption>
               </figure>
-              <p className="max-w-xs text-center text-xs leading-relaxed text-muted">如果被某一道光或某一句话留住过，欢迎写信来——我都会回。</p>
+              <p className="max-w-xs text-center text-xs leading-relaxed text-muted">如果被某一道光或某一句话留住过，<br />欢迎写信来——我都会回。</p>
               <a href="mailto:ormissia@outlook.com" className="silence-pill silence-pill-accent about-contact-button px-6 py-3 text-ink">
                 <span>WRITE TO ME</span><span aria-hidden="true">→</span>
               </a>
