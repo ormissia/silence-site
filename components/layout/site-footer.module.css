@@ -15,10 +15,14 @@
   position: absolute;
   z-index: 1;
   inset: 0 0 auto;
-  height: 28px;
-  /* A vertical fade avoids the side/bottom edges of an inset shadow on this short strip. */
-  background: linear-gradient(to bottom, rgba(0, 0, 0, .6), rgba(0, 0, 0, .18) 40%, transparent);
+  height: 18px;
+  /* Keep a short shadow at the join while the photo comes into view. */
+  background: linear-gradient(to bottom, rgb(var(--color-paper)) 0% 20%, rgb(var(--color-paper) / .3) 65%, transparent);
   pointer-events: none;
+}
+
+:global(html[data-theme="light"]) .footer::after {
+  background: linear-gradient(to bottom, rgba(0, 0, 0, .42), rgba(0, 0, 0, .12) 45%, transparent);
 }
 
 .scene {

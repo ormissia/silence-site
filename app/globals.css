@@ -43,6 +43,21 @@ html[data-theme="light"] [data-theme-surface="dark"] {
   --color-accent-end: 124 108 240;
 }
 
+/* Cover the footer clip edge with the page color to avoid a subpixel photo seam. */
+html:not([data-theme="light"]) #page-top {
+  isolation: isolate;
+}
+
+html:not([data-theme="light"]) #page-top::after {
+  content: "";
+  position: absolute;
+  z-index: 1;
+  inset: auto 0 -3px;
+  height: 6px;
+  background: rgb(var(--color-paper));
+  pointer-events: none;
+}
+
 html,
 body {
   background: theme(colors.paper);
