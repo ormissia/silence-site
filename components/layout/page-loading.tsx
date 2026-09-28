@@ -47,7 +47,7 @@ export function CollectionLoading({ layout = "works" }: { layout?: CollectionLay
         {layout === "journal" && (
           <div className="space-y-6 pb-16 pt-2">
             {[0, 1].map((index) => (
-              <div key={index} className="grid overflow-hidden rounded-xl border border-white/10 bg-[#111] md:grid-cols-[200px_minmax(0,1fr)]">
+              <div key={index} className="grid overflow-hidden rounded-xl border border-ink/10 bg-surface md:grid-cols-[200px_minmax(0,1fr)]">
                 <div className="flex items-start justify-between gap-4 p-5 md:flex-col md:p-6">
                   <Skeleton className="h-14 w-16 rounded-lg" />
                   <Skeleton className="h-3 w-20 rounded-full" />

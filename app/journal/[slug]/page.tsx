@@ -50,7 +50,7 @@ export default function JournalEntryPage({ params, searchParams }: {
     <article className="detail-enter">
       {entry.cover ? (
         // 有封面：标题压在 hero 底部居中，参考 works 详情页
-        <header className="relative h-[70svh] min-h-[420px] max-h-[720px] w-full overflow-hidden bg-ink/5">
+        <header data-theme-surface="dark" className="image-frame relative h-[70svh] min-h-[420px] max-h-[720px] w-full overflow-hidden">
           <Image
             src={buildSrc(entry.cover, "hero")}
             alt={entry.title}

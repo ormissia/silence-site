@@ -3,6 +3,7 @@ import {Suspense} from "react";
 import {Syne, Noto_Sans_SC, Playfair_Display} from "next/font/google";
 import "./globals.css";
 import "@/components/media/image-reveal.css";
+import "./theme.css";
 import {SiteHeader} from "@/components/layout/site-header";
 import {RouteProgress, RouteProgressProvider} from "@/components/layout/route-progress";
 import {SiteFooter} from "@/components/layout/site-footer";
@@ -33,9 +34,10 @@ export const metadata: Metadata = {
 
 export default function RootLayout({children}: { children: React.ReactNode }) {
     return (
-        <html lang="zh">
+        <html lang="zh" suppressHydrationWarning>
+        <head><script dangerouslySetInnerHTML={{__html: `try{if(localStorage.getItem("silence-theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}`}} /></head>
         <body className={`${serif.variable} ${sans.variable} ${sansCn.variable} font-sans`}>
-        <noscript><style>{`.image-reveal, .image-content img { opacity: 1 !important; animation: none !important; } .home-splash { display: none !important; }`}</style></noscript>
+        <noscript><style>{`.image-reveal, .image-content img { opacity: 1 !important; animation: none !important; } .image-card > div { visibility: visible !important; } .home-splash { display: none !important; }`}</style></noscript>
         <RouteProgressProvider>
             <Suspense fallback={null}>
                 <RouteProgress />

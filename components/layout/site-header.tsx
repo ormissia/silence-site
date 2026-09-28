@@ -3,6 +3,7 @@
 import { Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { NavProgressLink } from "./nav-link";
+import { ThemeToggle } from "./theme-toggle";
 
 const WORKS_MENU: Array<{ href: string; label: string }> = [
   { href: "/works?tab=landscape", label: "Landscape / 风光" },
@@ -128,6 +129,34 @@ function NavMenu({
 
 export function SiteHeader() {
   const headerRef = useRef<HTMLElement>(null);
+  const pathname = usePathname();
+  const [overPhoto, setOverPhoto] = useState(false);
+  useEffect(() => {
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const midpoint = (headerRef.current?.getBoundingClientRect().height ?? 90) / 2;
+      setOverPhoto(Array.from(document.querySelectorAll('[data-header-photo], main [data-theme-surface="dark"]')).some((element) => {
+        const rect = element.getBoundingClientRect();
+        return rect.top <= midpoint && rect.bottom > midpoint;
+      }));
+    };
+    const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
+    const observer = new ResizeObserver(schedule);
+    observer.observe(document.body);
+    const themeObserver = new MutationObserver(schedule);
+    themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+    window.addEventListener("scroll", schedule, { passive: true });
+    window.addEventListener("resize", schedule);
+    update();
+    return () => {
+      cancelAnimationFrame(frame);
+      observer.disconnect();
+      themeObserver.disconnect();
+      window.removeEventListener("scroll", schedule);
+      window.removeEventListener("resize", schedule);
+    };
+  }, [pathname]);
   useEffect(() => {
     const header = headerRef.current;
     if (!header) return;
@@ -138,13 +167,13 @@ export function SiteHeader() {
     return () => observer.disconnect();
   }, []);
   return (
-    <header ref={headerRef} className="site-header fixed inset-x-0 top-0 z-50 isolate border-b border-white/10">
+    <header ref={headerRef} data-over-photo={overPhoto} className="site-header fixed inset-x-0 top-0 z-50 isolate border-b border-ink/10">
       {/* 模糊放在独立背景层，避免父级 backdrop-filter 限制下拉面板的背景采样。 */}
       <div aria-hidden className="site-header-glass pointer-events-none absolute inset-0 -z-10" />
       <div className="mx-auto flex max-w-[1400px] items-center justify-between flex-wrap gap-4 px-6 py-4 md:px-12">
         <NavProgressLink
           href="/"
-          className="leading-none text-white transition-opacity duration-150 active:opacity-60"
+          className="order-1 leading-none text-ink transition-opacity duration-150 active:opacity-60"
         >
           <span className="block text-xl font-semibold uppercase tracking-[0.28em] text-gradient-accent">
             SILENCE
@@ -152,7 +181,7 @@ export function SiteHeader() {
 
         </NavProgressLink>
 
-        <nav className="flex flex-wrap items-center gap-1.5 font-sans uppercase sm:gap-2">
+        <nav className="order-3 flex w-full flex-wrap items-center gap-1.5 font-sans uppercase sm:gap-2 md:order-2 md:ml-auto md:w-auto">
           <Suspense fallback={<NavLink href="/works">Works</NavLink>}>
             <NavMenu href="/works" label="Works" items={WORKS_MENU} />
           </Suspense>
@@ -162,8 +191,9 @@ export function SiteHeader() {
           <NavLink href="/reading">Reading</NavLink>
           <NavLink href="/about">About</NavLink>
         </nav>
+        <ThemeToggle />
       </div>
-      <div className="site-header-marquee hidden overflow-hidden border-t border-white/[0.06] py-1.5 text-[9px] uppercase tracking-[0.22em] sm:block" aria-hidden="true">
+      <div className="site-header-marquee hidden overflow-hidden border-t border-ink/10 py-1.5 text-[9px] uppercase tracking-[0.22em] sm:block" aria-hidden="true">
         <div className="silence-marquee">{[0, 1].map(i => <span key={i} className="whitespace-nowrap pr-12">SILENCE — PHOTOGRAPHS & NOTES — LANDSCAPE — PORTRAIT — SNAPSHOTS — FILM — READING — JOURNAL — </span>)}</div>
       </div>
     </header>

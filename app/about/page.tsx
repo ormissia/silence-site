@@ -49,7 +49,7 @@ export default function AboutPage() {
     <>
       <AboutScrollScene
         hero={
-          <header className="relative mx-auto flex min-h-[calc(100svh+3rem)] max-w-[1400px] flex-col justify-between gap-12 px-6 pb-24 pt-[calc(var(--site-header-height)+2.5rem)] md:min-h-[calc(100svh+5rem)] md:px-12">
+          <header data-header-photo className="about-hero relative mx-auto flex min-h-[calc(100svh+3rem)] max-w-[1400px] flex-col justify-between gap-12 px-6 pb-24 pt-[calc(var(--site-header-height)+2.5rem)] md:min-h-[calc(100svh+5rem)] md:px-12">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-white/75">About — Song</p>
               <h1 className="mt-4 font-sans text-display font-semibold text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.45)]">About</h1>

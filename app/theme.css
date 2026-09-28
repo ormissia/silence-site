@@ -1,0 +1,145 @@
+/* Theme surfaces and image placeholder colors are configured here. */
+:root {
+  --color-image-placeholder: 17 17 17;
+  --color-footer-shadow: 0 0 0;
+}
+html[data-theme="light"] {
+  --color-image-placeholder: 242 240 235;
+  --color-footer-shadow: 255 255 255;
+}
+
+.image-frame,
+.react-photo-album .react-photo-album--photo {
+  background-color: rgb(var(--color-image-placeholder));
+}
+
+.about-scene-backdrop { background: #0c0c0c; }
+
+.about-scene-fade {
+  background: linear-gradient(to bottom, rgba(4, 8, 13, .46) 0%, rgba(4, 8, 13, .12) 25%, rgba(8, 9, 11, .12) 30%, rgb(var(--color-paper)) 95%);
+}
+
+.about-scene-shade { opacity: var(--about-shade-opacity, 0); }
+
+/* Text-only journal covers follow the page theme; photo covers keep their contrast. */
+html[data-theme="light"] .journal-cover-placeholder {
+  background-color: rgb(var(--color-surface-raised));
+}
+
+html[data-theme="light"] .journal-cover-placeholder .journal-cover-shade {
+  background: linear-gradient(to top, rgb(var(--color-paper) / .75), rgb(var(--color-paper) / .2), transparent);
+}
+
+html[data-theme="light"] .journal-cover-placeholder .journal-cover-title {
+  color: rgb(var(--color-ink));
+}
+
+html[data-theme="light"] .journal-cover-placeholder :is(.journal-cover-index, .journal-cover-excerpt) {
+  color: rgb(var(--color-ink) / .75);
+}
+
+html[data-theme="light"] .editorial-card {
+  border-color: rgb(var(--color-ink) / .09);
+  background: rgb(var(--color-surface));
+  box-shadow: 0 4px 32px rgba(62, 47, 30, .35), inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+html[data-theme="light"] .silence-pill {
+  border-color: rgb(var(--color-ink) / .2);
+}
+
+html[data-theme="light"] .silence-pill:hover {
+  border-color: rgb(var(--color-ink) / .45);
+  color: rgb(var(--color-ink));
+}
+
+html[data-theme="light"] .silence-pill:is(.silence-pill-accent, [aria-current="page"], [aria-pressed="true"]) {
+  border-color: transparent;
+  background: linear-gradient(rgb(var(--color-paper)), rgb(var(--color-paper))) padding-box, var(--gradient-accent) border-box;
+  color: rgb(var(--color-ink));
+}
+
+html[data-theme="light"] .silence-pill.silence-pill-nav {
+  border-color: rgb(var(--color-ink) / .2);
+  color: rgb(var(--color-ink) / .82);
+}
+
+html[data-theme="light"] .silence-pill.silence-pill-nav:hover {
+  border-color: rgb(var(--color-ink) / .42);
+  color: rgb(var(--color-ink));
+}
+
+html[data-theme="light"] .silence-pill.silence-pill-nav:is([aria-current="page"], [aria-pressed="true"]) {
+  border-color: transparent;
+  background: transparent;
+  color: rgb(var(--color-ink));
+}
+
+/* Photographs retain dark glass; light page backgrounds use warm translucent surfaces. */
+html[data-theme="light"] .site-header[data-over-photo="true"] {
+  --color-ink: 239 239 237;
+  --color-muted: 185 185 183;
+  --color-paper: 12 12 12;
+}
+
+html[data-theme="light"] .site-header-marquee {
+  color: rgb(var(--color-muted) / .82);
+  text-shadow: none;
+}
+
+html[data-theme="light"] .site-header[data-over-photo="false"] .site-header-glass {
+  background: linear-gradient(to bottom, rgb(var(--color-paper) / .82), rgb(var(--color-paper) / .64));
+}
+
+html[data-theme="light"] .site-header[data-over-photo="false"] .silence-pill-nav {
+  text-shadow: none;
+}
+
+html[data-theme="light"] .site-header[data-over-photo="false"] .site-nav-dropdown-surface {
+  border-color: rgb(var(--color-ink) / .12);
+  background: rgb(var(--color-surface-raised) / .94);
+  box-shadow: 0 12px 32px rgba(62, 47, 30, .12);
+}
+
+html[data-theme="light"] .silence-glow {
+  background: radial-gradient(ellipse 80% 550px at 50% 0%, rgba(196, 179, 224, .5), transparent 70%);
+}
+
+html[data-theme="light"] .loading-skeleton,
+html[data-theme="light"] .loading-indicator {
+  background: rgb(var(--color-ink) / .045);
+}
+
+html[data-theme="light"] .reading-book-metadata li { color: rgb(var(--color-ink) / .75); }
+html[data-theme="light"] .reading-book-metadata li strong { color: rgb(var(--color-ink) / .92); }
+html[data-theme="light"] .reading-book-notes > h1 { color: rgb(var(--color-muted)); }
+html[data-theme="light"] .reading-book-notes h2,
+html[data-theme="light"] .reading-book-notes h3,
+html[data-theme="light"] .reading-book-notes h4 { color: rgb(var(--color-ink) / .85); }
+html[data-theme="light"] .reading-book-notes .md-callout {
+  border-color: rgb(var(--color-ink) / .1);
+  background: rgb(var(--color-paper));
+}
+html[data-theme="light"] .reading-book-notes .md-callout .md-callout-title { color: rgb(var(--color-accent)); }
+html[data-theme="light"] .reading-book-notes .md-callout p { color: rgb(var(--color-ink) / .8); }
+
+html[data-theme="light"] .book-dialog {
+  border-color: rgb(var(--color-ink) / .12);
+  background: rgb(var(--color-surface-raised));
+  color: rgb(var(--color-ink));
+  box-shadow: 0 32px 80px rgba(43, 36, 29, .7);
+}
+
+html[data-theme="light"] .book-dialog::backdrop {
+  background: rgba(36, 32, 28, .78);
+}
+
+html[data-theme="light"] [data-theme-surface="dark"] .silence-pill {
+  border-color: rgba(255, 255, 255, .25);
+  color: #fff;
+}
+
+html[data-theme="light"] [data-theme-surface="dark"] .silence-pill:hover {
+  border-color: rgba(255, 255, 255, .55);
+  color: #fff;
+}

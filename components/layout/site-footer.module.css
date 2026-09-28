@@ -6,8 +6,8 @@
   /* Reveal only the part of the fixed scene inside the scrolling footer. */
   clip-path: inset(0);
   isolation: isolate;
-  background: #0c0c0c;
-  color: #efefed;
+  background: rgb(var(--color-paper));
+  color: rgb(var(--color-ink));
 }
 
 .footer::after {
@@ -16,11 +16,12 @@
   z-index: 1;
   inset: 0 0 auto;
   height: 28px;
-  box-shadow: inset 0 12px 18px -8px rgba(0, 0, 0, 0.85);
+  box-shadow: inset 0 12px 18px -8px rgba(0, 0, 0, .85);
   pointer-events: none;
 }
 
 .scene {
+  background: rgb(var(--color-paper));
   position: fixed;
   inset: auto 0 0;
   height: var(--footer-height);
@@ -37,7 +38,7 @@
 }
 
 .shade {
-  background: linear-gradient(to bottom, rgba(12, 12, 12, 0.18) 0%, rgba(12, 12, 12, 0.18) 52%, rgba(12, 12, 12, 0.78) 100%);
+  background: linear-gradient(to bottom, rgb(var(--color-paper) / var(--footer-shade-start, .18)) 0%, rgb(var(--color-paper) / var(--footer-shade-start, .18)) 52%, rgb(var(--color-paper) / var(--footer-shade-end, .78)) 100%);
 }
 
 .title {
@@ -50,12 +51,12 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  text-shadow: 0 2px 32px rgba(0, 0, 0, 0.28);
+  text-shadow: var(--footer-text-shadow, 0 2px 32px rgb(var(--color-footer-shadow) / .28));
 }
 
 .eyebrow {
   margin-bottom: 16px;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgb(var(--color-ink) / .7);
 }
 
 .headline {
@@ -76,7 +77,7 @@
 
 .description {
   margin-top: 18px;
-  color: rgba(255, 255, 255, 0.8);
+  color: rgb(var(--color-ink) / .8);
 }
 
 .info {
@@ -99,15 +100,15 @@
 
 .contact {
   padding-bottom: 18px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+  border-bottom: 1px solid rgb(var(--color-ink) / .3);
   font-size: 14px;
 }
 
 .signature { font-size: 22px; letter-spacing: 0.12em; }
-.signature span { margin-left: 12px; font-size: 11px; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.65); }
-.bottom { margin-top: 20px; font-size: 11px; letter-spacing: 0.06em; color: rgba(255, 255, 255, 0.7); }
+.signature span { margin-left: 12px; font-size: 11px; letter-spacing: 0.04em; color: rgb(var(--color-ink) / .65); }
+.bottom { margin-top: 20px; font-size: 11px; letter-spacing: 0.06em; color: rgb(var(--color-ink) / .7); }
 .info a { transition: color 0.2s; }
-.info a:hover { color: #fff; }
+.info a:hover { color: rgb(var(--color-ink)); }
 .info a:focus-visible { outline: 2px solid #c9994a; outline-offset: 6px; border-radius: 2px; }
 
 @media (max-width: 767px) {

@@ -61,7 +61,7 @@ export function SiteFooter({ year }: { year: number }) {
   }, []);
 
   return (
-    <footer ref={footer} className={`${styles.footer} font-sans`} aria-labelledby="footer-title">
+    <footer ref={footer} className={`${styles.footer} site-footer font-sans`} aria-labelledby="footer-title">
       <div className={styles.scene}>
         <div className={styles.background} aria-hidden="true">
           {showImage && <Image src="/images/cover.jpg" alt="" fill sizes="100vw" className="object-cover object-center" />}

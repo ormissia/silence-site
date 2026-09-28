@@ -39,7 +39,7 @@ export function BookToolbar({ title, titleId, returnHref, cover, author, rating,
   }, [titleId]);
 
   return (
-    <div ref={ref} className="sticky top-0 z-20 flex items-center gap-3 bg-[#161616]/95 px-4 py-3 backdrop-blur-md md:gap-6 md:px-10">
+    <div ref={ref} className="sticky top-0 z-20 flex items-center gap-3 bg-surface-raised/95 px-4 py-3 backdrop-blur-md md:gap-6 md:px-10">
       <Link replace scroll={false} href={returnHref} aria-label="返回书架" className="shrink-0 text-annotation uppercase tracking-[0.2em] text-muted transition-colors hover:text-ink">
         <span className="hidden sm:inline">← Reading / 返回书架</span><span className="inline-flex h-8 w-6 items-center justify-center text-base sm:hidden" aria-hidden>←</span>
       </Link>
@@ -62,7 +62,7 @@ export function BookToolbar({ title, titleId, returnHref, cover, author, rating,
           </div>}
         </div>
       </div>
-      <Link replace scroll={false} href={returnHref} aria-label="关闭书籍详情，返回书架" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white/[0.06] text-muted transition-colors hover:bg-white/10 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
+      <Link replace scroll={false} href={returnHref} aria-label="关闭书籍详情，返回书架" className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink/[0.06] text-muted transition-colors hover:bg-ink/10 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
         <svg aria-hidden width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="m3 3 8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.2" /></svg>
       </Link>
     </div>

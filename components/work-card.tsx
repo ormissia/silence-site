@@ -17,7 +17,7 @@ export function WorkCard({ work, index, variant = "wide", tab = "all" }: {
   const query = tab === "all" ? "" : `?tab=${encodeURIComponent(tab)}`;
   return (
     <Link href={`/works/${work.slug}${query}`} onClick={() => rememberListPosition(`/works${query}`)} className={`${styles.link} editorial-card block`}>
-      <div className={`${styles.cover} ${isFilm ? styles.film : ""} bg-black ${aspect}`}>
+      <div className={`${styles.cover} ${isFilm ? styles.film : ""} image-frame image-card ${aspect}`}>
         <Image revealIndex={index} src={buildSrc(work.cover, "gridThumb")} alt={work.title} fill
           sizes="(min-width: 768px) 50vw, 100vw"
           className={styles.image} />
@@ -30,11 +30,11 @@ export function WorkCard({ work, index, variant = "wide", tab = "all" }: {
         <CoverFocusFrame />
         <div className={styles.info}>
           <div className="min-w-0 flex-1">
-            <h3 className="font-serif text-sm italic leading-snug text-ink/85"><OverflowText text={work.title} /></h3>
-            <p className="mt-1.5 text-annotation text-muted">
+            <h3 className="font-serif text-sm italic leading-snug text-white/85"><OverflowText text={work.title} /></h3>
+            <p className="mt-1.5 text-annotation text-white/65">
               <OverflowText text={[work.location !== "—" ? work.location : "", work.date.slice(0, 4)].filter(Boolean).join(" · ")} />
             </p>
-            <p className="mt-1.5 text-xs leading-relaxed text-muted"><OverflowText text={work.deck ?? ""} /></p>
+            <p className="mt-1.5 text-xs leading-relaxed text-white/70"><OverflowText text={work.deck ?? ""} /></p>
           </div>
         </div>
       </div>

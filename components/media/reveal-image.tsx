@@ -19,6 +19,7 @@ function useImageReveal(staggered: boolean) {
 
 function NextImage({ className = "", alt, style, revealIndex, revealEffect = "fade", ...props }: ImageProps & RevealOptions) {
   const reveal = useImageReveal(revealIndex !== undefined);
+  const previewReveal = useImageReveal(false);
   const delay = useRef(imageRevealDelay(revealIndex)).current;
   const preview = typeof props.src === "string" && props.fill && revealIndex !== undefined && revealEffect === "fade"
     ? previewSrcFor(props.src)
@@ -26,7 +27,7 @@ function NextImage({ className = "", alt, style, revealIndex, revealEffect = "fa
   return <>
     {preview && (
       // eslint-disable-next-line @next/next/no-img-element
-      <img src={preview} alt="" aria-hidden="true" loading="lazy" decoding="async"
+      <img src={preview} alt="" aria-hidden="true" loading="lazy" decoding="async" {...previewReveal}
         className="image-blur-placeholder"
         style={{ objectFit: className.includes("object-contain") ? "contain" : "cover" }} />
     )}

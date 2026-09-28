@@ -38,8 +38,14 @@
 }
 
 .image-reveal[data-image-state="pending"],
+.image-blur-placeholder[data-image-state="pending"],
 .image-content img:not([data-image-state]) {
   opacity: 0;
+}
+
+/* Both themes show only the solid frame until the photo or preview is visible. */
+.image-card:has(> .image-reveal[data-image-state="pending"]):not(:has(> .image-blur-placeholder:is([data-image-state="ready"], [data-image-state="seen"]))) > div {
+  visibility: hidden;
 }
 
 .image-reveal[data-image-state="ready"] {

@@ -78,7 +78,7 @@ export function PlatesGrid({
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           {albumPhotos.map((photo, index) => (
             <button key={photo.key} type="button" onClick={() => setActiveIdx(index)} aria-label={`查看 ${photo.alt}`}
-              className="group overflow-hidden bg-black text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
+              className="image-frame group overflow-hidden text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
               <div className="film-sprockets" aria-hidden />
               <div className="relative aspect-[3/2] overflow-hidden">
                 <Image revealIndex={index} src={photo.src} alt={photo.alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-contain transition-transform duration-700 motion-safe:group-hover:scale-[1.015]" />

@@ -37,11 +37,11 @@ export default function ReadingEntryPage({ params, searchParams }: {
   return (
     <BookDialog key={book.slug} returnHref={shelfHref} titleId="book-detail-title">
     <article>
-      <div className="reading-detail-panel relative bg-[#161616]">
+      <div className="reading-detail-panel relative bg-surface-raised">
         <BookToolbar title={book.title} cover={book.cover} author={book.author} rating={book.rating} readingTime={book.readingTime} titleId="book-detail-title" returnHref={shelfHref} />
 
         <header className="grid gap-8 px-6 pb-10 pt-6 md:grid-cols-[180px_minmax(0,1fr)] md:gap-10 md:px-10 lg:grid-cols-[224px_minmax(0,1fr)] lg:gap-14">
-          <div className="mx-auto w-40 self-start overflow-hidden rounded-xl border border-white/10 bg-black/20 shadow-[0_16px_40px_rgba(0,0,0,0.35)] md:w-full">
+          <div className="mx-auto w-40 self-start overflow-hidden rounded-xl border border-ink/10 bg-ink/5 shadow-[0_16px_40px_rgba(0,0,0,0.18)] md:w-full">
             {book.cover ? (
               <RevealImg src={book.cover} alt={book.title} className="block h-auto w-full" />
             ) : <div className="flex aspect-[2/3] items-center justify-center px-5 text-center font-serif text-lg text-muted">{book.title}</div>}
@@ -60,7 +60,7 @@ export default function ReadingEntryPage({ params, searchParams }: {
                 </div>
               ))}
             </dl>
-            {!!book.tags?.length && <div className="mt-6 flex flex-wrap gap-2">{book.tags.map(tag => <span key={tag} className="rounded-full border border-white/10 px-3 py-1 text-annotation text-muted">{tag}</span>)}</div>}
+            {!!book.tags?.length && <div className="mt-6 flex flex-wrap gap-2">{book.tags.map(tag => <span key={tag} className="rounded-full border border-ink/10 px-3 py-1 text-annotation text-muted">{tag}</span>)}</div>}
           </div>
         </header>
 
@@ -74,7 +74,7 @@ export default function ReadingEntryPage({ params, searchParams }: {
               </dl>
             )}
           </aside>
-          <section aria-label="划线与笔记" className="min-w-0 border-t border-dashed border-white/10 px-6 py-8 md:my-8 md:border-l md:border-t-0 md:px-10 md:py-2">
+          <section aria-label="划线与笔记" className="min-w-0 border-t border-dashed border-ink/10 px-6 py-8 md:my-8 md:border-l md:border-t-0 md:px-10 md:py-2">
             {sections.notesHtml ? <ImageContent className="md-content reading-book-notes" html={sections.notesHtml} /> : <p className="text-sm text-muted">这本书还没有留下划线或笔记。</p>}
           </section>
         </div>

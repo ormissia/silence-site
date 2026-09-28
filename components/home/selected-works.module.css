@@ -10,7 +10,7 @@
   aspect-ratio: 3 / 2;
   overflow: hidden;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(var(--color-image-placeholder));
   isolation: isolate;
 }
 

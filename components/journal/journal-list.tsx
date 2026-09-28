@@ -67,7 +67,7 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
             const { day, monthYear } = formatDate(entry.date);
             return (
               <Link key={entry.slug} href={`/journal/${entry.slug}${categoryQuery}`} onClick={() => rememberListPosition(`/journal${categoryQuery}`)}
-                className={`${styles.link} group grid overflow-hidden rounded-xl border border-white/10 bg-[#111] md:grid-cols-[200px_minmax(0,1fr)]`}>
+                className={`${styles.link} group grid overflow-hidden rounded-xl border border-ink/10 bg-surface md:grid-cols-[200px_minmax(0,1fr)]`}>
                 <div className="flex items-start justify-between gap-4 p-5 md:flex-col md:p-6">
                   <div className="shrink-0">
                     <span className="text-5xl font-light leading-none text-ink/85 md:text-7xl">{day}</span>
@@ -79,14 +79,14 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
                     {entry.location && <p className="mt-2 text-xs text-muted">{entry.location}</p>}
                   </div>
                 </div>
-                <div className={`${styles.cover} relative aspect-[16/9] min-w-0 bg-[#1b1b22] md:aspect-[5/2]`}>
+                <div className={`${styles.cover} relative aspect-[16/9] min-w-0 ${entry.cover ? "image-frame" : "journal-cover-placeholder bg-[#1b1b22]"} md:aspect-[5/2]`}>
                   {entry.cover ? <Image revealIndex={i} src={buildSrc(entry.cover, "detail")} alt="" fill sizes="(min-width: 768px) 70vw, 100vw" className={styles.image} /> : <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(124,108,240,0.14),transparent_42%),linear-gradient(135deg,rgba(201,153,74,0.12),transparent_55%)]" />}
-                    <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                    <span className="absolute left-5 top-5 text-xs tracking-[0.2em] text-white/75 md:left-7 md:top-7">{String(i + 1).padStart(2, "0")}</span>
+                    <div aria-hidden className="journal-cover-shade absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
+                    <span className="journal-cover-index absolute left-5 top-5 text-xs tracking-[0.2em] text-white/75 md:left-7 md:top-7">{String(i + 1).padStart(2, "0")}</span>
                   {entry.cover && <CoverFocusFrame />}
                   <div className={`absolute inset-x-5 z-10 md:inset-x-7 ${entry.cover ? "bottom-5 md:bottom-7" : "top-1/2 -translate-y-1/2"}`}>
-                    <h2 className="font-serif text-xl leading-snug text-white md:text-3xl"><OverflowText text={entry.title} /></h2>
-                    {entry.excerpt && <p className="mt-2 text-sm leading-relaxed text-white/75"><OverflowText text={entry.excerpt} /></p>}
+                    <h2 className="journal-cover-title font-serif text-xl leading-snug text-white md:text-3xl"><OverflowText text={entry.title} /></h2>
+                    {entry.excerpt && <p className="journal-cover-excerpt mt-2 text-sm leading-relaxed text-white/75"><OverflowText text={entry.excerpt} /></p>}
                   </div>
                 </div>
               </Link>

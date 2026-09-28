@@ -5,12 +5,14 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        paper: "#0C0C0C",
-        ink: "#EFEFED",
-        muted: "#898989",
-        rule: "#1F1E1C",
-        accent: "#C9994A",
-        "accent-end": "#7C6CF0",
+        paper: "rgb(var(--color-paper) / <alpha-value>)",
+        surface: "rgb(var(--color-surface) / <alpha-value>)",
+        "surface-raised": "rgb(var(--color-surface-raised) / <alpha-value>)",
+        ink: "rgb(var(--color-ink) / <alpha-value>)",
+        muted: "rgb(var(--color-muted) / <alpha-value>)",
+        rule: "rgb(var(--color-rule) / <alpha-value>)",
+        accent: "rgb(var(--color-accent) / <alpha-value>)",
+        "accent-end": "rgb(var(--color-accent-end) / <alpha-value>)",
         ember: "#7A1F12",
       },
       fontFamily: {

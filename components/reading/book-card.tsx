@@ -72,7 +72,7 @@ export function BookCard({ book, index }: { book: ReadingEntry; index: number })
         whileHover={{ scale: 1.04, z: 12 }}
         transition={{ type: "spring", stiffness: 220, damping: 22, mass: 0.7 }}
       >
-        <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg border border-ink/10 bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-shadow duration-300 ease-out group-hover:shadow-[0_24px_56px_rgba(124,108,240,0.16),0_8px_20px_rgba(0,0,0,0.6)]">
+        <div className="image-frame relative aspect-[2/3] w-full overflow-hidden rounded-lg border border-ink/10 shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-shadow duration-300 ease-out group-hover:shadow-[0_24px_56px_rgba(124,108,240,0.16),0_8px_20px_rgba(0,0,0,0.6)]">
           {book.cover ? (
             <RevealImg
               revealIndex={index}

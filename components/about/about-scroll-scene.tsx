@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, type ReactNode } from "react";
-import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { motion, useReducedMotion, useScroll, useTransform, type MotionStyle } from "framer-motion";
 import { RevealImg } from "@/components/media/reveal-image";
 
 export function AboutScrollScene({ hero, children }: { hero: ReactNode; children: ReactNode }) {
@@ -11,27 +11,28 @@ export function AboutScrollScene({ hero, children }: { hero: ReactNode; children
     target: contentRef,
     offset: ["start end", "end end"],
   });
-  const shadeOpacity = useTransform(scrollYProgress, [0, 0.35, 1], [0, 0.22, 0.72]);
+  const shadeOpacity = useTransform(scrollYProgress, [0, 0.35, 1], [0, 0.22, 0.55]);
+  const fadeOpacity = useTransform(scrollYProgress, [0, 0.35, 1], [0.4, 0.65, 1]);
 
   return (
-    <div className="relative isolate bg-paper">
+    <div className="about-scroll-scene relative isolate bg-paper">
       <div
         aria-hidden
-        className="sticky top-[-3rem] z-0 h-[calc(100svh+3rem)] overflow-hidden md:top-[-16rem] md:h-[calc(100svh+16rem)]"
+        className="about-scene-backdrop sticky top-[-3rem] z-0 h-[calc(100svh+3rem)] overflow-hidden md:top-[-16rem] md:h-[calc(100svh+16rem)]"
       >
         <RevealImg
           src="/images/background.jpg" alt="" loading="eager"
           className="absolute inset-0 h-full w-full object-cover object-center brightness-[0.9] saturate-[0.85]"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(4,8,13,0.46)_0%,rgba(4,8,13,0.12)_25%,rgba(8,9,11,0.12)_30%,#0C0C0C_95%)]" />
+        <motion.div className="about-scene-fade absolute inset-0" style={{ opacity: reducedMotion ? 1 : fadeOpacity }} />
         <motion.div
-          className="absolute inset-0 bg-paper"
-          style={{ opacity: reducedMotion ? 0 : shadeOpacity }}
+          className="about-scene-shade absolute inset-0 bg-paper"
+          style={{ "--about-shade-opacity": reducedMotion ? 0 : shadeOpacity } as MotionStyle}
         />
       </div>
-      <div className="relative z-10 -mt-[calc(100svh+3rem)] md:-mt-[calc(100svh+16rem)]">
+      <div className="about-scene-foreground relative z-10 -mt-[calc(100svh+3rem)] md:-mt-[calc(100svh+16rem)]">
         {hero}
-        <div ref={contentRef}>{children}</div>
+        <div ref={contentRef} className="about-scene-content">{children}</div>
       </div>
     </div>
   );
