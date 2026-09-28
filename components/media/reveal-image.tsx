@@ -1,60 +1,40 @@
 "use client";
 
 import Image, { type ImageProps } from "next/image";
-import { useEffect, useRef, useState, type ImgHTMLAttributes } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ImgHTMLAttributes } from "react";
 
-type ImageState = "pending" | "ready" | "error";
+import { imageRevealDelay, observeImage, type ImageState } from "./image-reveal";
 
-/** Cached images and slow decodes follow the same path; failed images remain visible. */
-export function observeImage(image: HTMLImageElement, onState: (state: ImageState) => void) {
-  let active = true;
-  const loaded = async () => {
-    const source = image.currentSrc || image.src;
-    try { await image.decode(); } catch { /* Some browsers cannot decode SVGs explicitly. */ }
-    if (active && source === (image.currentSrc || image.src)) {
-      onState(image.naturalWidth > 0 ? "ready" : "error");
-    }
-  };
-  const failed = () => { if (active) onState("error"); };
-  image.addEventListener("load", loaded);
-  image.addEventListener("error", failed);
-  if (image.complete) {
-    if (image.naturalWidth > 0) void loaded();
-    else if (image.currentSrc || image.getAttribute("src")) failed();
-  }
-  return () => {
-    active = false;
-    image.removeEventListener("load", loaded);
-    image.removeEventListener("error", failed);
-  };
-}
+type RevealOptions = { revealIndex?: number; revealEffect?: "mask" | "blur" };
 
-function useImageReveal() {
+function useImageReveal(staggered: boolean) {
   const ref = useRef<HTMLImageElement>(null);
   const [state, setState] = useState<ImageState>("pending");
   useEffect(() => {
-    if (ref.current) return observeImage(ref.current, setState);
-  }, []);
+    if (ref.current) return observeImage(ref.current, setState, staggered);
+  }, [staggered]);
   return { ref, "data-image-state": state };
 }
 
-function NextImage({ className = "", alt, ...props }: ImageProps) {
-  const reveal = useImageReveal();
-  return <Image {...props} alt={alt} {...reveal} className={`image-reveal ${className}`} />;
+function NextImage({ className = "", alt, style, revealIndex, revealEffect = "mask", ...props }: ImageProps & RevealOptions) {
+  const reveal = useImageReveal(revealIndex !== undefined);
+  const delay = useRef(imageRevealDelay(revealIndex)).current;
+  return <Image {...props} alt={alt} {...reveal} data-image-effect={revealEffect} style={{ ...style, "--image-reveal-delay": delay } as CSSProperties} className={`image-reveal ${className}`} />;
 }
 
-export function RevealImage(props: ImageProps) {
+export function RevealImage(props: ImageProps & RevealOptions) {
   const src = typeof props.src === "string" ? props.src : "default" in props.src ? props.src.default.src : props.src.src;
   return <NextImage key={src} {...props} />;
 }
 
-type NativeImageProps = ImgHTMLAttributes<HTMLImageElement>;
+type NativeImageProps = ImgHTMLAttributes<HTMLImageElement> & RevealOptions;
 
-function NativeImage({ className = "", alt = "", ...props }: NativeImageProps) {
-  const reveal = useImageReveal();
+function NativeImage({ className = "", alt = "", style, revealIndex, revealEffect = "mask", ...props }: NativeImageProps) {
+  const reveal = useImageReveal(revealIndex !== undefined);
+  const delay = useRef(imageRevealDelay(revealIndex)).current;
   // Native images preserve intrinsic sizing in the lightbox, book covers and photo album.
   // eslint-disable-next-line @next/next/no-img-element
-  return <img {...props} alt={alt} {...reveal} className={`image-reveal ${className}`} />;
+  return <img {...props} alt={alt} {...reveal} data-image-effect={revealEffect} style={{ ...style, "--image-reveal-delay": delay } as CSSProperties} className={`image-reveal ${className}`} />;
 }
 
 export function RevealImg(props: NativeImageProps) {

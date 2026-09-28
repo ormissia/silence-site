@@ -42,8 +42,8 @@ export function ReadingShelf({
         <p className="mt-24 text-center font-sans text-muted">这个分类下还没有书。</p>
       ) : (
         <div className="mt-5 grid grid-cols-2 gap-x-5 gap-y-10 sm:mt-8 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-8">
-          {filtered.map((book) => (
-            <BookCard key={book.slug} book={book} />
+          {filtered.map((book, index) => (
+            <BookCard key={book.slug} book={book} index={index} />
           ))}
         </div>
       )}

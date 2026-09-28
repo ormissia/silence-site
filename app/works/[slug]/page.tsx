@@ -40,6 +40,7 @@ export default async function WorkDetailPage({ params, searchParams }: {
       <header className={`relative w-full overflow-hidden bg-black ${isFilm ? "mt-[var(--site-header-height)] h-[calc(100svh-var(--site-header-height))] min-h-[440px]" : "h-screen min-h-[560px]"}`}>
         <Image
           src={buildSrc(work.cover, "hero")}
+          revealEffect="blur"
           alt={work.title}
           fill
           priority

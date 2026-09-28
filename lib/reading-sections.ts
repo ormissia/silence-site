@@ -12,6 +12,8 @@ export function splitReadingMarkdown(markdown: string, title: string) {
       !/^>\s*-\s*!\[.*\]\(.*\)\s*$/.test(line) &&
       !/^>\s*-\s*(?:书名|作者)[：:]\s*/.test(line)
     )
+    // Format only the publication field; preserve dates and times in personal notes.
+    .map((line) => line.replace(/^(>\s*-\s*(?:\*\*)?出版时间(?:\*\*)?[：:]?\s*\d{4}-\d{2}-\d{2})[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})?\s*$/, "$1"))
     .map((line) => line.replace(/^>\s*-\s*(书名|作者|简介|出版时间|ISBN|分类|出版社)(?:[：:]\s*|\s+)(.*)$/, "> - **$1**\n>   $2"))
     .join("\n").replace(/\n\s*---\s*$/, "").trim();
   const before = lines.slice(0, metadataStart);

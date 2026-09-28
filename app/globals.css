@@ -136,7 +136,8 @@ body::before {
 
 /* 真实照片用：保留画面信息，只压亮 + 冷调，避免高反差画面被滤镜毁掉 */
 .cinema-tone-soft {
-  filter: brightness(0.72) contrast(1.08) saturate(0.85);
+  --image-filter: brightness(0.72) contrast(1.08) saturate(0.85);
+  filter: var(--image-filter);
 }
 
 /* 暗角 */
@@ -159,9 +160,21 @@ body::before {
   }
 }
 
-/* Shared loading language: dark placeholders, soft gold/violet light, decoded-image fade. */
+/* Shared loading language: dark placeholders, soft gold/violet light, decoded-image mask reveal. */
 @keyframes load-reveal {
   from { opacity: 0; }
+}
+@keyframes image-reveal {
+  from { clip-path: inset(0 0 100% 0); }
+  to { clip-path: inset(0); }
+}
+@keyframes image-reveal-blur {
+  from { filter: var(--image-filter, brightness(1)) blur(12px); }
+  to { filter: var(--image-filter, brightness(1)) blur(0); }
+}
+.image-reveal[data-image-effect="blur"] {
+  --image-reveal-animation: image-reveal-blur;
+  --image-reveal-duration: 1000ms;
 }
 @keyframes load-shimmer {
   from { transform: translateX(-100%); }
@@ -170,7 +183,8 @@ body::before {
 .image-reveal[data-image-state="pending"],
 .image-content img:not([data-image-state]) { opacity: 0; }
 .image-reveal[data-image-state="ready"] {
-  animation: load-reveal var(--load-reveal-duration) var(--load-ease) backwards;
+  animation: var(--image-reveal-animation, image-reveal) var(--image-reveal-duration, var(--load-reveal-duration)) var(--load-ease) backwards;
+  animation-delay: var(--image-reveal-delay, 0ms);
 }
 .loading-skeleton,
 .loading-indicator {

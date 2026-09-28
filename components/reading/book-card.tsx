@@ -25,7 +25,7 @@ import type { ReadingEntry } from "@/lib/reading";
  * 性能：mouse 位置 → useMotionValue → useSpring 平滑 → useTransform 派生
  * 全部在 GPU transform 通道，不触发布局。
  */
-export function BookCard({ book }: { book: ReadingEntry }) {
+export function BookCard({ book, index }: { book: ReadingEntry; index: number }) {
   const ref = useRef<HTMLDivElement>(null);
   const category = useSearchParams().get("cat");
   const shelfQuery = category && category !== "all" ? `?cat=${encodeURIComponent(category)}` : "";
@@ -75,9 +75,10 @@ export function BookCard({ book }: { book: ReadingEntry }) {
         <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg border border-ink/10 bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-shadow duration-300 ease-out group-hover:shadow-[0_24px_56px_rgba(124,108,240,0.16),0_8px_20px_rgba(0,0,0,0.6)]">
           {book.cover ? (
             <RevealImg
+              revealIndex={index}
               src={book.cover}
               alt={book.title}
-              className="block h-full w-full object-contain"
+              className="block h-full w-full object-cover"
               loading="lazy"
               draggable={false}
             />

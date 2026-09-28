@@ -175,6 +175,7 @@ export function BookSphere({
           <SphereItem
             key={book.slug}
             book={book}
+            index={i}
             point={points[i]}
             radius={radius * scale}
             size={size * scale}
@@ -193,6 +194,7 @@ export function BookSphere({
  */
 function SphereItem({
   book,
+  index,
   point,
   radius,
   size,
@@ -200,6 +202,7 @@ function SphereItem({
   pitch,
 }: {
   book: SphereBook;
+  index: number;
   point: { x: number; y: number; z: number };
   radius: number;
   size: number;
@@ -263,6 +266,7 @@ function SphereItem({
       >
         {book.cover && (
           <Image
+            revealIndex={index}
             src={buildSrc(book.cover, "portrait")}
             width={size}
             height={Math.round(size * 1.4)}

@@ -81,7 +81,7 @@ export function PlatesGrid({
               className="group overflow-hidden bg-black text-left focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">
               <div className="film-sprockets" aria-hidden />
               <div className="relative aspect-[3/2] overflow-hidden">
-                <Image src={photo.src} alt={photo.alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-contain transition-transform duration-700 motion-safe:group-hover:scale-[1.015]" />
+                <Image revealIndex={index} src={photo.src} alt={photo.alt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-contain transition-transform duration-700 motion-safe:group-hover:scale-[1.015]" />
               </div>
               <div className="flex items-center justify-between px-4 pt-2 text-[9px] uppercase tracking-[0.2em] text-accent/70"><span>{String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}</span><span>Silence · Film archive</span></div>
               <div className="film-sprockets" aria-hidden />
@@ -93,7 +93,7 @@ export function PlatesGrid({
         photos={albumPhotos}
         targetRowHeight={420}
         spacing={24}
-        render={{ image: (props) => <RevealImg {...props} /> }}
+        render={{ image: (props, { index }) => <RevealImg {...props} revealIndex={index} /> }}
         onClick={({ index }) => setActiveIdx(index)}
       />
       )}

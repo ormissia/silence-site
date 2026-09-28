@@ -80,7 +80,7 @@ export function JournalList({ entries }: { entries: JournalEntry[] }) {
                   </div>
                 </div>
                 <div className={`${styles.cover} relative aspect-[16/9] min-w-0 bg-[#1b1b22] md:aspect-[5/2]`}>
-                  {entry.cover ? <Image src={buildSrc(entry.cover, "detail")} alt="" fill sizes="(min-width: 768px) 70vw, 100vw" className={styles.image} /> : <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(124,108,240,0.14),transparent_42%),linear-gradient(135deg,rgba(201,153,74,0.12),transparent_55%)]" />}
+                  {entry.cover ? <Image revealIndex={i} src={buildSrc(entry.cover, "detail")} alt="" fill sizes="(min-width: 768px) 70vw, 100vw" className={styles.image} /> : <div aria-hidden className="absolute inset-0 bg-[radial-gradient(circle_at_70%_30%,rgba(124,108,240,0.14),transparent_42%),linear-gradient(135deg,rgba(201,153,74,0.12),transparent_55%)]" />}
                     <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
                     <span className="absolute left-5 top-5 text-xs tracking-[0.2em] text-white/75 md:left-7 md:top-7">{String(i + 1).padStart(2, "0")}</span>
                   {entry.cover && <CoverFocusFrame />}

@@ -22,13 +22,14 @@ export function SelectedWorks({ works }: Props) {
         </header>
 
         <div className={`${styles.gallery} mt-10 md:mt-12`}>
-          {works.slice(0, 5).map((work) => (
+          {works.slice(0, 5).map((work, index) => (
             <Link
               key={work.slug}
               href={`/works/${work.slug}`}
               className={`${styles.card} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent`}
             >
               <Image
+                revealIndex={index}
                 src={buildSrc(work.cover, "gridThumb")}
                 alt={work.title}
                 fill

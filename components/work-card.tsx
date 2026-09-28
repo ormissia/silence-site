@@ -18,7 +18,7 @@ export function WorkCard({ work, index, variant = "wide", tab = "all" }: {
   return (
     <Link href={`/works/${work.slug}${query}`} onClick={() => rememberListPosition(`/works${query}`)} className={`${styles.link} editorial-card block`}>
       <div className={`${styles.cover} ${isFilm ? styles.film : ""} bg-black ${aspect}`}>
-        <Image src={buildSrc(work.cover, "gridThumb")} alt={work.title} fill
+        <Image revealIndex={index} src={buildSrc(work.cover, "gridThumb")} alt={work.title} fill
           sizes="(min-width: 768px) 50vw, 100vw"
           className={styles.image} />
         <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/15" />
