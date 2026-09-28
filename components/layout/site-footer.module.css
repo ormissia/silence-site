@@ -34,7 +34,8 @@
 .background,
 .shade {
   position: absolute;
-  inset: 0;
+  /* Keep the fixed scene covered when the footer edge moves above it during pull-up. */
+  inset: -80px 0 0;
   pointer-events: none;
 }
 
