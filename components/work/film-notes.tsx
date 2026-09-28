@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { RevealImage as Image } from "@/components/media/reveal-image";
 import type { Work } from "@/lib/works";
 
 /** The sleeve is decorative; metadata and notes always come from the actual work. */

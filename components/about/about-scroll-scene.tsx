@@ -2,6 +2,7 @@
 
 import { useRef, type ReactNode } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { RevealImg } from "@/components/media/reveal-image";
 
 export function AboutScrollScene({ hero, children }: { hero: ReactNode; children: ReactNode }) {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -18,9 +19,9 @@ export function AboutScrollScene({ hero, children }: { hero: ReactNode; children
         aria-hidden
         className="sticky top-[-3rem] z-0 h-[calc(100svh+3rem)] overflow-hidden md:top-[-16rem] md:h-[calc(100svh+16rem)]"
       >
-        <div
-          className="absolute inset-0 bg-cover bg-center brightness-[0.9] saturate-[0.85]"
-          style={{ backgroundImage: "url('/images/background.jpg')" }}
+        <RevealImg
+          src="/images/background.jpg" alt="" loading="eager"
+          className="absolute inset-0 h-full w-full object-cover object-center brightness-[0.9] saturate-[0.85]"
         />
         <div className="absolute inset-0 bg-[linear-gradient(to_bottom,rgba(4,8,13,0.46)_0%,rgba(4,8,13,0.12)_25%,rgba(8,9,11,0.12)_30%,#0C0C0C_95%)]" />
         <motion.div

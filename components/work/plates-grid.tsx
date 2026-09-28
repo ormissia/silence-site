@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { RevealImage as Image, RevealImg } from "@/components/media/reveal-image";
 import { RowsPhotoAlbum } from "react-photo-album";
 import "react-photo-album/rows.css";
 import { buildSrc } from "@/lib/oss";
@@ -93,6 +93,7 @@ export function PlatesGrid({
         photos={albumPhotos}
         targetRowHeight={420}
         spacing={24}
+        render={{ image: (props) => <RevealImg {...props} /> }}
         onClick={({ index }) => setActiveIdx(index)}
       />
       )}
@@ -449,8 +450,7 @@ function Lightbox({ src, alt, onClose, onPrev, onNext }: LightboxProps) {
         onMouseDown={handleMouseDown}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <RevealImg
           key={src}
           src={src}
           alt={alt}

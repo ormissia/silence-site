@@ -10,7 +10,7 @@ import {
   type ReactNode,
 } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 
 /**
  * 顶部 2px 路由进度条 + Provider。
@@ -62,6 +62,7 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
  * 监听 pathname + search 变化——变化即视为"路由切换完毕"，触发收尾。
  */
 export function RouteProgress() {
+  const reducedMotion = useReducedMotion();
   const ctx = useContext(RouteProgressCtx);
   const pathname = usePathname();
   const search = useSearchParams();
@@ -88,13 +89,12 @@ export function RouteProgress() {
       {ctx.isLoading && (
         <motion.div
           aria-hidden
-          // amber-400 (#FBBF24) 醒目土黄；shadow 让暗背景下条子像发光
-          className="pointer-events-none fixed inset-x-0 top-0 z-[60] h-[3px] origin-left bg-amber-400 shadow-[0_0_12px_rgba(251,191,36,0.7)]"
-          initial={{ scaleX: 0, opacity: 1 }}
+          className="route-progress-line pointer-events-none fixed inset-x-0 top-0 z-[60] h-[2px] origin-left"
+          initial={{ scaleX: reducedMotion ? 0.8 : 0, opacity: 1 }}
           // 0 → 80%：~600ms 缓动；卡在 80% 等路由切换；切完后由 exit 动画到 100% 再淡出
           animate={{ scaleX: 0.8 }}
-          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
-          exit={{ scaleX: 1, opacity: 0, transition: { duration: 0.25, ease: "easeOut" } }}
+          transition={{ duration: reducedMotion ? 0 : 0.65, ease: [0.2, 0.7, 0.2, 1] }}
+          exit={{ scaleX: 1, opacity: 0, transition: { duration: reducedMotion ? 0 : 0.4, ease: [0.2, 0.7, 0.2, 1] } }}
         />
       )}
     </AnimatePresence>

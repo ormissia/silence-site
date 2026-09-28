@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { RevealImage as Image } from "@/components/media/reveal-image";
 import Link from "next/link";
 import { buildSrc, presetSize } from "@/lib/oss";
 import type { Work } from "@/lib/works";

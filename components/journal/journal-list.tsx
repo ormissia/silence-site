@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { RevealImage as Image } from "@/components/media/reveal-image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { buildSrc } from "@/lib/oss";

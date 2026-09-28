@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { WorksGallery } from "@/components/work/works-gallery";
 import { SecondaryPageHeader } from "@/components/layout/secondary-page-header";
+import { CollectionLoading } from "@/components/layout/page-loading";
 import { listWorks, listWorksCategoryCounts } from "@/lib/works";
 
 export const metadata = {
@@ -23,11 +24,7 @@ export default async function WorksPage() {
         lede="风光、人像、与日常之间的随手——按主题分门别类地翻看。"
       />
 
-      <Suspense
-        fallback={
-          <div className="mt-12 h-[60vh] border-b border-rule/60" aria-hidden />
-        }
-      >
+      <Suspense fallback={<CollectionLoading />}>
         <WorksGallery works={works} categoryCounts={categoryCounts} />
       </Suspense>
     </section>

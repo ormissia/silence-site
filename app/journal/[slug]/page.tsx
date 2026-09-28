@@ -1,9 +1,10 @@
-import Image from "next/image";
+import { RevealImage as Image } from "@/components/media/reveal-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildSrc } from "@/lib/oss";
 import { getJournalEntry, listJournal, JOURNAL_CATEGORY_LABELS } from "@/lib/journal";
 import { ReturnToListLink } from "@/components/layout/list-return";
+import { ImageContent } from "@/components/media/image-content";
 
 export function generateStaticParams() {
   return listJournal().map((e) => ({ slug: e.slug }));
@@ -109,9 +110,9 @@ export default function JournalEntryPage({ params, searchParams }: {
       )}
 
       <section className="mx-auto mt-12 max-w-[1100px] px-6 md:mt-16 md:px-10">
-        <div
+        <ImageContent
           className="md-content mx-auto max-w-column border-t border-rule pt-12"
-          dangerouslySetInnerHTML={{ __html: entry.bodyHtml }}
+          html={entry.bodyHtml}
         />
       </section>
 

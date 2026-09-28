@@ -1,9 +1,10 @@
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useEffect, useState } from "react";
 
 import { CAMERA } from "@/components/camera-spec";
+import { LoadingIndicator } from "@/components/layout/page-loading";
 
 // 仅等待首屏图片；慢网或解码挂起时最多等待 4 秒。
 const CRITICAL_IMAGES = ["/images/background.jpg", CAMERA.src];
@@ -28,6 +29,7 @@ function preloadImage(src: string): Promise<void> {
 
 export function HomeSplash() {
   const [visible, setVisible] = useState(true);
+  const reducedMotion = useReducedMotion();
 
   useEffect(() => {
     let cancelled = false;
@@ -61,9 +63,9 @@ export function HomeSplash() {
       {visible && (
         <motion.div
           aria-hidden
-          className="fixed inset-0 z-[120] flex flex-col items-center justify-center bg-paper"
+          className="home-splash fixed inset-0 z-[120] flex flex-col items-center justify-center bg-paper"
           initial={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.3, ease: "easeOut" } }}
+          exit={{ opacity: 0, transition: { duration: reducedMotion ? 0 : 0.4, ease: [0.2, 0.7, 0.2, 1] } }}
           // 淡出阶段不挡按钮
           style={{ pointerEvents: "none" }}
         >
@@ -78,9 +80,7 @@ export function HomeSplash() {
               寂静无声 · 正在装载光与文字
             </p>
 
-            <div className="home-splash-track relative mt-16 h-px w-[280px] overflow-hidden bg-ink/15" aria-hidden>
-              <span className="home-splash-line absolute inset-y-0 left-0 w-2/5 bg-gradient-accent" />
-            </div>
+            <LoadingIndicator className="mt-16 w-[280px]" />
           </div>
         </motion.div>
       )}

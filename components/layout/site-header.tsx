@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef, useState, type ReactNode } from "react";
-import { usePathname } from "next/navigation";
+import { Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
 import { NavProgressLink } from "./nav-link";
 
 const WORKS_MENU: Array<{ href: string; label: string }> = [
@@ -53,6 +53,8 @@ function NavMenu({
   label: string;
   items: Array<{ href: string; label: string }>;
 }) {
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -87,26 +89,36 @@ function NavMenu({
     >
       <NavLink href={href} expanded={open}>{label}</NavLink>
       <div
-        className={`absolute left-0 top-full z-50 md:left-1/2 md:-translate-x-1/2 pt-4 transition-transform duration-200 ease-out motion-reduce:transition-none ${
-          open
-            ? "visible translate-y-0"
-            : "pointer-events-none invisible -translate-y-1"
-        }`}
+        className="site-nav-dropdown absolute left-0 top-full z-50 pt-3 md:left-1/2 md:-translate-x-1/2"
+        data-open={open}
       >
-        <div className="w-60 overflow-hidden rounded-lg border border-white/20 bg-paper/[0.55] p-2 shadow-[0_12px_32px_rgba(0,0,0,0.16)] backdrop-blur-[18px]">
-          <ul className="flex flex-col gap-1" aria-label={`${label} 分类`}>
-            {items.map((item) => (
-              <li key={item.href}>
-                <NavProgressLink
-                  href={item.href}
-                  className="group/item flex min-h-11 items-center justify-between gap-5 rounded-md px-3 py-2.5 font-sans text-caption tracking-[0.1em] text-ink [text-shadow:0_1px_3px_rgba(0,0,0,0.35)] transition-colors duration-200 hover:bg-white/15 hover:text-white focus-visible:bg-white/15 focus-visible:text-white focus-visible:outline focus-visible:outline-1 focus-visible:outline-ink/60"
-                  onClick={() => setOpen(false)}
+        <div className="site-nav-dropdown-surface">
+          <ul className="flex flex-col gap-1.5" aria-label={`${label} 分类`}>
+            {items.map((item, index) => {
+              const [itemPath, query] = item.href.split("?");
+              const active = pathname === itemPath && Array.from(new URLSearchParams(query)).every(
+                ([key, value]) => searchParams.get(key) === value
+              );
+              const [title, subtitle] = item.label.split(" / ");
+              return (
+                <li
+                  key={item.href}
+                  className="site-nav-dropdown-item"
+                  style={{ "--menu-item-index": index } as CSSProperties}
                 >
-                  <span className="uppercase">{item.label.split(" / ")[0]}</span>
-                  <span className="shrink-0 text-label normal-case tracking-normal">{item.label.split(" / ")[1]}</span>
-                </NavProgressLink>
-              </li>
-            ))}
+                  <NavProgressLink
+                    href={item.href}
+                    aria-current={active ? "page" : undefined}
+                    tabIndex={open ? undefined : -1}
+                    className="silence-pill silence-pill-nav site-nav-dropdown-link"
+                    onClick={() => setOpen(false)}
+                  >
+                    <span className="uppercase">{title}</span>
+                    <span className="shrink-0 normal-case tracking-normal opacity-60">{subtitle}</span>
+                  </NavProgressLink>
+                </li>
+              );
+            })}
           </ul>
         </div>
       </div>
@@ -141,8 +153,12 @@ export function SiteHeader() {
         </NavProgressLink>
 
         <nav className="flex flex-wrap items-center gap-1.5 font-sans uppercase sm:gap-2">
-          <NavMenu href="/works" label="Works" items={WORKS_MENU} />
-          <NavMenu href="/journal" label="Journal" items={JOURNAL_MENU} />
+          <Suspense fallback={<NavLink href="/works">Works</NavLink>}>
+            <NavMenu href="/works" label="Works" items={WORKS_MENU} />
+          </Suspense>
+          <Suspense fallback={<NavLink href="/journal">Journal</NavLink>}>
+            <NavMenu href="/journal" label="Journal" items={JOURNAL_MENU} />
+          </Suspense>
           <NavLink href="/reading">Reading</NavLink>
           <NavLink href="/about">About</NavLink>
         </nav>

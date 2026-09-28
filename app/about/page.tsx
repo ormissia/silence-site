@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { RevealImage as Image } from "@/components/media/reveal-image";
 import Link from "next/link";
 import { AboutScrollReveal, AboutScrollScene } from "@/components/about/about-scroll-scene";
 

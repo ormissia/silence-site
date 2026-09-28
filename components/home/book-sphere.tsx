@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
+import { RevealImage as Image } from "@/components/media/reveal-image";
 import { buildSrc } from "@/lib/oss";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -27,7 +27,8 @@ function fibonacciSphere(n: number): Array<{ x: number; y: number; z: number }> 
     const theta = golden * i;
     const x = Math.cos(theta) * radius;
     const z = Math.sin(theta) * radius;
-    out.push({ x, y, z });
+    // Node 与浏览器的三角函数末尾精度可能不同，固定初始坐标避免 hydration 差异。
+    out.push({ x: Number(x.toFixed(8)), y: Number(y.toFixed(8)), z: Number(z.toFixed(8)) });
   }
   return out;
 }

@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { listReading, listReadingCategories } from "@/lib/reading";
 import { ReadingShelf } from "@/components/reading/reading-shelf";
 import { SecondaryPageHeader } from "@/components/layout/secondary-page-header";
+import { CollectionLoading } from "@/components/layout/page-loading";
 
 export const metadata = {
   title: "Reading — SILENCE",
@@ -26,11 +27,7 @@ export default function ReadingPage() {
           还没有读书笔记。把微信读书导出的 markdown 放到 <code>content/reading/</code> 下即可。
         </p>
       ) : (
-        <Suspense
-          fallback={
-            <div className="mt-12 h-[60vh] border-b border-rule/60" aria-hidden />
-          }
-        >
+        <Suspense fallback={<CollectionLoading layout="reading" />}>
           <ReadingShelf books={books} categories={categories} />
         </Suspense>
       )}

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import { RevealImage as Image } from "@/components/media/reveal-image";
 import { buildSrc } from "@/lib/oss";
 import type { Work } from "@/lib/works";
 import styles from "./selected-works.module.css";

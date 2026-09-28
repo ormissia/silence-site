@@ -1,5 +1,7 @@
 "use client";
 
+import { RevealImage } from "@/components/media/reveal-image";
+
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
 import { WorkCard } from "@/components/work-card";
@@ -48,7 +50,7 @@ export function WorksGallery({ works, categoryCounts }: Props) {
       />
 
       <div className="relative pb-16">
-        {activeTab === "film" && <div aria-hidden className="pointer-events-none absolute -inset-x-6 inset-y-0 bg-cover bg-center opacity-50 md:-inset-x-12" style={{ backgroundImage: 'url("/images/film/film-scratch.jpg")' }} />}
+        {activeTab === "film" && <div aria-hidden className="pointer-events-none absolute -inset-x-6 inset-y-0 md:-inset-x-12"><RevealImage src="/images/film/film-scratch.jpg" alt="" fill sizes="100vw" className="object-cover object-center opacity-50" /></div>}
         {filtered.length === 0 ? (
           <p className="relative py-24 text-center text-muted">这个分类下还没有作品。</p>
         ) : (

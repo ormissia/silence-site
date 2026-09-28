@@ -1,3 +1,5 @@
+import { RevealImg } from "@/components/media/reveal-image";
+import { ImageContent } from "@/components/media/image-content";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BookToolbar } from "@/components/reading/book-toolbar";
@@ -41,8 +43,7 @@ export default function ReadingEntryPage({ params, searchParams }: {
         <header className="grid gap-8 px-6 pb-10 pt-6 md:grid-cols-[180px_minmax(0,1fr)] md:gap-10 md:px-10 lg:grid-cols-[224px_minmax(0,1fr)] lg:gap-14">
           <div className="mx-auto w-40 self-start overflow-hidden rounded-xl border border-white/10 bg-black/20 shadow-[0_16px_40px_rgba(0,0,0,0.35)] md:w-full">
             {book.cover ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={book.cover} alt={book.title} className="block h-auto w-full" />
+              <RevealImg src={book.cover} alt={book.title} className="block h-auto w-full" />
             ) : <div className="flex aspect-[2/3] items-center justify-center px-5 text-center font-serif text-lg text-muted">{book.title}</div>}
           </div>
           <div className="min-w-0 pt-1">
@@ -67,14 +68,14 @@ export default function ReadingEntryPage({ params, searchParams }: {
         <div className="grid md:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)]">
           <aside aria-label="书籍资料" className="min-w-0 px-6 py-8 md:px-10 md:py-10">
             <h2 className="mb-6 text-annotation uppercase tracking-[0.22em] text-muted">Book details / 书籍资料</h2>
-            {sections.metadataHtml ? <div className="md-content reading-book-metadata" dangerouslySetInnerHTML={{ __html: sections.metadataHtml }} /> : (
+            {sections.metadataHtml ? <ImageContent className="md-content reading-book-metadata" html={sections.metadataHtml} /> : (
               <dl className="space-y-6 text-sm leading-relaxed">
                 {[["分类", book.rawCategory ?? book.category], ["ISBN", book.isbn]].filter(([, value]) => value).map(([label, value]) => <div key={label}><dt className="mb-2 text-annotation text-muted">{label}</dt><dd>{value}</dd></div>)}
               </dl>
             )}
           </aside>
           <section aria-label="划线与笔记" className="min-w-0 border-t border-dashed border-white/10 px-6 py-8 md:my-8 md:border-l md:border-t-0 md:px-10 md:py-2">
-            {sections.notesHtml ? <div className="md-content reading-book-notes" dangerouslySetInnerHTML={{ __html: sections.notesHtml }} /> : <p className="text-sm text-muted">这本书还没有留下划线或笔记。</p>}
+            {sections.notesHtml ? <ImageContent className="md-content reading-book-notes" html={sections.notesHtml} /> : <p className="text-sm text-muted">这本书还没有留下划线或笔记。</p>}
           </section>
         </div>
       </div>

@@ -7,6 +7,7 @@ import { TodayHighlight } from "@/components/home/today-highlight";
 import { ReadingBackground } from "@/components/home/reading-background";
 import { ReadingReveal } from "@/components/home/reading-reveal";
 import { SelectedWorks } from "@/components/home/selected-works";
+import { PageLoading } from "@/components/layout/page-loading";
 import { listFeatured, listWorks } from "@/lib/works";
 import { getDailyIndex, getHighlightBatch, pickSphereBooks } from "@/lib/reading";
 
@@ -32,7 +33,7 @@ export default async function HomePage() {
   return (
     <>
       <HomeSplash />
-      <Suspense fallback={<div className="h-screen bg-paper" />}>
+      <Suspense fallback={<PageLoading heroOnly />}>
         <CinemaHero work={hero} />
       </Suspense>
 

@@ -1,5 +1,7 @@
 "use client";
 
+import { RevealImg } from "@/components/media/reveal-image";
+
 import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion, type MotionValue } from "framer-motion";
 import { useSearchParams } from "next/navigation";
@@ -107,11 +109,11 @@ export function CinemaHero({ work }: { work: Work }) {
   return (
     <section ref={ref} className="relative h-[378vh]">
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-paper">
-        {/* 工作室底图：用 CSS background 绕开 next/image 优化器，避免 dev 下大图加载失败 */}
+        {/* 背景与 LCD 保留原图地址，共用加载完成后的淡入。 */}
         <motion.div className="absolute inset-0" style={{ opacity: sceneOpacity }}>
-          <div
-            className="cinema-tone-soft absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: "url('/images/background.jpg')" }}
+          <RevealImg
+            src="/images/background.jpg" alt="" loading="eager"
+            className="cinema-tone-soft absolute inset-0 h-full w-full object-cover object-center"
           />
           {/* 暗角单独一层，不受 cinema-tone 滤镜影响 */}
           <div className="vignette absolute inset-0" />
@@ -285,8 +287,7 @@ function CameraBody({
 
       {/* LCD 槽位随相机尺寸变化，始终从原图按当前显示尺寸绘制。 */}
       <div className="absolute overflow-hidden" style={CAMERA.lcd}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <RevealImg
           src="/images/background.jpg"
           alt=""
           className="h-full w-full object-cover"
@@ -301,8 +302,7 @@ function CameraBody({
 
       {/* 相机外壳 —— 单独一层，淡出后只剩 LCD */}
       <motion.div style={{ opacity: shellOpacity }} className="absolute inset-0">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <RevealImg
           src={CAMERA.src}
           alt=""
           className="pointer-events-none h-full w-full object-contain"
@@ -329,9 +329,9 @@ function CameraBody({
 function CinemaHeroStatic({ work }: { work: Work }) {
   return (
     <section className="relative h-screen w-full overflow-hidden bg-paper">
-      <div
-        className="cinema-tone-soft absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/images/background.jpg')" }}
+      <RevealImg
+        src="/images/background.jpg" alt="" loading="eager"
+        className="cinema-tone-soft absolute inset-0 h-full w-full object-cover object-center"
       />
       <div className="vignette absolute inset-0" />
       <div

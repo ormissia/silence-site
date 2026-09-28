@@ -1,5 +1,7 @@
 "use client";
 
+import { RevealImg } from "@/components/media/reveal-image";
+
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useRef } from "react";
@@ -72,8 +74,7 @@ export function BookCard({ book }: { book: ReadingEntry }) {
       >
         <div className="relative aspect-[2/3] w-full overflow-hidden rounded-lg border border-ink/10 bg-ink/5 shadow-[0_8px_24px_rgba(0,0,0,0.4)] transition-shadow duration-300 ease-out group-hover:shadow-[0_24px_56px_rgba(124,108,240,0.16),0_8px_20px_rgba(0,0,0,0.6)]">
           {book.cover ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <RevealImg
               src={book.cover}
               alt={book.title}
               className="block h-full w-full object-contain"

@@ -34,6 +34,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
     return (
         <html lang="zh">
         <body className={`${serif.variable} ${sans.variable} ${sansCn.variable} font-sans`}>
+        <noscript><style>{`.image-reveal, .image-content img { opacity: 1 !important; animation: none !important; } .home-splash { display: none !important; }`}</style></noscript>
         <RouteProgressProvider>
             <Suspense fallback={null}>
                 <RouteProgress />

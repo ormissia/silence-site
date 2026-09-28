@@ -1,5 +1,7 @@
 "use client";
 
+import { RevealImg } from "@/components/media/reveal-image";
+
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 
@@ -47,8 +49,7 @@ export function BookToolbar({ title, titleId, returnHref, cover, author, rating,
         className={`flex min-h-14 min-w-0 flex-1 items-center gap-3 transition-opacity duration-200 motion-reduce:transition-none ${showTitle ? "opacity-100" : "invisible opacity-0"}`}
       >
         {cover && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={cover} alt="" className="h-12 w-8 shrink-0 rounded-sm object-contain" />
+          <RevealImg src={cover} alt="" className="h-12 w-8 shrink-0 rounded-sm object-contain" />
         )}
         <div className="flex min-w-0 flex-1 flex-col gap-1 md:flex-row md:items-center md:gap-6">
           <div className="min-w-0 flex-1">

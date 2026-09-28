@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
+import { LoadingIndicator } from "@/components/layout/page-loading";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { HighlightBatch } from "@/lib/reading";
 
@@ -145,9 +146,9 @@ export function TodayHighlight({
           </svg>
         </button>
       </div>
-      <p role="status" hidden={!loading && !error} className="text-caption tracking-normal text-muted lg:col-span-9 lg:col-start-4">
-        {loading ? "正在加载…" : error}
-      </p>
+      <div role="status" hidden={!loading && !error} className="text-caption tracking-normal text-muted lg:col-span-9 lg:col-start-4">
+        {loading ? <><LoadingIndicator className="mb-3 w-28" />正在加载…</> : error}
+      </div>
     </div>
   );
 }
