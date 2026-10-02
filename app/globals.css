@@ -81,7 +81,8 @@ body::before {
     var(--gradient-accent-flow);
   background-size: 100% 100%, 250% 250%;
   background-repeat: no-repeat;
-  animation: gradient-text-flow 9s ease-in-out infinite alternate;
+  background-position: 0 0, 0% 50%;
+  animation: none;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -98,7 +99,7 @@ body::before {
 @media (hover: hover) and (pointer: fine) {
   .text-gradient-accent:hover,
   .about-hero-quote:hover {
-    animation: gradient-text-flow 9s ease-in-out infinite alternate, gradient-text-glint 1.2s ease-in-out 1;
+    animation: gradient-text-glint 1.2s ease-in-out 1;
   }
 }
 
