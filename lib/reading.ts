@@ -30,6 +30,8 @@ export type ReadingEntry = {
   tags?: string[];
   isbn?: string;
   totalWords?: number;
+  /** 微信读书导出的笔记数量（包含划线）。 */
+  noteCount?: number;
   /** 整理好的 HTML，包含书摘正文 */
   bodyHtml: string;
 };
@@ -156,6 +158,7 @@ const ALL: ReadingEntry[] = readAllReadingMdx()
       tags: visibleTags,
       isbn: ensureString(data.isbn),
       totalWords: ensureNumber(data.totalWords),
+      noteCount: ensureNumber(data.noteCount),
       bodyHtml: renderMarkdown(storyMd),
     };
   })

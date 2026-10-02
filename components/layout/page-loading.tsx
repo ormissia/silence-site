@@ -58,13 +58,9 @@ export function CollectionLoading({ layout = "works" }: { layout?: CollectionLay
           </div>
         )}
         {layout === "reading" && (
-          <div className="mt-5 grid grid-cols-2 gap-x-5 gap-y-10 sm:mt-8 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 xl:grid-cols-8">
+          <div className="reading-shelf-grid mt-5 sm:mt-8">
             {Array.from({ length: 8 }, (_, index) => (
-              <div key={index}>
-                <Skeleton className="aspect-[2/3] rounded-lg" />
-                <Skeleton className="mt-3 h-3 w-4/5 rounded-full" />
-                <Skeleton className="mt-2 h-2 w-1/2 rounded-full" />
-              </div>
+              <Skeleton key={index} className="aspect-[2/3]" />
             ))}
           </div>
         )}
