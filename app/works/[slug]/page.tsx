@@ -6,6 +6,7 @@ import { tabToSeries } from "@/lib/categories";
 import { ReturnToListLink } from "@/components/layout/list-return";
 import { getWork, listWorks } from "@/lib/works";
 import { PlatesGrid } from "@/components/work/plates-grid";
+import { HeroSpotlight } from "@/components/work/hero-spotlight";
 
 import { FilmNotes } from "@/components/work/film-notes";
 
@@ -57,6 +58,7 @@ export default async function WorkDetailPage({ params, searchParams }: {
           className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/75"
         />
         <div className="vignette absolute inset-0" />
+        <HeroSpotlight key={work.slug} src={buildSrc(work.cover, "hero")} film={isFilm} />
 
         <div className={`relative z-10 mx-auto flex h-full max-w-[1100px] flex-col items-center px-6 text-center md:px-10 ${isFilm ? "justify-center py-24" : "justify-end pb-20 md:pb-28"}`}>
           <p className="font-sans text-caption uppercase tracking-[0.24em] text-white/80">
