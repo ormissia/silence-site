@@ -814,6 +814,60 @@ body[data-lightbox-open="true"] .site-header {
 }
 
 /* Book detail: local overrides keep journal Markdown unchanged. */
+.reading-shelf-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+@media (min-width: 640px) {
+  .reading-shelf-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (min-width: 768px) {
+  .reading-shelf-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+}
+@media (min-width: 1024px) {
+  .reading-shelf-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); }
+}
+@media (min-width: 1280px) {
+  .reading-shelf-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+}
+.reading-book-link { perspective: 1200px; }
+.reading-book-link:focus-visible { outline: 2px solid rgb(var(--color-accent)); outline-offset: 4px; }
+.reading-book-flipper {
+  transform-style: preserve-3d;
+  transition: transform 650ms cubic-bezier(.2,.7,.2,1);
+}
+.reading-book-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.reading-book-front { transform: rotateY(0deg); }
+.reading-book-back { transform: rotateY(180deg); }
+.reading-book-back h3 { padding-right: 36px; }
+.reading-book[data-flipped="true"] .reading-book-toggle { top: 8px; bottom: auto; }
+.reading-book-text { display: block; overflow: hidden; white-space: nowrap; }
+.reading-book-text > span { display: inline-block; min-width: 100%; }
+@keyframes reading-text-pan {
+  0%, 15% { transform: translateX(0); }
+  85%, 100% { transform: translateX(var(--text-pan-distance)); }
+}
+.reading-book[data-flipped="true"] .reading-book-text[data-scroll="true"] > span,
+.reading-book-link:focus-visible .reading-book-text[data-scroll="true"] > span {
+  animation: reading-text-pan var(--text-pan-duration) ease-in-out infinite alternate;
+}
+.reading-book[data-flipped="true"] .reading-book-flipper,
+.reading-book-link:focus-visible .reading-book-flipper { transform: rotateY(180deg); }
+@media (hover: hover) and (pointer: fine) {
+  .reading-book-link:hover .reading-book-flipper { transform: rotateY(180deg); }
+  .reading-book-link:hover .reading-book-text[data-scroll="true"] > span {
+    animation: reading-text-pan var(--text-pan-duration) ease-in-out infinite alternate;
+  }
+  .reading-book-toggle { display: none; }
+  .reading-book-back h3 { padding-right: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading-book-flipper { transition: none; }
+  .reading-book .reading-book-text[data-scroll="true"] > span { animation: none; }
+  .reading-book-text { overflow-x: auto; scrollbar-width: thin; }
+}
+
 .reading-book-metadata,
 .reading-book-notes { font-size: 13px; line-height: 1.85; overflow-wrap: anywhere; }
 .reading-book-metadata .md-callout {
