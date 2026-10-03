@@ -833,6 +833,46 @@ body[data-lightbox-open="true"] .site-header {
   .reading-shelf-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
 }
 .reading-book-link { perspective: 1200px; }
+.reading-years { --reading-columns: 2; --reading-info-columns: 0; }
+.reading-year-section { padding: 32px 0; }
+.reading-year-section + .reading-year-section { border-top: 1px solid rgb(var(--color-rule)); }
+.reading-year-section:first-child { padding-top: 0; }
+.reading-year-summary { margin-bottom: 28px; }
+.reading-year-count { margin-top: 16px; }
+.reading-year-books {
+  grid-template-columns: repeat(calc(var(--reading-columns) - var(--reading-info-columns)), minmax(0, 1fr));
+}
+@media (min-width: 640px) {
+  .reading-years { --reading-columns: 3; }
+}
+@media (min-width: 768px) {
+  .reading-years { --reading-columns: 5; --reading-info-columns: 1; }
+  .reading-year-section {
+    display: grid;
+    grid-template-columns: repeat(var(--reading-columns), minmax(0, 1fr));
+    gap: 20px;
+    padding: 48px 0;
+  }
+  .reading-year-summary {
+    grid-column: span var(--reading-info-columns);
+    min-width: 0;
+    margin-bottom: 0;
+    padding-top: 28px;
+    text-align: center;
+  }
+  .reading-year-content {
+    grid-column: span calc(var(--reading-columns) - var(--reading-info-columns));
+    align-self: center;
+  }
+  .reading-year-count { margin-top: 28px; padding: 12px 0; border-block: 1px solid rgb(var(--color-rule)); }
+}
+@media (min-width: 1024px) {
+  .reading-years { --reading-columns: 7; --reading-info-columns: 2; }
+  .reading-year-summary { padding-inline: 20px; }
+}
+@media (min-width: 1280px) {
+  .reading-years { --reading-columns: 8; }
+}
 .reading-book-link:focus-visible { outline: 2px solid rgb(var(--color-accent)); outline-offset: 4px; }
 .reading-book-flipper {
   transform-style: preserve-3d;
