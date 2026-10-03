@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
+import { requestListReturn } from "@/components/layout/list-return";
 
 /** Native top-layer dialog stays above the site's fixed header and stacking contexts. */
 export function BookDialog({ children, returnHref, titleId }: {
@@ -24,7 +25,10 @@ export function BookDialog({ children, returnHref, titleId }: {
     };
   }, []);
 
-  const close = () => router.replace(returnHref, { scroll: false });
+  const close = () => {
+    requestListReturn(returnHref);
+    router.replace(returnHref, { scroll: false });
+  };
 
   return (
     <dialog

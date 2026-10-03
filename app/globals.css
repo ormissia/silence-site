@@ -833,6 +833,14 @@ body[data-lightbox-open="true"] .site-header {
   .reading-shelf-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
 }
 .reading-book-link { perspective: 1200px; }
+.reading-view-content { animation: reading-view-enter 220ms ease-out backwards; }
+@keyframes reading-view-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .reading-view-content { animation: none; }
+}
 .reading-years { --reading-columns: 2; --reading-info-columns: 0; }
 .reading-year-section { padding: 32px 0; }
 .reading-year-section + .reading-year-section { border-top: 1px solid rgb(var(--color-rule)); }

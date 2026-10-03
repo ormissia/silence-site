@@ -30,6 +30,10 @@ export function RestoreListScroll() {
   return null;
 }
 
+export function requestListReturn(href: string) {
+  try { sessionStorage.setItem(RETURN_KEY, href); } catch { /* Navigation remains usable. */ }
+}
+
 export function ReturnToListLink({ href, className, children }: {
   href: string;
   className?: string;
@@ -37,7 +41,7 @@ export function ReturnToListLink({ href, className, children }: {
 }) {
   const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-    try { sessionStorage.setItem(RETURN_KEY, href); } catch { /* The link still works. */ }
+    requestListReturn(href);
   };
   return <Link href={href} className={className} onClick={onClick}>{children}</Link>;
 }
