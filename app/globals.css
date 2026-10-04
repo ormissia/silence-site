@@ -833,6 +833,9 @@ body[data-lightbox-open="true"] .site-header {
   .reading-shelf-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
 }
 .reading-book-link { perspective: 1200px; }
+.reading-evolution-tooltip-mask {
+  background: linear-gradient(180deg, rgb(var(--color-paper) / .68), rgb(var(--color-paper) / .8) 45%, rgb(var(--color-paper) / .94));
+}
 .reading-view-content { animation: reading-view-enter 220ms ease-out backwards; }
 @keyframes reading-view-enter {
   from { opacity: 0; transform: translateY(6px); }
