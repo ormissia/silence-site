@@ -30,6 +30,9 @@ export type ReadingDetail = ReadingSummary & {
 /** 兼容现有完整内容查询接口。 */
 export type ReadingEntry = ReadingDetail;
 
+/** 详情页的资料与导航信息；不触发正文渲染。 */
+export type ReadingMetadata = Omit<ReadingDetail, "bodyHtml">;
+
 export type Highlight = {
   text: string;
   bookTitle: string;

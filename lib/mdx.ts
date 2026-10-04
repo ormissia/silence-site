@@ -3,29 +3,21 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
+import { assertValidContent, assertValidDateLiterals } from "./content/validation";
+import type { ContentKind, ContentSource } from "./content/types";
 
 const WORKS_DIR = path.join(process.cwd(), "content/works");
 const JOURNAL_DIR = path.join(process.cwd(), "content/journal");
 const READING_DIR = path.join(process.cwd(), "content/reading");
 
-export type WorkRaw = {
-  /** 裸文件名（去扩展名），不再承担任何语义——slug 由各 lib 用 frontmatter 自行决定。
-   *  仅作为 frontmatter 没有显式 slug 时的兜底 hash 输入。 */
-  fileName: string;
-  /** 文件相对于扫描根目录的路径段（不含文件名）。
-   *  例：content/reading/哲学宗教/理想国.md → ["哲学宗教"]。
-   *  顶层文件为空数组。Reading / Journal / Works 都用它做"目录即一级分类"的 fallback。 */
-  pathSegments: string[];
-  data: Record<string, unknown>;
-  storyMd: string;
-};
+export type WorkRaw = ContentSource;
 
 /**
  * 递归扫描某个目录下的所有 .md/.mdx，返回每个文件的 frontmatter + 正文 + 路径段。
- * Server Component 调用；构建时静态执行，运行时不读盘。
+ * 每个内容模块持有自己的进程快照；构建 worker 或服务端冷启动首次读取。
  */
-function readAllMdx(rootDir: string): WorkRaw[] {
-  if (!fs.existsSync(rootDir)) return [];
+function readAllMdx(rootDir: string, kind: ContentKind): WorkRaw[] {
+  if (!fs.existsSync(rootDir)) throw new Error(`Missing content directory: ${path.relative(process.cwd(), rootDir)}`);
   const out: WorkRaw[] = [];
   const walk = (dir: string, segments: string[]) => {
     for (const name of fs.readdirSync(dir)) {
@@ -38,23 +30,33 @@ function readAllMdx(rootDir: string): WorkRaw[] {
       } else if (name.endsWith(".md") || name.endsWith(".mdx")) {
         const fileName = name.replace(/\.mdx?$/, "");
         const raw = fs.readFileSync(full, "utf8");
-        const { data, content } = matter(raw);
-        out.push({ fileName, pathSegments: segments, data, storyMd: content });
+        const sourcePath = path.relative(process.cwd(), full);
+        try {
+          const parsed = matter(raw);
+          const { data, content } = parsed;
+          if (!data || typeof data !== "object" || Array.isArray(data) || data instanceof Date) throw new Error("frontmatter must be an object");
+          const source = { sourcePath, fileName, pathSegments: segments, data, storyMd: content };
+          assertValidDateLiterals(kind, source, parsed.matter);
+          out.push(source);
+        } catch (error) {
+          throw new Error(`${sourcePath}: ${error instanceof Error ? error.message : String(error)}`);
+        }
       }
     }
   };
   walk(rootDir, []);
+  assertValidContent(kind, out);
   return out;
 }
 
 export function readAllWorksMdx(): WorkRaw[] {
-  return readAllMdx(WORKS_DIR);
+  return readAllMdx(WORKS_DIR, "works");
 }
 
 export function readAllJournalMdx(): WorkRaw[] {
-  return readAllMdx(JOURNAL_DIR);
+  return readAllMdx(JOURNAL_DIR, "journal");
 }
 
 export function readAllReadingMdx(): WorkRaw[] {
-  return readAllMdx(READING_DIR);
+  return readAllMdx(READING_DIR, "reading");
 }

@@ -4,14 +4,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BookToolbar } from "@/components/reading/book-toolbar";
 import { BookDialog } from "@/components/reading/book-dialog";
-import { getReadingEntry, getReadingSections, listReading } from "@/lib/reading";
+import { getReadingMetadata, getReadingSections, listReadingSummaries } from "@/lib/reading";
 
 export function generateStaticParams() {
-  return listReading().map((book) => ({ slug: book.slug }));
+  return listReadingSummaries().map((book) => ({ slug: book.slug }));
 }
 
 export function generateMetadata({ params }: { params: { slug: string } }) {
-  const book = getReadingEntry(params.slug);
+  const book = getReadingMetadata(params.slug);
   return { title: book ? `${book.title} — SILENCE` : "Reading — SILENCE" };
 }
 
@@ -19,10 +19,10 @@ export default function ReadingEntryPage({ params, searchParams }: {
   params: { slug: string };
   searchParams: { cat?: string | string[]; view?: string | string[] };
 }) {
-  const book = getReadingEntry(params.slug);
+  const book = getReadingMetadata(params.slug);
   if (!book) notFound();
   const sections = getReadingSections(book.slug);
-  const all = listReading();
+  const all = listReadingSummaries();
   const next = all[(all.findIndex((entry) => entry.slug === book.slug) + 1) % all.length];
   const category = typeof searchParams.cat === "string" ? searchParams.cat : undefined;
   const fromEvolution = searchParams.view === "evolution";

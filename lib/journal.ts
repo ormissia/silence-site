@@ -2,6 +2,7 @@ import "server-only";
 
 import { readAllJournalMdx } from "./mdx";
 import { renderMarkdown } from "./markdown";
+import { normalizeDateMaybe, resolveContentSlug } from "./content/fields";
 import type { JournalEntry, JournalSummary } from "./journal/types";
 import {
   JOURNAL_CATEGORIES,
@@ -12,12 +13,6 @@ import {
 export { JOURNAL_CATEGORIES, JOURNAL_CATEGORY_LABELS };
 export type { JournalCategory };
 export type { JournalEntry, JournalDetail, JournalSummary } from "./journal/types";
-
-function normalizeDate(raw: unknown): string {
-  if (raw instanceof Date) return raw.toISOString().slice(0, 10);
-  if (typeof raw === "string") return raw;
-  return "";
-}
 
 /**
  * category 解析顺序（与 lib/reading 一致）：
@@ -57,46 +52,50 @@ function resolveCover(
   return `journal/${category}/${raw}`;
 }
 
-/**
- * 决定一篇随笔的 URL slug。优先级：
- * 1. frontmatter 显式 `slug` —— 跟文件名解耦
- * 2. 文件名 —— 兜底
- */
-function resolveSlug(fileName: string, data: Record<string, unknown>): string {
-  const explicit = typeof data.slug === "string" ? data.slug.trim() : "";
-  if (explicit) return explicit;
-  return fileName;
-}
-
-const ALL: JournalEntry[] = readAllJournalMdx()
-  .map(({ fileName, pathSegments, data, storyMd }) => {
+const SOURCES = readAllJournalMdx();
+const RAW_BY_SLUG = new Map(SOURCES.map((raw) => [resolveContentSlug(raw.fileName, raw.data), raw]));
+const ALL: JournalSummary[] = SOURCES
+  .map(({ fileName, pathSegments, data }) => {
     const category = resolveCategory(pathSegments, data);
     return {
-      slug: resolveSlug(fileName, data),
+      slug: resolveContentSlug(fileName, data),
       title: data.title as string,
-      date: normalizeDate(data.date),
+      date: normalizeDateMaybe(data.date) ?? "",
       category,
       cover: resolveCover(data.cover, category),
       excerpt: data.excerpt as string | undefined,
       location: data.location as string | undefined,
       mood: data.mood as string | undefined,
-      bodyHtml: renderMarkdown(storyMd),
     };
   })
   .sort((a, b) => b.date.localeCompare(a.date));
 
+const BY_SLUG = new Map(ALL.map((entry) => [entry.slug, entry]));
+const DETAILS = new Map<string, JournalEntry>();
+
 export function listJournal(category?: JournalCategory): JournalEntry[] {
-  if (!category) return ALL;
-  return ALL.filter((e) => e.category === category);
+  return listJournalSummaries(category).map((entry) => getJournalEntry(entry.slug)!);
 }
 
 /** 随笔列表仅返回卡片使用的元数据。 */
 export function listJournalSummaries(category?: JournalCategory): JournalSummary[] {
-  return listJournal(category).map(({ slug, title, date, category, cover, excerpt, location, mood }) => ({
+  const entries = category ? ALL.filter((entry) => entry.category === category) : ALL;
+  return entries.map(({ slug, title, date, category, cover, excerpt, location, mood }) => ({
     slug, title, date, category, cover, excerpt, location, mood,
   }));
 }
 
+export function getJournalSummary(slug: string): JournalSummary | undefined {
+  return BY_SLUG.get(slug);
+}
+
 export function getJournalEntry(slug: string): JournalEntry | undefined {
-  return ALL.find((e) => e.slug === slug);
+  const cached = DETAILS.get(slug);
+  if (cached) return cached;
+  const entry = BY_SLUG.get(slug);
+  const raw = RAW_BY_SLUG.get(slug);
+  if (!entry || !raw) return undefined;
+  const detail = { ...entry, bodyHtml: renderMarkdown(raw.storyMd) };
+  DETAILS.set(slug, detail);
+  return detail;
 }

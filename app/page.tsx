@@ -9,7 +9,7 @@ import { ReadingReveal } from "@/components/home/reading-reveal";
 import { SelectedWorks } from "@/components/home/selected-works";
 import { PageLoading } from "@/components/layout/page-loading";
 import { listFeaturedSummaries } from "@/lib/works";
-import { getDailyIndex, getHighlightBatch, pickSphereBooks } from "@/lib/reading";
+import { getDailyIndex, getHighlightBatch, pickSphereBookSummaries } from "@/lib/reading";
 
 // 球面书籍每次刷新都换一批，依赖运行时随机 seed → 不能预渲染。
 export const dynamic = "force-dynamic";
@@ -19,7 +19,7 @@ export default async function HomePage() {
 
   // 每次请求重新洗牌，从所有有封面的书里抽 50 本上球。
   // 不传 seed → 默认 Date.now()，每次刷新换一批。
-  const sphereBooks = pickSphereBooks(50).map((b) => ({
+  const sphereBooks = pickSphereBookSummaries(50).map((b) => ({
     slug: b.slug,
     title: b.title,
     author: b.author,

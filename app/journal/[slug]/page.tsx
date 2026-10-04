@@ -2,16 +2,16 @@ import { RevealImage as Image } from "@/components/media/reveal-image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildSrc } from "@/lib/oss";
-import { getJournalEntry, listJournal, JOURNAL_CATEGORY_LABELS } from "@/lib/journal";
+import { getJournalEntry, getJournalSummary, listJournalSummaries, JOURNAL_CATEGORY_LABELS } from "@/lib/journal";
 import { ReturnToListLink } from "@/components/layout/list-return";
 import { ImageContent } from "@/components/media/image-content";
 
 export function generateStaticParams() {
-  return listJournal().map((e) => ({ slug: e.slug }));
+  return listJournalSummaries().map((e) => ({ slug: e.slug }));
 }
 
 export function generateMetadata({ params }: { params: { slug: string } }) {
-  const entry = getJournalEntry(params.slug);
+  const entry = getJournalSummary(params.slug);
   return {
     title: entry ? `${entry.title} — SILENCE` : "Journal — SILENCE",
   };
@@ -38,8 +38,8 @@ export default function JournalEntryPage({ params, searchParams }: {
   const category = searchParams.cat === entry.category ? entry.category : undefined;
   const query = category ? `?cat=${encodeURIComponent(category)}` : "";
   // 优先同分类；若分类只有这一篇，则接到全站下一篇。
-  const sameCat = listJournal(entry.category);
-  const all = listJournal();
+  const sameCat = listJournalSummaries(entry.category);
+  const all = listJournalSummaries();
   const pool = sameCat.length > 1 ? sameCat : all;
   const idx = pool.findIndex((e) => e.slug === entry.slug);
   const next = pool.length > 1 ? pool[(idx + 1) % pool.length] : undefined;

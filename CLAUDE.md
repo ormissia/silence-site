@@ -42,7 +42,7 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 - **MDX 路径段即一级分类**：`content/works/landscape/*.mdx` → series=风光；`content/journal/life/*.mdx` → category=life。这是兜底，frontmatter 显式字段优先（见 `lib/works.ts:seriesFromPath`、`lib/journal.ts:resolveCategory`、`lib/reading.ts:resolveCategory`）。
 - **OSS key 由 `lib/oss.ts` 唯一拼装**，域名/region 不允许散落他处。
 - **Works 的相册图片**通过构建期 ListObjectsV2 列举（`lib/oss-list.ts`），结果落到 `content/.album-manifest.json`（不入 git），运行时只读缓存——避免运行时调 OSS。配合 `lib/image-meta.ts` 用 `image/info` 接口探测真实像素宽高，注入到 `Photo.width/height`，供 Justified Layout 排版。
-- **MDX 读取入口集中在 `lib/mdx.ts`**：`readAllWorksMdx` / `readAllJournalMdx` / `readAllReadingMdx`，文件名不参与 URL slug，URL 由 frontmatter `slug` 字段决定（缺省时才回退到文件名）。
+- **MDX 读取入口集中在 `lib/mdx.ts`**：`readAllWorksMdx` / `readAllJournalMdx` / `readAllReadingMdx`，解析后先校验字段和最终 slug 唯一性。Works / Journal 缺省 slug 时回退文件名；Reading 依次使用显式 slug、bookId、字符串 ISBN、文件名 hash，规则集中在 `lib/content/fields.ts`。
 
 ### 图片管线
 
@@ -54,18 +54,22 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 ### 客户端内容数据边界
 
 - 列表页使用 `listReadingSummaries` / `listWorkSummaries` / `listJournalSummaries`，首页精选使用 `listFeaturedSummaries`；摘要采用显式字段白名单，不向客户端传正文、EXIF 或完整相册。
-- 详情查询继续使用 `getReadingEntry` / `getWork` / `getJournalEntry`。旧的完整列表接口保留兼容，仅在服务端需要完整内容时使用。
+- 阅读详情页面使用 `getReadingMetadata` + `getReadingSections`，避免渲染未使用的完整正文；随笔详情使用 `getJournalEntry`，作品详情使用 `getWork`。旧 `getReadingEntry` 和完整列表接口保留兼容，仅在服务端需要完整内容时使用。静态参数、metadata 和下一篇导航使用摘要或元数据接口。
 - 客户端与纯模型的类型从 `lib/reading/types.ts` / `lib/works/types.ts` / `lib/journal/types.ts` 导入；类型模块不读取文件、不渲染 Markdown、不访问 OSS。
-- 内容读取、Markdown 渲染和 OSS 资源模块标记为 `server-only`。当前内容准备仍沿用原有缓存和读取流程，摘要接口只裁剪输出数据，资源同步职责另行迁移。
-- 修改数据边界后运行 `npm run build` 和 `npm run check:client-data`；后者检查真实列表 RSC，防止完整对象通过宽松的结构类型再次进入客户端。
+- 内容读取、Markdown 渲染和 OSS 资源模块标记为 `server-only`。Reading / Journal 各持有单次扫描的原文和元数据快照、slug 索引；摘要不渲染正文，单条详情和阅读分段首次使用时渲染并缓存。书摘从同一份原文惰性提取；首页使用 `pickSphereBookSummaries`。Works 的 OSS 准备流程仍沿用原实现。
+- 快照以进程为单位，构建 worker 或服务端冷启动可能各自读取内容。内容更新通过重新构建/部署生效，本地必要时重启；不能将进程缓存描述为构建后永久无需读盘。
+- 修改内容处理后运行 `npm run lint`、`npm run typecheck` 和 `npm run build`。内容模块在读取 Markdown 时校验；重复最终 slug、错误字段类型、非法日历日期及内容目录缺失会明确失败。非 ISO 字符串日期和未知分类保留现有 fallback。
+- 保留阅读导出兼容性：`readingDate` / `lastReadDate` 仍只消费字符串，无引号 YAML Date 保持原有忽略行为；数字 ISBN 不自动转成字符串。null、未知导出字段和中文阅读时长允许存在。
 
 ### 内容模块的封面字段约定
 
-`frontmatter.cover` 在 works / journal / reading 都通用，识别规则统一在各自的 lib 里：
+`frontmatter.cover` 由各自的内容模块解析：
 
 - **`http(s)://...` 开头** → 原样透传（外链封面）
 - **包含 `/` 的完整 OSS key**（如 `works/film/0001-120-RVP100-1/23670001.jpg`）→ 原样透传，可跨目录复用图片
 - **纯文件名** → 按 MDX 所在目录自动拼前缀（journal 拼 `journal/<category>/<file>`，works 借助 `album` 字段）
+
+上述外链和完整 key 透传适用于 Reading / Journal，以及显式提供 `photos` 的 Works。Works 使用 `album` 自动列举、没有显式 `photos` 时，现有实现始终把 `cover` 当相对文件名拼接；应填写 `cover.jpg` 这类文件名，完整 key/外链会被重复加前缀。保留现有封面解析语义。
 
 `lib/oss.ts:buildSrc` 在最外层兜底外链 / 本地 `/public` 路径直通，调用方不用判断。
 
@@ -101,7 +105,6 @@ npm run build        # 生产构建（会触发 OSS 列举 + 像素探测，首�
 npm run start        # 启动构建产物
 npm run lint         # next lint
 npm run typecheck    # tsc --noEmit
-npm run check:client-data # 构建后检查列表 RSC 的摘要边界
 ```
 
 ## 目录约定（现状）

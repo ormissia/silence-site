@@ -5,6 +5,7 @@ import { ensureMeta } from "./image-meta";
 import { ensureManifest, type Manifest } from "./oss-list";
 import { CATEGORIES, TAB_SLUGS, type Category } from "./categories";
 import type { Work, WorkSummary, Photo } from "./works/types";
+import { normalizeDateMaybe, resolveContentSlug } from "./content/fields";
 
 export type { Work, WorkDetail, WorkSummary, Photo } from "./works/types";
 
@@ -16,13 +17,6 @@ function seriesFromPath(pathSegments: string[]): Category | undefined {
   const seg = pathSegments[0];
   if (!seg) return undefined;
   return (TAB_SLUGS as Record<string, Category>)[seg];
-}
-
-/** YAML 会把无引号 ISO 日期解析成 Date，统一归一为 yyyy-mm-dd 字符串 */
-function normalizeDate(raw: unknown): string {
-  if (raw instanceof Date) return raw.toISOString().slice(0, 10);
-  if (typeof raw === "string") return raw;
-  return "";
 }
 
 /**
@@ -86,19 +80,6 @@ function readAllSources(): WorkRaw[] {
   return readAllWorksMdx();
 }
 
-/**
- * 决定一篇作品的 URL slug。优先级：
- * 1. frontmatter 显式 `slug` —— 老公手写最稳，跟文件名解耦
- * 2. 文件名 —— 兜底，保留旧 URL 不挂
- *
- * 注意：文件名不再被识别为"日期前缀 + slug"格式，整个文件名（去扩展名）原样作 slug。
- */
-function resolveSlug(fileName: string, data: Record<string, unknown>): string {
-  const explicit = typeof data.slug === "string" ? data.slug.trim() : "";
-  if (explicit) return explicit;
-  return fileName;
-}
-
 /** 把单条 MDX 原始数据 + 列举 manifest 映射成 Work（纯同步） */
 function mapRawToWork(raw: WorkRaw, manifest: Manifest): Work {
   const { fileName, pathSegments, data, storyMd } = raw;
@@ -124,10 +105,10 @@ function mapRawToWork(raw: WorkRaw, manifest: Manifest): Work {
       : (seriesFromPath(pathSegments) ?? "");
 
   return {
-    slug: resolveSlug(fileName, data),
+    slug: resolveContentSlug(fileName, data),
     title: data.title as string,
     series,
-    date: normalizeDate(data.date),
+    date: normalizeDateMaybe(data.date) ?? "",
     location: data.location as string,
     cover,
     deck: data.deck as string,
@@ -149,6 +130,7 @@ function mapRawToWork(raw: WorkRaw, manifest: Manifest): Work {
  * 用 Promise 缓存而不是 await 完成后存数组——并发场景下避免重复列举/探测。
  */
 let cachePromise: Promise<Work[]> | null = null;
+let bySlug = new Map<string, Work>();
 
 function ensureLoaded(): Promise<Work[]> {
   if (cachePromise) return cachePromise;
@@ -180,7 +162,7 @@ function ensureLoaded(): Promise<Work[]> {
       (k) => k && !/^https?:\/\//.test(k) && !k.startsWith("/")
     );
     const meta = await ensureMeta(allKeys);
-    return works.map((w) => ({
+    const result = works.map((w) => ({
       ...w,
       coverWidth: meta[w.cover]?.w,
       coverHeight: meta[w.cover]?.h,
@@ -190,6 +172,8 @@ function ensureLoaded(): Promise<Work[]> {
         height: p.height ?? meta[p.key]?.h,
       })),
     }));
+    bySlug = new Map(result.map((work) => [work.slug, work]));
+    return result;
   })();
   return cachePromise;
 }
@@ -241,8 +225,8 @@ export async function listWorksCategoryCounts(): Promise<
 }
 
 export async function getWork(slug: string): Promise<Work | undefined> {
-  const all = await ensureLoaded();
-  return all.find((c) => c.slug === slug);
+  await ensureLoaded();
+  return bySlug.get(slug);
 }
 
 /** 站点内置的三大分类，顺序即菜单顺序 */

@@ -3,29 +3,10 @@ import "server-only";
 import { readAllReadingMdx } from "./mdx";
 import { renderMarkdown } from "./markdown";
 import { splitReadingMarkdown } from "./reading-sections";
-import type { ReadingEntry, ReadingSummary, Highlight, HighlightBatch } from "./reading/types";
+import { ensureString, ensureNumber, ensureStringArray, normalizeDateMaybe, resolveReadingSlug } from "./content/fields";
+import type { ReadingEntry, ReadingMetadata, ReadingSummary, Highlight, HighlightBatch } from "./reading/types";
 
-export type { ReadingEntry, ReadingDetail, ReadingSummary, Highlight, HighlightBatch } from "./reading/types";
-
-function ensureString(v: unknown): string | undefined {
-  return typeof v === "string" && v.length > 0 ? v : undefined;
-}
-
-function ensureNumber(v: unknown): number | undefined {
-  return typeof v === "number" ? v : undefined;
-}
-
-function ensureStringArray(v: unknown): string[] | undefined {
-  if (Array.isArray(v) && v.every((x) => typeof x === "string")) return v as string[];
-  return undefined;
-}
-
-/** YAML 里没引号的 ISO 日期会被解析成 Date 对象，归一为 yyyy-mm-dd 字符串 */
-function normalizeDateMaybe(v: unknown): string | undefined {
-  if (v instanceof Date) return v.toISOString().slice(0, 10);
-  if (typeof v === "string" && v.length > 0) return v;
-  return undefined;
-}
+export type { ReadingEntry, ReadingDetail, ReadingMetadata, ReadingSummary, Highlight, HighlightBatch } from "./reading/types";
 
 /** 不展示给读者的 meta tag——它们是导出工具的内部标记，跟读书内容无关 */
 const HIDDEN_TAGS = new Set(["读书笔记"]);
@@ -72,39 +53,11 @@ function resolveCategory(
   return "未分类";
 }
 
-/**
- * 决定一本书的 URL slug。优先级：
- * 1. frontmatter 显式 `slug` —— 老公手写的最稳
- * 2. frontmatter `bookId` —— 微信读书导出自带，全局唯一数字
- * 3. frontmatter `isbn` —— 标准化 ID
- * 4. 文件名 hash —— 兜底，从中文文件名生成 8 位短码（FNV-1a）
- *
- * 永远不直接用文件名做 URL，避免中文 URL 编码问题。
- */
-function resolveSlug(fileName: string, data: Record<string, unknown>): string {
-  const explicit = ensureString(data.slug);
-  if (explicit) return explicit;
-  const bookId =
-    ensureString(data.bookId) ??
-    (typeof data.bookId === "number" ? String(data.bookId) : undefined);
-  if (bookId) return `b${bookId}`;
-  const isbn = ensureString(data.isbn);
-  if (isbn) return `isbn-${isbn.replace(/[^\w-]/g, "")}`;
-  return `book-${fnv1aHex(fileName)}`;
-}
-
-/** FNV-1a 32-bit hash，输出 8 位 hex；纯函数，跨平台一致 */
-function fnv1aHex(s: string): string {
-  let h = 0x811c9dc5;
-  for (let i = 0; i < s.length; i++) {
-    h ^= s.charCodeAt(i);
-    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;
-  }
-  return h.toString(16).padStart(8, "0");
-}
-
-const ALL: ReadingEntry[] = readAllReadingMdx()
-  .map(({ fileName, pathSegments, data, storyMd }) => {
+// 同一份原文同时供元数据、详情和书摘使用。保持扫描顺序，避免改变书摘洗牌输入。
+const SOURCES = readAllReadingMdx();
+const RAW_BY_SLUG = new Map(SOURCES.map((raw) => [resolveReadingSlug(raw.fileName, raw.data), raw]));
+const ALL: ReadingMetadata[] = SOURCES
+  .map(({ fileName, pathSegments, data }) => {
     const { visible: visibleTags, finished } = processTags(
       ensureStringArray(data.tags)
     );
@@ -112,7 +65,7 @@ const ALL: ReadingEntry[] = readAllReadingMdx()
     const rawReadProgress = ensureNumber(data.readProgress);
     return {
       // 用 fileName 当 fallback hash 的输入，但永远不直接当 URL slug
-      slug: resolveSlug(fileName, data),
+      slug: resolveReadingSlug(fileName, data),
       title: (data.title as string) ?? fileName,
       author: ensureString(data.author),
       cover: ensureString(data.cover),
@@ -130,7 +83,6 @@ const ALL: ReadingEntry[] = readAllReadingMdx()
       isbn: ensureString(data.isbn),
       totalWords: ensureNumber(data.totalWords),
       noteCount: ensureNumber(data.noteCount),
-      bodyHtml: renderMarkdown(storyMd),
     };
   })
   .sort((a, b) => {
@@ -140,8 +92,12 @@ const ALL: ReadingEntry[] = readAllReadingMdx()
     return bd.localeCompare(ad);
   });
 
+const BY_SLUG = new Map(ALL.map((book) => [book.slug, book]));
+const DETAILS = new Map<string, ReadingEntry>();
+const SECTIONS = new Map<string, { metadataHtml: string; notesHtml: string }>();
+
 export function listReading(): ReadingEntry[] {
-  return ALL;
+  return ALL.map((book) => getReadingEntry(book.slug)!);
 }
 
 /** 客户端列表使用显式字段白名单，避免传递详情正文和导出内部字段。 */
@@ -153,14 +109,29 @@ export function listReadingSummaries(): ReadingSummary[] {
 
 /** Detail-only presentation, leaving the original body and shelf data intact. */
 export function getReadingSections(slug: string) {
-  const raw = readAllReadingMdx().find(({ fileName, data }) => resolveSlug(fileName, data) === slug);
+  const cached = SECTIONS.get(slug);
+  if (cached) return cached;
+  const raw = RAW_BY_SLUG.get(slug);
   if (!raw) return { metadataHtml: "", notesHtml: "" };
   const parts = splitReadingMarkdown(raw.storyMd, String(raw.data.title ?? raw.fileName));
-  return { metadataHtml: renderMarkdown(parts.metadata), notesHtml: renderMarkdown(parts.notes) };
+  const sections = { metadataHtml: renderMarkdown(parts.metadata), notesHtml: renderMarkdown(parts.notes) };
+  SECTIONS.set(slug, sections);
+  return sections;
+}
+
+export function getReadingMetadata(slug: string): ReadingMetadata | undefined {
+  return BY_SLUG.get(slug);
 }
 
 export function getReadingEntry(slug: string): ReadingEntry | undefined {
-  return ALL.find((e) => e.slug === slug);
+  const cached = DETAILS.get(slug);
+  if (cached) return cached;
+  const book = BY_SLUG.get(slug);
+  const raw = RAW_BY_SLUG.get(slug);
+  if (!book || !raw) return undefined;
+  const detail = { ...book, bodyHtml: renderMarkdown(raw.storyMd) };
+  DETAILS.set(slug, detail);
+  return detail;
 }
 
 /**
@@ -202,8 +173,6 @@ function extractHighlightsFromMd(md: string): string[] {
   }
   return out;
 }
-
-import { readAllReadingMdx as _readAllReadingMdx } from "./mdx";
 
 /**
  * Mulberry32：种子伪随机，确定性洗牌用。
@@ -255,14 +224,16 @@ function interleaveByBook(buckets: Highlight[][], seed = 1): Highlight[] {
   return out;
 }
 
-/** 缓存所有 highlight，相邻不同书顺序，模块加载一次性算好 */
-const ALL_HIGHLIGHTS: Highlight[] = (() => {
+/** 第一次使用书摘时计算；复用原文快照，不再次读盘或渲染正文。 */
+let highlightCache: Highlight[] | undefined;
+function getHighlights(): Highlight[] {
+  if (highlightCache) return highlightCache;
   // 先按书分桶
   const buckets: Highlight[][] = [];
-  for (const { fileName, data, storyMd } of _readAllReadingMdx()) {
+  for (const { fileName, data, storyMd } of SOURCES) {
     const lines = extractHighlightsFromMd(storyMd);
     if (lines.length === 0) continue;
-    const bookSlug = resolveSlug(fileName, data);
+    const bookSlug = resolveReadingSlug(fileName, data);
     const bookTitle = (data.title as string) ?? fileName;
     const author = ensureString(data.author);
     buckets.push(
@@ -275,31 +246,35 @@ const ALL_HIGHLIGHTS: Highlight[] = (() => {
     const j = Math.floor(rand() * (i + 1));
     [buckets[i], buckets[j]] = [buckets[j], buckets[i]];
   }
-  return interleaveByBook(buckets, 20260613);
-})();
+  highlightCache = interleaveByBook(buckets, 20260613);
+  return highlightCache;
+}
 
 /**
  * 取"今日一句"：按 UTC 日期当 seed，整天稳定，跨天换一句。
  * 没有任何 highlight 时返回 null。
  */
 export function getDailyHighlight(): Highlight | null {
-  if (ALL_HIGHLIGHTS.length === 0) return null;
-  return ALL_HIGHLIGHTS[getDailyIndex()];
+  const highlights = getHighlights();
+  if (highlights.length === 0) return null;
+  return highlights[getDailyIndex()];
 }
 
 /** 今日 highlight 在数组中的索引，TodayHighlight 用它做"上一句/下一句"的起点 */
 export function getDailyIndex(): number {
-  if (ALL_HIGHLIGHTS.length === 0) return 0;
+  const total = getHighlights().length;
+  if (total === 0) return 0;
   const today = new Date();
   const seed =
     today.getUTCFullYear() * 10000 +
     (today.getUTCMonth() + 1) * 100 +
     today.getUTCDate();
-  return seed % ALL_HIGHLIGHTS.length;
+  return seed % total;
 }
 
 export function getHighlightBatch(index: number): HighlightBatch {
-  const total = ALL_HIGHLIGHTS.length;
+  const highlights = getHighlights();
+  const total = highlights.length;
   if (total === 0) return { total, items: [] };
   const center = ((index % total) + total) % total;
   const count = Math.min(5, total);
@@ -308,7 +283,7 @@ export function getHighlightBatch(index: number): HighlightBatch {
     total,
     items: Array.from({ length: count }, (_, offset) => {
       const index = ((start + offset) % total + total) % total;
-      return { index, highlight: ALL_HIGHLIGHTS[index] };
+      return { index, highlight: highlights[index] };
     }),
   };
 }
@@ -326,7 +301,7 @@ export function getHighlightBatch(index: number): HighlightBatch {
  * 调用方负责确保页面是动态渲染（`export const dynamic = "force-dynamic"`），
  * 否则 build 时一次定终身，刷新不会换。
  */
-export function pickSphereBooks(count: number, seed?: number): ReadingEntry[] {
+function pickSphereMetadata(count: number, seed?: number): ReadingMetadata[] {
   const pool = ALL.filter((b) => b.cover);
   if (pool.length <= count) return pool;
 
@@ -339,4 +314,15 @@ export function pickSphereBooks(count: number, seed?: number): ReadingEntry[] {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr.slice(0, count);
+}
+
+/** 兼容完整对象接口；首页使用摘要版本，避免无用的正文渲染。 */
+export function pickSphereBooks(count: number, seed?: number): ReadingEntry[] {
+  return pickSphereMetadata(count, seed).map((book) => getReadingEntry(book.slug)!);
+}
+
+export function pickSphereBookSummaries(count: number, seed?: number): ReadingSummary[] {
+  return pickSphereMetadata(count, seed).map(({ slug, title, author, cover, category, finishedDate, readingTime, noteCount }) => ({
+    slug, title, author, cover, category, finishedDate, readingTime, noteCount,
+  }));
 }
