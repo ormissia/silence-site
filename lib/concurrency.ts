@@ -38,11 +38,10 @@ export async function mapWithConcurrency<T, R>(
 }
 
 /**
- * 仅对瞬时网络错误重试的最小重试器。
+ * 对瞬时网络错误和 HTTP 408 / 429 / 5xx 重试。
  *
  * 默认 retries=2、baseDelayMs=300（即 300ms、900ms 两轮 backoff）。
- * 默认 shouldRetry 只认 undici/Node 的连接级错误码，HTTP 4xx 不会被重试，
- * 避免「这张图就是 404」被打成 retry 风暴。
+ * HTTP 404 等确定性错误不重试。
  */
 export async function withRetry<R>(
   fn: () => Promise<R>,
@@ -94,11 +93,13 @@ function extractCode(err: unknown): string | undefined {
   const e = err as { code?: unknown; cause?: unknown; name?: unknown };
   if (typeof e.code === "string") return e.code;
   if (e.cause) return extractCode(e.cause);
-  if (typeof e.name === "string" && e.name === "AbortError") return "AbortError";
+  if (e.name === "AbortError" || e.name === "TimeoutError") return e.name;
   return undefined;
 }
 
 export function isTransientNetworkError(err: unknown): boolean {
+  const status = err && typeof err === "object" ? (err as { status?: unknown }).status : undefined;
+  if (typeof status === "number" && (status === 408 || status === 429 || status >= 500 && status < 600)) return true;
   const code = extractCode(err);
-  return !!code && (TRANSIENT_CODES.has(code) || code === "AbortError");
+  return !!code && (TRANSIENT_CODES.has(code) || code === "AbortError" || code === "TimeoutError");
 }

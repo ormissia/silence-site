@@ -1,8 +1,9 @@
 import "server-only";
 
-import fs from "node:fs";
 import path from "node:path";
 import { mapWithConcurrency, withRetry } from "./concurrency";
+import { readOssBase } from "./oss-config";
+import { canPrepareResources, readResourceCache, writeResourceCache, withResourceLock, resourceFetchOptions, OssHttpError } from "./oss-cache";
 
 /**
  * 构建期 OSS 文件夹列举 + 持久化缓存。
@@ -29,15 +30,6 @@ const IMG_EXT = /\.(jpe?g|png|webp|avif|gif|tiff?)$/i;
 /** demo 模式(无 OSS base)无法列举时,每个文件夹回退的占位张数 */
 const DEFAULT_FALLBACK_COUNT = 6;
 
-function readOssBase(): string {
-  const raw = process.env.NEXT_PUBLIC_OSS_BASE_URL?.trim();
-  if (!raw) return "";
-  // 占位字面量（来自 .env.example）当作未配置处理
-  if (raw.includes("<") || raw.includes(">")) return "";
-  if (!/^https?:\/\//.test(raw)) return "";
-  return raw.replace(/\/$/, "");
-}
-
 // ---- XML 解析(无第三方依赖) ---------------------------------------------
 
 function decodeXml(s: string): string {
@@ -56,11 +48,16 @@ function decodeXml(s: string): string {
 function extractKeys(xml: string): string[] {
   const out: string[] = [];
   const re = /<Contents\b[^>]*>([\s\S]*?)<\/Contents>/g;
+  const openingCount = (xml.match(/<Contents\b[^>]*>/g) ?? []).length;
+  let parsedCount = 0;
   let m: RegExpExecArray | null;
   while ((m = re.exec(xml))) {
-    const k = /<Key>([\s\S]*?)<\/Key>/.exec(m[1]);
-    if (k) out.push(decodeXml(k[1].trim()));
+    parsedCount++;
+    const keys = Array.from(m[1].matchAll(/<Key>([\s\S]*?)<\/Key>/g));
+    if (keys.length !== 1) throw new Error("Invalid OSS Contents: expected one complete Key");
+    out.push(decodeXml(keys[0][1].trim()));
   }
+  if (parsedCount !== openingCount || parsedCount !== (xml.match(/<\/Contents>/g) ?? []).length) throw new Error("Incomplete OSS Contents response");
   return out;
 }
 
@@ -89,6 +86,7 @@ export async function listAlbumFiles(prefix: string): Promise<string[]> {
 
   const norm = prefix.endsWith("/") ? prefix : prefix + "/";
   const keys: string[] = [];
+  const seenTokens = new Set<string>();
   let token: string | undefined;
 
   do {
@@ -99,42 +97,35 @@ export async function listAlbumFiles(prefix: string): Promise<string[]> {
     u.searchParams.set("max-keys", "1000");
     if (token) u.searchParams.set("continuation-token", token);
 
-    const res = await fetch(u.toString(), { cache: "no-store" });
-    if (!res.ok) throw new Error(`list ${norm} -> HTTP ${res.status}`);
+    const res = await fetch(u.toString(), resourceFetchOptions());
+    if (!res.ok) throw new OssHttpError(`list ${norm}`, res.status);
     const xml = await res.text();
+    if (!/<ListBucketResult\b[^>]*>/.test(xml) || !/<\/ListBucketResult>/.test(xml) || !/<IsTruncated>\s*(true|false)\s*<\/IsTruncated>/.test(xml)) {
+      throw new Error(`list ${norm}: invalid OSS listing response`);
+    }
 
     for (const k of extractKeys(xml)) {
-      if (k === norm) continue; // 目录占位对象
-      if (k.endsWith("/")) continue; // 子目录
+      if (!k.startsWith(norm) || k.slice(norm.length).includes("/")) continue;
+      if (k === norm || k.endsWith("/")) continue;
       if (!IMG_EXT.test(k)) continue; // 非图片
       keys.push(k);
     }
-    token = isTruncated(xml) ? nextToken(xml) : undefined;
+    const next = isTruncated(xml) ? nextToken(xml) : undefined;
+    if (isTruncated(xml) && (!next || seenTokens.has(next))) throw new Error(`list ${norm}: missing or repeated continuation token`);
+    if (next) seenTokens.add(next);
+    token = next;
   } while (token);
 
-  return keys;
+  return Array.from(new Set(keys));
 }
 
 // ---- manifest 缓存 --------------------------------------------------------
 
-function loadManifest(): Manifest {
-  try {
-    return JSON.parse(fs.readFileSync(MANIFEST_PATH, "utf8")) as Manifest;
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-      console.warn("[album-manifest] failed to read cache, listing from OSS:", err);
-    }
-    return {};
-  }
-}
-
-function writeManifest(map: Manifest): void {
-  try {
-    fs.writeFileSync(MANIFEST_PATH, JSON.stringify(map, null, 2), "utf8");
-    console.log(`[album-manifest] wrote content/.album-manifest.json (${Object.keys(map).length} albums)`);
-  } catch (err) {
-    console.warn("[album-manifest] failed to persist cache:", err);
-  }
+function validAlbum(value: unknown, prefix: string): value is string[] {
+  const norm = `${prefix}/`;
+  return Array.isArray(value) && value.every((key) =>
+    typeof key === "string" && key.startsWith(norm) && !key.slice(norm.length).includes("/") && IMG_EXT.test(key)
+  );
 }
 
 /** demo / 列举失败时的占位 key:prefix/1.jpg .. prefix/N.jpg */
@@ -145,72 +136,46 @@ function fallbackKeys(prefix: string, count: number): string[] {
 
 export type ListRequest = { prefix: string };
 
-function warnEmptyCachedAlbums(requests: ListRequest[], manifest: Manifest): void {
-  for (const { prefix } of requests) {
-    if (manifest[prefix]?.length === 0) {
-      console.warn(`[album-manifest] ${prefix}: cached album has 0 images`);
-    }
-  }
-}
-
 /**
  * 批量确保每个 prefix 在 manifest 里有列举结果。
  *
  * - demo 模式（无 OSS base）:不发请求、不写盘,内存返回占位 key,
  *   让本地开发仍能用 picsum 出图,且不污染真实构建的缓存。
- * - 真实模式:读缓存,miss 的 prefix 并发列举。
- *   - 列举成功(哪怕 0 张)→ 如实缓存,空文件夹就是空,绝不造假占位
- *     （真实模式下假占位 key 会直接 404）。
- *   - 列举失败(网络/HTTP 错误)→ 不缓存、本次按空处理,留待下次构建重试。
+ * - 每次生产构建重新列举，构建 worker 共用本次结果；开发补齐缺失条目。
+ * - 生产运行：严格只读；缺失条目抛错，不能发起请求或写入文件。
+ * - 列举失败不把失败/部分响应当作空相册写入；缺失条目会阻止构建。
  */
 export async function ensureManifest(requests: ListRequest[]): Promise<Manifest> {
   const base = readOssBase();
-
+  const prefixes = Array.from(new Set(requests.map(({ prefix }) => prefix.replace(/\/$/, ""))));
+  if (!prefixes.length) return {};
   if (!base) {
-    console.warn(`[album-manifest] OSS base is unavailable; using placeholder images for ${requests.length} albums; cache file not written`);
-    return Object.fromEntries(
-      requests.map((r) => [r.prefix, fallbackKeys(r.prefix, DEFAULT_FALLBACK_COUNT)])
-    );
+    return Object.fromEntries(prefixes.map((prefix) => [prefix, fallbackKeys(prefix, DEFAULT_FALLBACK_COUNT)]));
   }
-
-  const cache = loadManifest();
-  const missing = requests.filter((r) => !cache[r.prefix]);
-  console.log(`[album-manifest] content/.album-manifest.json: requested=${requests.length}, cached=${requests.length - missing.length}, toList=${missing.length}`);
-  warnEmptyCachedAlbums(requests, cache);
-  if (missing.length === 0) {
-    console.log("[album-manifest] all requested albums found in cache; no file written");
-    return cache;
-  }
-
-  console.log(`[album-manifest] listing ${missing.length} folder(s) from OSS...`);
-  const results = await mapWithConcurrency(missing, LIST_CONCURRENCY, async (r) => {
-    try {
-      const files = await withRetry(() => listAlbumFiles(r.prefix));
-      return { prefix: r.prefix, files, ok: true };
-    } catch (err) {
-      console.warn(`[album-manifest] ${r.prefix} list failed (will retry next build):`, err);
-      return { prefix: r.prefix, files: [] as string[], ok: false };
+  async function resolve(): Promise<Manifest> {
+    const cache = readResourceCache(MANIFEST_PATH, base, validAlbum);
+    const missing = prefixes.filter((prefix) => !cache.entries[prefix]);
+    if (!canPrepareResources() && missing.length) throw new Error(`Required album manifest entries missing: ${missing.join(", ")}; rebuild before deployment`);
+    const refresh = canPrepareResources() ? missing : [];
+    if (refresh.length) {
+      console.log(`[album-manifest] refreshing ${refresh.length}/${prefixes.length} albums`);
+      let changed = false;
+      const unavailable: string[] = [];
+      await mapWithConcurrency(refresh, LIST_CONCURRENCY, async (prefix) => {
+        if (unavailable.length) return;
+        try {
+          const files = await withRetry(() => listAlbumFiles(prefix));
+          cache.entries[prefix] = files;
+          changed = true;
+        } catch (error) {
+          unavailable.push(prefix);
+          console.warn(`[album-manifest] ${prefix}: listing failed`, error);
+        }
+      });
+      if (changed) writeResourceCache(MANIFEST_PATH, cache);
+      if (unavailable.length) throw new Error(`Unable to prepare album manifest: ${unavailable.join(", ")}`);
     }
-  });
-
-  let changed = false;
-  for (const r of results) {
-    if (r.ok) {
-      cache[r.prefix] = r.files; // 成功(含空数组)才落缓存
-      changed = true;
-    }
+    return Object.fromEntries(prefixes.map((prefix) => [prefix, cache.entries[prefix]]));
   }
-  if (changed) writeManifest(cache);
-
-  for (const r of results) {
-    if (r.ok) {
-      console.log(`[album-manifest] ${r.prefix}: ${r.files.length} image(s) listed`);
-    }
-  }
-  const listed = results.filter((r) => r.ok).length;
-  const empty = results.filter((r) => r.ok && r.files.length === 0).length;
-  console.log(`[album-manifest] complete: listed=${listed}, empty=${empty}, failed=${results.length - listed}`);
-
-  // 失败的 prefix 不入缓存,下游 `manifest[prefix] ?? []` 兜成空,下次构建重试
-  return cache;
+  return canPrepareResources() ? withResourceLock(MANIFEST_PATH, resolve) : resolve();
 }

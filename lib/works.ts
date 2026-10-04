@@ -123,9 +123,8 @@ function mapRawToWork(raw: WorkRaw, manifest: Manifest): Work {
 }
 
 /**
- * 进程级懒加载：第一次调用时读 MDX、列举 OSS 文件夹拿真实文件名、
- * 批量探测尺寸、注入到 cover/photos[].width/height；之后所有 list/get
- * 调用都共用这一份内存结果。
+ * 进程级懒加载：构建期准备相册和尺寸，生产运行只读打包的清单。
+ * 成功后所有 list/get 共用结果；失败不缓存 rejected Promise。
  *
  * 用 Promise 缓存而不是 await 完成后存数组——并发场景下避免重复列举/探测。
  */
@@ -174,7 +173,10 @@ function ensureLoaded(): Promise<Work[]> {
     }));
     bySlug = new Map(result.map((work) => [work.slug, work]));
     return result;
-  })();
+  })().catch((error) => {
+    cachePromise = null;
+    throw error;
+  });
   return cachePromise;
 }
 

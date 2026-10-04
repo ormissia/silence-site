@@ -1,4 +1,7 @@
 /** @type {import('next').NextConfig} */
+// Next 捕获模块加载时的环境变化，构建 worker 共用此内部标识。
+process.env.SILENCE_OSS_BUILD_ID ||= require("node:crypto").randomUUID();
+
 const nextConfig = {
   reactStrictMode: true,
   experimental: {

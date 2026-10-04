@@ -1,3 +1,5 @@
+import { readOssBase } from "./oss-config";
+
 /**
  * 图片源统一出口。
  * 当前 demo 使用 picsum.photos 占位；真实接入阿里云 OSS 时，
@@ -12,15 +14,6 @@ const PRESET_DIM: Record<ImagePreset, { w: number; h: number }> = {
   detail: { w: 2000, h: 1333 },
   portrait: { w: 1200, h: 1500 },
 };
-
-function readOssBase(): string {
-  const raw = process.env.NEXT_PUBLIC_OSS_BASE_URL?.trim();
-  if (!raw) return "";
-  // 占位字面量（来自 .env.example）当作未配置处理，避免拼出含 <bucket> 的非法 URL
-  if (raw.includes("<") || raw.includes(">")) return "";
-  if (!/^https?:\/\//.test(raw)) return "";
-  return raw.replace(/\/$/, "");
-}
 
 const OSS_BASE = readOssBase();
 

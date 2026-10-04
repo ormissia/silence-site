@@ -41,7 +41,8 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 
 - **MDX 路径段即一级分类**：`content/works/landscape/*.mdx` → series=风光；`content/journal/life/*.mdx` → category=life。这是兜底，frontmatter 显式字段优先（见 `lib/works.ts:seriesFromPath`、`lib/journal.ts:resolveCategory`、`lib/reading.ts:resolveCategory`）。
 - **OSS key 由 `lib/oss.ts` 唯一拼装**，域名/region 不允许散落他处。
-- **Works 的相册图片**通过构建期 ListObjectsV2 列举（`lib/oss-list.ts`），结果落到 `content/.album-manifest.json`（不入 git），运行时只读缓存——避免运行时调 OSS。配合 `lib/image-meta.ts` 用 `image/info` 接口探测真实像素宽高，注入到 `Photo.width/height`，供 Justified Layout 排版。
+- **Works 的相册图片**通过构建期 ListObjectsV2 列举（`lib/oss-list.ts`），结果落到 `content/.album-manifest.json`（不入 git）。配合 `lib/image-meta.ts` 用 `image/info` 探测真实像素宽高，生成 `content/.image-meta.json`，注入 `Photo.width/height` 供相册排版。每次生产构建重新生成两份产物，多 worker 共用本次构建标识；生产运行严格只读，不发起资源同步请求或写盘。
+- **资源产物协议**集中在 `lib/oss-cache.ts`：校验 version / source / buildId / generatedAt 与条目类型，使用本次构建的文件锁及原子替换。运行期拒绝缺失、损坏、来源不符和构建标识不一致的产物；准备失败阻止构建，不将失败请求写成空相册或占位尺寸。空相册的成功响应保持原有隐藏规则。
 - **MDX 读取入口集中在 `lib/mdx.ts`**：`readAllWorksMdx` / `readAllJournalMdx` / `readAllReadingMdx`，解析后先校验字段和最终 slug 唯一性。Works / Journal 缺省 slug 时回退文件名；Reading 依次使用显式 slug、bookId、字符串 ISBN、文件名 hash，规则集中在 `lib/content/fields.ts`。
 
 ### 图片管线
@@ -56,7 +57,7 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 - 列表页使用 `listReadingSummaries` / `listWorkSummaries` / `listJournalSummaries`，首页精选使用 `listFeaturedSummaries`；摘要采用显式字段白名单，不向客户端传正文、EXIF 或完整相册。
 - 阅读详情页面使用 `getReadingMetadata` + `getReadingSections`，避免渲染未使用的完整正文；随笔详情使用 `getJournalEntry`，作品详情使用 `getWork`。旧 `getReadingEntry` 和完整列表接口保留兼容，仅在服务端需要完整内容时使用。静态参数、metadata 和下一篇导航使用摘要或元数据接口。
 - 客户端与纯模型的类型从 `lib/reading/types.ts` / `lib/works/types.ts` / `lib/journal/types.ts` 导入；类型模块不读取文件、不渲染 Markdown、不访问 OSS。
-- 内容读取、Markdown 渲染和 OSS 资源模块标记为 `server-only`。Reading / Journal 各持有单次扫描的原文和元数据快照、slug 索引；摘要不渲染正文，单条详情和阅读分段首次使用时渲染并缓存。书摘从同一份原文惰性提取；首页使用 `pickSphereBookSummaries`。Works 的 OSS 准备流程仍沿用原实现。
+- 内容读取、Markdown 渲染和 OSS 资源模块标记为 `server-only`。Reading / Journal 各持有单次扫描的原文和元数据快照、slug 索引；摘要不渲染正文，单条详情和阅读分段首次使用时渲染并缓存。书摘从同一份原文惰性提取；首页使用 `pickSphereBookSummaries`。Works 构建时准备 OSS 资源，运行时只读；加载失败会清除 Promise 缓存以允许下一次调用重试。
 - 快照以进程为单位，构建 worker 或服务端冷启动可能各自读取内容。内容更新通过重新构建/部署生效，本地必要时重启；不能将进程缓存描述为构建后永久无需读盘。
 - 修改内容处理后运行 `npm run lint`、`npm run typecheck` 和 `npm run build`。内容模块在读取 Markdown 时校验；重复最终 slug、错误字段类型、非法日历日期及内容目录缺失会明确失败。非 ISO 字符串日期和未知分类保留现有 fallback。
 - 保留阅读导出兼容性：`readingDate` / `lastReadDate` 仍只消费字符串，无引号 YAML Date 保持原有忽略行为；数字 ISBN 不自动转成字符串。null、未知导出字段和中文阅读时长允许存在。
@@ -101,7 +102,7 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 
 ```bash
 npm run dev          # 本地开发
-npm run build        # 生产构建（会触发 OSS 列举 + 像素探测，首次较慢，之后走 .album-manifest.json）
+npm run build        # 生产构建（每次重新列举 OSS 并探测像素尺寸）
 npm run start        # 启动构建产物
 npm run lint         # next lint
 npm run typecheck    # tsc --noEmit
@@ -132,6 +133,8 @@ content/
   .album-manifest.json    # 构建期 OSS 列举缓存（不入 git）
 lib/
   oss.ts                  # OSS URL 拼装 + 图片处理预设（唯一出口）
+  oss-config.ts           # 客户端与服务端共用 OSS base 解析
+  oss-cache.ts            # 服务端资源产物协议、构建/运行边界和原子写入
   oss-list.ts             # 构建期 OSS ListObjectsV2 列举 + manifest 缓存
   image-meta.ts           # 构建期 image/info 探测真实像素 W/H + 缓存
   concurrency.ts          # mapWithConcurrency / withRetry
@@ -156,6 +159,7 @@ public/                   # 静态资源、占位图
 
 - **新增作品/随笔/书**：在对应 `content/<模块>/<分类>/*.mdx` 加文件，frontmatter 走现有字段约定（参考同目录其他文件），不用改代码。
 - **新增页面前**：先看 `lib/works.ts` / `lib/journal.ts` / `lib/reading.ts` 的导出接口，复用 `listXxx` / `getXxx`，不要绕过去重新读文件。
-- **OSS 列举失败**：`content/.album-manifest.json` 里命中失败的 prefix 不会落缓存，下次 `npm run build` 自动重试。本地 demo 模式（没设 `NEXT_PUBLIC_OSS_BASE_URL`）走 picsum 占位，不污染缓存。
+- **OSS 列举/尺寸探测失败**：单次请求限时 10 秒，瞬时网络错误、408、429 和 5xx 最多重试两次，404 不重试。最终失败停止启动余下任务，已成功项可供本次 worker 重试，构建仍明确失败。重新执行正常 `npm run build` 会使用新的内部构建标识重新准备，无 TTL、手动刷新开关或独立脚本。demo 模式走 picsum，不污染真实产物。
+- **Vercel 打包**：使用普通完整构建，保留 `next.config.js` 的两份资源产物 tracing。不要混入 `parallelServerBuildTraces` 或 compile-only 构建方式，它们会改变产物生成与追踪的先后关系。
 - **OSS 域名 / AccessKey** 通过 `.env.local` 注入，绝不写进仓库；`.env.example` 仅放占位字面量（`<bucket>...` 这种被代码识别为未配置）。
 - **跨目录引用图片**：`cover` / `photos[].key` 写完整 OSS key（含 `/`）即可，`lib/oss.ts:buildSrc` 会直接透传，不会被当成相对路径处理。

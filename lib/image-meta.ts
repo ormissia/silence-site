@@ -1,119 +1,64 @@
 import "server-only";
 
-import fs from "node:fs";
 import path from "node:path";
 import { mapWithConcurrency, withRetry } from "./concurrency";
+import { readOssBase } from "./oss-config";
+import { canPrepareResources, readResourceCache, writeResourceCache, withResourceLock, resourceFetchOptions, OssHttpError } from "./oss-cache";
 
-/**
- * 图片真实尺寸的探测 + 持久化缓存。
- *
- * 思路：每张作品图都按 OSS key 索引；首次构建/SSR 时调用阿里云
- * `?x-oss-process=image/info` 拿到真实 width/height，写到
- * `content/.image-meta.json` 缓存（不入 git）。后续直接读 cache，
- * 让 Justified Layout 在 RSC 阶段就拿到比例，零 CLS、零手填。
- */
-
-/** 构建期对 OSS image/info 的并发上限。北京 endpoint 跨网时一把梭哈会 ConnectTimeout */
 const PROBE_CONCURRENCY = 4;
+const CACHE_PATH = path.join(process.cwd(), "content/.image-meta.json");
 
 export type Dim = { w: number; h: number };
 export type MetaMap = Record<string, Dim>;
 
-const CACHE_PATH = path.join(process.cwd(), "content/.image-meta.json");
-
-function readOssBase(): string {
-  const raw = process.env.NEXT_PUBLIC_OSS_BASE_URL?.trim();
-  if (!raw) return "";
-  if (raw.includes("<") || raw.includes(">")) return "";
-  if (!/^https?:\/\//.test(raw)) return "";
-  return raw.replace(/\/$/, "");
+function validDim(value: unknown): value is Dim {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const dimension = value as Partial<Dim>;
+  return typeof dimension.w === "number" && Number.isSafeInteger(dimension.w) && dimension.w > 0 &&
+    typeof dimension.h === "number" && Number.isSafeInteger(dimension.h) && dimension.h > 0;
 }
 
-function loadCache(): MetaMap {
-  try {
-    const raw = fs.readFileSync(CACHE_PATH, "utf8");
-    return JSON.parse(raw) as MetaMap;
-  } catch (err) {
-    if ((err as NodeJS.ErrnoException).code !== "ENOENT") {
-      console.warn("[image-meta] failed to read cache, probing from OSS:", err);
-    }
-    return {};
-  }
+async function probeOss(key: string, base: string): Promise<Dim> {
+  const res = await fetch(`${base}/${key}?x-oss-process=image/info`, resourceFetchOptions());
+  if (!res.ok) throw new OssHttpError(`probe ${key}`, res.status);
+  const json = (await res.json()) as Record<string, { value?: unknown }> | null;
+  const dimension = { w: Number(json?.ImageWidth?.value), h: Number(json?.ImageHeight?.value) };
+  if (!validDim(dimension)) throw new Error(`probe ${key}: invalid image dimensions`);
+  return dimension;
 }
 
-function writeCache(map: MetaMap): void {
-  try {
-    fs.writeFileSync(CACHE_PATH, JSON.stringify(map, null, 2), "utf8");
-    console.log(`[image-meta] wrote content/.image-meta.json (${Object.keys(map).length} images)`);
-  } catch (err) {
-    // cache 写不进去不阻断渲染，给一行警告就好
-    console.warn("[image-meta] failed to persist cache:", err);
-  }
-}
-
-/**
- * 调 OSS 的 image/info 接口拿尺寸。失败抛错由上层兜底。
- * 返回示例：{ ImageWidth: { value: "4284" }, ImageHeight: { value: "5712" } }
- */
-async function probeOss(key: string, ossBase: string): Promise<Dim> {
-  const url = `${ossBase}/${key}?x-oss-process=image/info`;
-  const res = await fetch(url, { cache: "no-store" });
-  if (!res.ok) throw new Error(`probe ${key} -> HTTP ${res.status}`);
-  const json = (await res.json()) as Record<string, { value: string }>;
-  const w = Number(json.ImageWidth?.value);
-  const h = Number(json.ImageHeight?.value);
-  if (!w || !h) throw new Error(`probe ${key} -> empty dims`);
-  return { w, h };
-}
-
-/** demo 模式（OSS_BASE 缺失）的兜底：picsum 输出固定尺寸的占位图 */
+/** 未配置 OSS 时维持现有演示尺寸，不请求也不写入真实资源清单。 */
 const PICSUM_FALLBACK: Dim = { w: 1600, h: 1067 };
 
-/**
- * 给定一组 OSS key，确保每个 key 在 cache 里有尺寸；
- * miss 的并发探测后写回 cache。返回 key → {w,h} 的查询表。
- *
- * - demo 模式（无 OSS base）：跳过探测，全部回落到 picsum 默认尺寸
- * - 探测失败的 key：本次使用 fallback，不写入缓存，以便下次构建重试
- */
+/** 每次构建重新探测；运行时只接受本次构建打包的有效尺寸。 */
 export async function ensureMeta(keys: string[]): Promise<MetaMap> {
-  const ossBase = readOssBase();
-  if (!ossBase) {
-    console.warn(`[image-meta] OSS base is unavailable; using placeholder dimensions for ${keys.length} images; cache file not written`);
-    return Object.fromEntries(keys.map((k) => [k, PICSUM_FALLBACK]));
-  }
+  const uniqueKeys = Array.from(new Set(keys));
+  if (!uniqueKeys.length) return {};
+  const base = readOssBase();
+  if (!base) return Object.fromEntries(uniqueKeys.map((key) => [key, PICSUM_FALLBACK]));
 
-  const cache = loadCache();
-  const missing = keys.filter((k) => !cache[k]);
-  console.log(`[image-meta] content/.image-meta.json: requested=${keys.length}, cached=${keys.length - missing.length}, toProbe=${missing.length}`);
-
-  if (missing.length === 0) {
-    console.log("[image-meta] all requested images found in cache; no file written");
-    return cache;
-  }
-
-  console.log(`[image-meta] probing ${missing.length} image(s) from OSS...`);
-  const results = await mapWithConcurrency(missing, PROBE_CONCURRENCY, async (key) => {
-    try {
-      const dim = await withRetry(() => probeOss(key, ossBase));
-      return [key, dim, true] as const;
-    } catch (err) {
-      console.warn(`[image-meta] ${key} probe failed, fallback used:`, err);
-      return [key, PICSUM_FALLBACK, false] as const;
+  async function resolve(): Promise<MetaMap> {
+    const cache = readResourceCache(CACHE_PATH, base, validDim);
+    const missing = uniqueKeys.filter((key) => !cache.entries[key]);
+    if (!canPrepareResources() && missing.length) throw new Error(`Required image dimensions missing: ${missing.join(", ")}; rebuild before deployment`);
+    if (missing.length) {
+      console.log(`[image-meta] probing ${missing.length}/${uniqueKeys.length} images`);
+      let changed = false;
+      const unavailable: string[] = [];
+      await mapWithConcurrency(missing, PROBE_CONCURRENCY, async (key) => {
+        if (unavailable.length) return;
+        try {
+          cache.entries[key] = await withRetry(() => probeOss(key, base));
+          changed = true;
+        } catch (error) {
+          unavailable.push(key);
+          console.warn(`[image-meta] ${key}: probing failed`, error);
+        }
+      });
+      if (changed) writeResourceCache(CACHE_PATH, cache);
+      if (unavailable.length) throw new Error(`Unable to prepare image dimensions: ${unavailable.join(", ")}`);
     }
-  });
-
-  const fallback: MetaMap = {};
-  let probed = 0;
-  for (const [key, dim, ok] of results) {
-    if (ok) {
-      cache[key] = dim;
-      probed++;
-    } else {
-      fallback[key] = dim;
-    }
+    return Object.fromEntries(uniqueKeys.map((key) => [key, cache.entries[key]]));
   }
-  if (probed > 0) writeCache(cache);
-  console.log(`[image-meta] complete: probed=${probed}, fallback=${results.length - probed}`);
-  return { ...cache, ...fallback };
+  return canPrepareResources() ? withResourceLock(CACHE_PATH, resolve) : resolve();
 }

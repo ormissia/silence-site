@@ -32,11 +32,12 @@ function readAllMdx(rootDir: string, kind: ContentKind): WorkRaw[] {
         const raw = fs.readFileSync(full, "utf8");
         const sourcePath = path.relative(process.cwd(), full);
         try {
-          const parsed = matter(raw);
+          // gray-matter 的内部缓存复制会丢失非枚举 matter 字段；原文快照由领域模块管理。
+          const parsed = matter(raw, {});
           const { data, content } = parsed;
           if (!data || typeof data !== "object" || Array.isArray(data) || data instanceof Date) throw new Error("frontmatter must be an object");
           const source = { sourcePath, fileName, pathSegments: segments, data, storyMd: content };
-          assertValidDateLiterals(kind, source, parsed.matter);
+          assertValidDateLiterals(kind, source, parsed.matter ?? "");
           out.push(source);
         } catch (error) {
           throw new Error(`${sourcePath}: ${error instanceof Error ? error.message : String(error)}`);
