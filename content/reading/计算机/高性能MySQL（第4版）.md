@@ -1,19 +1,18 @@
 ---
 doc_type: weread-highlights-reviews
 bookId: "3300035678"
-title: 高性能MySQL（第4版）
 reviewCount: 1
 noteCount: 53
 author: Silvia Botros   Jeremy Tinley
 cover: https://cdn.weread.qq.com/weread/cover/5/cpPlatform_tpeiJyaZriAkSeauDycVY8/t6_cpPlatform_tpeiJyaZriAkSeauDycVY8.jpg
-readingStatus: "4"
 progress: 100%
 readingTime: 28小时18分钟
 readingDate: 2023-12-12
 finishedDate: 2024-09-02
 isbn: 9787121442575
 category: 计算机 数据库
-rating: 72.7%
+title: 高性能MySQL（第4版）
+rating: 73%
 readProgress: 100
 readingTimestamp: 101884
 lastReadDate: 2024-01-18
@@ -23,7 +22,7 @@ tags:
   - 计算机
   - 数据库
   - 读完
-totalWords:
+totalWords: 245520
 
 ---
 
