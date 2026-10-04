@@ -17,6 +17,11 @@ const JOURNAL_MENU: Array<{ href: string; label: string }> = [
   { href: "/journal?cat=life", label: "Life / 生活" },
 ];
 
+const READING_MENU: Array<{ href: string; label: string }> = [
+  { href: "/reading", label: "Shelf / 年度书架" },
+  { href: "/reading/evolution", label: "Evolution / 阅读演化" },
+];
+
 /** 胶囊导航保留真实链接、当前页状态和路由进度反馈。 */
 function NavLink({
   href,
@@ -49,10 +54,12 @@ function NavMenu({
   href,
   label,
   items,
+  alignEnd = false,
 }: {
   href: string;
   label: string;
   items: Array<{ href: string; label: string }>;
+  alignEnd?: boolean;
 }) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -90,7 +97,7 @@ function NavMenu({
     >
       <NavLink href={href} expanded={open}>{label}</NavLink>
       <div
-        className="site-nav-dropdown absolute left-0 top-full z-50 pt-3 md:left-1/2 md:-translate-x-1/2"
+        className={`site-nav-dropdown absolute top-full z-50 pt-3 ${alignEnd ? "right-0 md:right-auto" : "left-0"} md:left-1/2 md:-translate-x-1/2`}
         data-open={open}
       >
         <div className="site-nav-dropdown-surface">
@@ -188,7 +195,9 @@ export function SiteHeader() {
           <Suspense fallback={<NavLink href="/journal">Journal</NavLink>}>
             <NavMenu href="/journal" label="Journal" items={JOURNAL_MENU} />
           </Suspense>
-          <NavLink href="/reading">Reading</NavLink>
+          <Suspense fallback={<NavLink href="/reading">Reading</NavLink>}>
+            <NavMenu href="/reading" label="Reading" items={READING_MENU} alignEnd />
+          </Suspense>
           <NavLink href="/about">About</NavLink>
         </nav>
         <ThemeToggle />

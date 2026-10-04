@@ -31,13 +31,17 @@ function BookAuthor({ author, active }: { author: string; active: boolean }) {
   </div>;
 }
 
+export function BookCoverBackground({ cover }: { cover?: string }) {
+  return <div aria-hidden="true" className="pointer-events-none absolute inset-0">
+      {cover && <RevealImg src={cover} alt="" loading="lazy" decoding="async" draggable={false} className="h-full w-full object-cover" />}
+      <div className="reading-book-info-mask absolute inset-0" />
+    </div>;
+}
+
 export function BookInformation({ book, active = true, titleAs = "p", coverBackground = true }: { book: InformationBook; active?: boolean; titleAs?: "h3" | "p"; coverBackground?: boolean }) {
   const Title = titleAs;
   return <>
-    {coverBackground && <div aria-hidden="true" className="absolute inset-0">
-      {book.cover && <RevealImg src={book.cover} alt="" loading="lazy" decoding="async" draggable={false} className="h-full w-full object-cover" />}
-      <div className="reading-book-info-mask absolute inset-0" />
-    </div>}
+    {coverBackground && <BookCoverBackground cover={book.cover} />}
     <div className="relative z-10 flex h-full flex-col justify-between gap-px p-1.5 font-sans">
       <div className="flex min-h-0 flex-1 flex-col">
         <Title className="line-clamp-3 shrink-0 break-words text-lede leading-snug tracking-normal">{book.title}</Title>
