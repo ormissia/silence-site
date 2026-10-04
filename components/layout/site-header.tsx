@@ -65,10 +65,21 @@ function NavMenu({
   const searchParams = useSearchParams();
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const touchToggle = useRef<boolean | null>(null);
 
   useEffect(() => () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const closeOutside = (event: PointerEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    return () => document.removeEventListener("pointerdown", closeOutside);
+  }, [open]);
 
   const handleEnter = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -81,9 +92,26 @@ function NavMenu({
 
   return (
     <div
+      ref={menuRef}
       className="relative"
-      onMouseEnter={handleEnter}
-      onMouseLeave={scheduleClose}
+      onPointerEnter={(event) => { if (event.pointerType === "mouse") handleEnter(); }}
+      onPointerLeave={(event) => { if (event.pointerType === "mouse") scheduleClose(); }}
+      onPointerDown={(event) => {
+        const trigger = event.currentTarget.querySelector(":scope > a");
+        // Capture before focus opens the menu; a touch tap chooses a view rather than navigating immediately.
+        touchToggle.current = event.pointerType !== "mouse" && (event.target as Element).closest("a") === trigger ? !open : null;
+      }}
+      onPointerCancel={() => { touchToggle.current = null; }}
+      onClickCapture={(event) => {
+        if (touchToggle.current === null) return;
+        const nextOpen = touchToggle.current;
+        touchToggle.current = null;
+        if ((event.target as Element).closest("a") !== event.currentTarget.querySelector(":scope > a")) return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (closeTimer.current) clearTimeout(closeTimer.current);
+        setOpen(nextOpen);
+      }}
       onFocus={handleEnter}
       onBlur={(event) => {
         if (!event.currentTarget.contains(event.relatedTarget)) setOpen(false);

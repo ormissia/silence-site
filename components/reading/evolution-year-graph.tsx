@@ -1,15 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useLayoutEffect, useMemo, useRef } from "react";
-import { EVOLUTION_WIDTH, evolutionLayout, type EvolutionLayout, type EvolutionNode, type EvolutionYear } from "@/lib/reading-evolution";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { RevealImg } from "@/components/media/reveal-image";
+import { EVOLUTION_CATEGORY_HEADER, EVOLUTION_WIDTH, evolutionColumns, evolutionCoverTiles, evolutionLayout, type EvolutionLayout, type EvolutionNode, type EvolutionYear } from "@/lib/reading-evolution";
 
 type Props = {
   year: EvolutionYear;
   activeSlug?: string;
   tooltipId: string;
   onActivate: (node: EvolutionNode, target: Element, source: "pointer" | "focus") => void;
-  onDeactivate: (source: "pointer" | "focus") => void;
+  onDeactivate: (source: "pointer" | "focus", slug?: string) => void;
   onPositions: (nodes: EvolutionNode[], xs: number[]) => void;
   onBookClick: () => void;
 };
@@ -17,6 +18,15 @@ type Props = {
 /** One bounded animation per affected year; nodes and line endpoints share each frame's coordinates. */
 export function EvolutionYearGraph({ year, activeSlug, tooltipId, onActivate, onDeactivate, onPositions, onBookClick }: Props) {
   const base = useMemo(() => evolutionLayout(year), [year]);
+  const collageWidth = useMemo(() => evolutionColumns(year.categories, year.categories[0])[0].width, [year]);
+  const categories = useMemo(() => year.categories.map((category) => {
+    const books = year.nodes.filter((node) => node.category === category).map((node) => node.book);
+    const covered = books.filter((book) => book.cover);
+    // Bound image decoding and keep a representative spread across the year's reading order.
+    const covers = covered.length <= 8 ? covered : Array.from({ length: 8 }, (_, index) => covered[Math.round(index * (covered.length - 1) / 7)]);
+    return { category, count: books.length, tiles: evolutionCoverTiles(covers, collageWidth, year.bottom - year.top) };
+  }), [year, collageWidth]);
+  const [showCovers, setShowCovers] = useState(false);
   const root = useRef<SVGGElement>(null);
   const current = useRef(base);
   const frame = useRef(0);
@@ -25,7 +35,7 @@ export function EvolutionYearGraph({ year, activeSlug, tooltipId, onActivate, on
   const focusCategory = useRef<string | null>(null);
   const pointer = useRef<{ x: number; y: number } | null>(null);
   const hoveredSlug = useRef<string | null>(null);
-  const elements = useRef<{ columns: SVGRectElement[]; labels: SVGTextElement[]; nodes: SVGGElement[]; circles: SVGCircleElement[][]; lines: SVGLineElement[] }>();
+  const elements = useRef<{ columns: SVGRectElement[]; panels: SVGForeignObjectElement[]; labels: SVGForeignObjectElement[]; nodes: SVGGElement[]; circles: SVGCircleElement[][]; lines: SVGLineElement[] }>();
   const positionCallback = useRef(onPositions);
   positionCallback.current = onPositions;
   const activateCallback = useRef(onActivate);
@@ -47,14 +57,17 @@ export function EvolutionYearGraph({ year, activeSlug, tooltipId, onActivate, on
     if (point) activatePointer(document.elementFromPoint(point.x, point.y));
   };
 
-  const paint = (layout: EvolutionLayout) => {
+  const paint = useCallback((layout: EvolutionLayout) => {
     const refs = elements.current;
     if (!refs) return;
     current.current = layout;
     layout.columns.forEach((column, index) => {
       refs.columns[index].setAttribute("x", String(column.x));
       refs.columns[index].setAttribute("width", String(column.width));
-      refs.labels[index].setAttribute("x", String(column.x + column.width / 2));
+      refs.panels[index].setAttribute("x", String(column.x));
+      refs.panels[index].setAttribute("width", String(column.width));
+      refs.labels[index].setAttribute("x", String(column.x));
+      refs.labels[index].setAttribute("width", String(column.width));
     });
     layout.xs.forEach((x, index) => {
       refs.nodes[index].setAttribute("transform", `translate(${x},0)`);
@@ -65,13 +78,14 @@ export function EvolutionYearGraph({ year, activeSlug, tooltipId, onActivate, on
       line.setAttribute("x2", String(layout.xs[index + 1]));
     });
     positionCallback.current(year.nodes, layout.xs);
-  };
+  }, [year.nodes]);
 
   useLayoutEffect(() => {
     const group = root.current!;
     elements.current = {
       columns: Array.from(group.querySelectorAll<SVGRectElement>("[data-column]")),
-      labels: Array.from(group.querySelectorAll<SVGTextElement>("[data-column-label]")),
+      panels: Array.from(group.querySelectorAll<SVGForeignObjectElement>("[data-column-panel]")),
+      labels: Array.from(group.querySelectorAll<SVGForeignObjectElement>("[data-column-label-panel]")),
       nodes: Array.from(group.querySelectorAll<SVGGElement>("[data-node]")),
       circles: Array.from(group.querySelectorAll<SVGGElement>("[data-node]")).map((node) => Array.from(node.querySelectorAll("circle"))),
       lines: Array.from(group.querySelectorAll<SVGLineElement>("[data-connection]")),
@@ -85,8 +99,30 @@ export function EvolutionYearGraph({ year, activeSlug, tooltipId, onActivate, on
     hoveredSlug.current = null;
     group.dataset.expandedCategory = "";
     group.dataset.animating = "false";
+    const focused = document.activeElement?.closest("[data-book-index]");
+    if (focused && group.contains(focused)) {
+      const index = Number(focused.getAttribute("data-book-index"));
+      const node = year.nodes[index];
+      const layout = evolutionLayout(year, node.category);
+      focusCategory.current = node.category;
+      targetCategory.current = node.category;
+      group.dataset.expandedCategory = node.category;
+      paint(layout);
+      activateCallback.current({ ...node, x: layout.xs[index] }, focused, "focus");
+    } else paint(base);
     return () => { cancelAnimationFrame(frame.current); frame.current = 0; };
-  }, [base]);
+  }, [base, paint, year]);
+
+  useEffect(() => {
+    const group = root.current!;
+    const observer = new IntersectionObserver((entries) => {
+      if (!entries.some((entry) => entry.isIntersecting)) return;
+      setShowCovers(true);
+      observer.disconnect();
+    }, { rootMargin: "200px" });
+    observer.observe(group);
+    return () => observer.disconnect();
+  }, []);
 
   const expand = (category: string | null) => {
     if (targetCategory.current === category) return;
@@ -136,14 +172,33 @@ export function EvolutionYearGraph({ year, activeSlug, tooltipId, onActivate, on
     onKeyDown={(event) => { if (event.key === "Escape") expand(null); }}>
     <g aria-hidden="true">
       <rect x="0" y={year.top} width={EVOLUTION_WIDTH} height={year.bottom - year.top} fill="transparent" />
-      {base.columns.map((column) => <g key={column.category}>
-        <rect data-column data-reading-category={column.category} x={column.x} y={year.top + 16} width={column.width} height={year.bottom - year.top - 32}
-          rx="12" fill="currentColor" fillOpacity="0.035" stroke="currentColor" strokeOpacity="0.08" />
-        <text data-column-label x={column.x + column.width / 2} y={(year.top + year.bottom) / 2}
-          textAnchor="middle" fill="currentColor" opacity="0.16" pointerEvents="none"
-          className="font-serif text-[28px]" style={{ writingMode: "vertical-rl", textOrientation: "upright" }}>{column.category}</text>
+      {base.columns.map((column, index) => <g key={column.category}>
+        <rect data-column data-reading-category={column.category} x={column.x} y={year.top} width={column.width} height={year.bottom - year.top}
+          fill="transparent" />
+        <foreignObject data-column-panel x={column.x} y={year.top} width={column.width} height={year.bottom - year.top} pointerEvents="none" overflow="hidden">
+          <div className="reading-evolution-category relative h-full w-full overflow-hidden"
+            style={{ "--reading-evolution-collage-width": `${collageWidth}px` } as CSSProperties}>
+            {showCovers && categories[index].tiles.length > 0 && <div className="reading-evolution-collage absolute">
+              {categories[index].tiles.map((tile) => <div key={tile.book.slug} data-cover-tile={tile.book.slug} className="absolute overflow-hidden"
+                style={{ left: `${tile.x}%`, top: `${tile.y}%`, width: `${tile.width}%`, height: `${tile.height}%` }}>
+                <RevealImg src={tile.book.cover} alt="" loading="lazy" decoding="async" draggable={false} className="h-full w-full object-cover" />
+              </div>)}
+            </div>}
+          </div>
+        </foreignObject>
       </g>)}
-      <line x1="0" y1={year.top} x2={EVOLUTION_WIDTH} y2={year.top} stroke="currentColor" strokeOpacity="0.1" />
+      {/* One continuous overlay avoids separate HTML panels compositing bright seams at fractional SVG coordinates. */}
+      <rect data-year-mask className="reading-evolution-category-mask" x={base.columns[0].x} y={year.top}
+        width={base.columns.reduce((width, column) => width + column.width, 0)} height={year.bottom - year.top} pointerEvents="none" />
+      {base.columns.map((column, index) => <foreignObject key={column.category} data-column-label-panel
+        x={column.x} y={year.top} width={column.width} height={EVOLUTION_CATEGORY_HEADER} pointerEvents="none" overflow="hidden">
+        <div data-column-label className="flex h-full items-baseline gap-1 overflow-hidden px-2 pt-4 font-sans leading-none">
+          <span className="reading-evolution-category-name min-w-0 truncate">{column.category}</span>
+          <span className="reading-evolution-category-count shrink-0 whitespace-nowrap text-ink/55">{categories[index].count} 本</span>
+        </div>
+      </foreignObject>)}
+      {year.gapBefore > 0 && <line data-year-rule x1="0" y1={year.top - year.gapBefore / 2}
+        x2={EVOLUTION_WIDTH} y2={year.top - year.gapBefore / 2} stroke="rgb(var(--color-rule))" pointerEvents="none" />}
       <text x="14" y={(year.top + year.bottom) / 2} fill="currentColor" className="font-serif text-[30px]">{year.year}</text>
       <text x="15" y={(year.top + year.bottom) / 2 + 23} fill="currentColor" opacity="0.45" className="font-sans text-[9px]">12月 — 1月 · {year.nodes.length} 本</text>
       {year.nodes.slice(1).map((node, index) => <line key={node.book.slug} data-connection
@@ -167,9 +222,12 @@ export function EvolutionYearGraph({ year, activeSlug, tooltipId, onActivate, on
             if (!focusCategory.current) expand(node.category);
             activatePointer(event.currentTarget);
           }}
-          onPointerLeave={(event) => { hoveredSlug.current = null; if (document.activeElement !== event.currentTarget) onDeactivate("pointer"); }}
+          onPointerLeave={(event) => {
+            if (hoveredSlug.current === node.book.slug) hoveredSlug.current = null;
+            if (document.activeElement !== event.currentTarget) onDeactivate("pointer", node.book.slug);
+          }}
           onFocus={(event) => { focusCategory.current = node.category; expand(node.category); activate(event.currentTarget); }}
-          onBlur={() => onDeactivate("focus")} onKeyDown={(event) => { if (event.key === "Escape") onDeactivate("focus"); }}>
+          onBlur={() => onDeactivate("focus", node.book.slug)} onKeyDown={(event) => { if (event.key === "Escape") onDeactivate("focus", node.book.slug); }}>
           <circle cx="0" cy={node.y} r={node.radius + 5} fill="transparent" />
           <circle cx="0" cy={node.y} r={node.radius + 4} fill="none" stroke="currentColor" strokeOpacity={selected ? 0.7 : 0} pointerEvents="none"
             className="group-focus-visible/reading-node:[stroke-opacity:0.7]" />

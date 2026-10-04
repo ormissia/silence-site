@@ -1,24 +1,67 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useMemo, useRef, useState } from "react";
+import { useReducedMotion } from "framer-motion";
+import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { rememberListPosition, RestoreListScroll } from "@/components/layout/list-return";
 import { BookCoverBackground, BookInformation } from "./book-information";
 import { EvolutionYearGraph } from "./evolution-year-graph";
-import { EVOLUTION_HEADER_HEIGHT, EVOLUTION_WIDTH, readingEvolution, type EvolutionBook, type EvolutionNode } from "@/lib/reading-evolution";
+import { EVOLUTION_HEADER_HEIGHT, EVOLUTION_WIDTH, EVOLUTION_YEAR_GAP, readingEvolution, type EvolutionBook, type EvolutionNode } from "@/lib/reading-evolution";
 
 const RETURN_HREF = "/reading/evolution";
 const bookHref = (book: EvolutionBook) => `/reading/${book.slug}?view=evolution`;
 
 export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
-  const model = useMemo(() => readingEvolution(books), [books]);
+  const reduceMotion = useReducedMotion();
+  const [plotScale, setPlotScale] = useState(1);
+  const model = useMemo(() => readingEvolution(books, EVOLUTION_YEAR_GAP * plotScale), [books, plotScale]);
   const [active, setActive] = useState<EvolutionNode | null>(null);
+  const [displayed, setDisplayed] = useState<EvolutionNode | null>(null);
+  const [tooltipVisible, setTooltipVisible] = useState(false);
   const [tooltipOffset, setTooltipOffset] = useState(18);
   const tooltipId = useId();
   const tooltipRef = useRef<HTMLDivElement>(null);
+  const plotRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<EvolutionNode | null>(null);
   const activeSource = useRef<"pointer" | "focus" | null>(null);
   const plotHeight = model.height - EVOLUTION_HEADER_HEIGHT;
+  useLayoutEffect(() => {
+    if (active) {
+      setDisplayed(active);
+      // Reuse an exiting popup so rapid re-entry continues from its current opacity.
+      if (tooltipRef.current || reduceMotion) { setTooltipVisible(true); return; }
+      setTooltipVisible(false);
+      let nextFrame = 0;
+      const frame = requestAnimationFrame(() => {
+        nextFrame = requestAnimationFrame(() => setTooltipVisible(true));
+      });
+      return () => { cancelAnimationFrame(frame); cancelAnimationFrame(nextFrame); };
+    }
+    setTooltipVisible(false);
+    if (reduceMotion) { setDisplayed(null); return; }
+    if (!tooltipRef.current) return;
+    const timeout = window.setTimeout(() => setDisplayed(null), 140);
+    return () => window.clearTimeout(timeout);
+  }, [active, reduceMotion]);
+  useEffect(() => {
+    const plot = plotRef.current;
+    if (!plot) return;
+    let previousWidth = 0;
+    const observer = new ResizeObserver(([entry]) => {
+      const width = entry.contentRect.width;
+      if (width <= 0 || width === previousWidth) return;
+      previousWidth = width;
+      // Compensate the SVG viewBox scale once on resize; category expansion does not change it.
+      const scale = EVOLUTION_WIDTH / width;
+      plot.style.setProperty("--reading-evolution-label-scale", String(scale));
+      setPlotScale(scale);
+      activeRef.current = null;
+      activeSource.current = null;
+      setActive(null);
+    });
+    observer.observe(plot);
+    return () => observer.disconnect();
+  }, [model.datedCount]);
   const remember = () => rememberListPosition(RETURN_HREF);
   const activate = (node: EvolutionNode, target: Element, source: "pointer" | "focus") => {
     if (source === "pointer" && activeSource.current === "focus") return;
@@ -35,8 +78,9 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
     setTooltipOffset(top - center);
   };
 
-  const deactivate = (source: "pointer" | "focus") => {
+  const deactivate = (source: "pointer" | "focus", slug?: string) => {
     if (source === "pointer" && activeSource.current === "focus") return;
+    if (slug && activeRef.current?.book.slug !== slug) return;
     activeRef.current = null;
     activeSource.current = null;
     setActive(null);
@@ -54,7 +98,7 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
       <RestoreListScroll />
       {model.datedCount === 0 && <p className="py-16 text-center text-sm text-muted">记录读完日期后，阅读轨迹会出现在这里。</p>}
       {model.datedCount > 0 && <div className="hidden md:block">
-        <div className="reading-evolution-plot relative">
+        <div ref={plotRef} className="reading-evolution-plot relative">
         <svg viewBox={`0 ${EVOLUTION_HEADER_HEIGHT} ${EVOLUTION_WIDTH} ${plotHeight}`} className="block h-auto w-full text-ink" role="group" aria-label="按年份与书籍分类排列的阅读轨迹">
           <desc>纵向按读完日期由晚到早，每年只展示有书籍的原始分类，悬停分类区域展开列宽。圆点大小表示阅读时长，连线连接同年相邻读完的书。悬停或聚焦圆点查看信息，点击打开书籍笔记。</desc>
           {model.years.map((year) => <EvolutionYearGraph key={year.year} year={year}
@@ -62,10 +106,10 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
             onPositions={updatePositions} onBookClick={remember} />)}
           <line aria-hidden="true" x1="0" y1={model.height} x2={EVOLUTION_WIDTH} y2={model.height} stroke="currentColor" strokeOpacity="0.1" />
         </svg>
-        {active && <div ref={tooltipRef} id={tooltipId} role="tooltip"
-          className="reading-evolution-tooltip pointer-events-none absolute z-10 isolate aspect-[2/3] max-w-full -translate-x-1/2 overflow-hidden rounded-xl border border-ink/15 bg-surface-raised text-ink shadow-lg"
-          style={{ left: `clamp(calc(var(--reading-cover-width) / 2), ${active.x / EVOLUTION_WIDTH * 100}%, calc(100% - var(--reading-cover-width) / 2))`, top: `calc(${(active.y - EVOLUTION_HEADER_HEIGHT) / plotHeight * 100}% + ${tooltipOffset}px)` }}>
-          <BookInformation book={active.book} />
+        {displayed && <div ref={tooltipRef} id={tooltipId} role="tooltip" data-visible={tooltipVisible}
+          className="reading-evolution-tooltip pointer-events-none absolute z-10 isolate aspect-[2/3] max-w-full -translate-x-1/2 overflow-hidden border border-ink/15 bg-surface-raised text-ink shadow-lg"
+          style={{ left: `clamp(calc(var(--reading-cover-width) / 2), ${displayed.x / EVOLUTION_WIDTH * 100}%, calc(100% - var(--reading-cover-width) / 2))`, top: `calc(${(displayed.y - EVOLUTION_HEADER_HEIGHT) / plotHeight * 100}% + ${tooltipOffset}px)` }}>
+          <BookInformation book={displayed.book} />
         </div>}
         </div>
       </div>}
