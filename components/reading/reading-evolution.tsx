@@ -7,8 +7,6 @@ import { RevealImg } from "@/components/media/reveal-image";
 import { EVOLUTION_AXIS, EVOLUTION_COLUMN, EVOLUTION_HEADER_HEIGHT, EVOLUTION_WIDTH, READING_GENRES, readingEvolution, type EvolutionBook, type EvolutionNode } from "@/lib/reading-evolution";
 
 const RETURN_HREF = "/reading/evolution";
-const TOOLTIP_WIDTH = 240;
-const TOOLTIP_HEIGHT = TOOLTIP_WIDTH * 1.5;
 const bookHref = (book: EvolutionBook) => `/reading/${book.slug}?view=evolution`;
 const description = (book: EvolutionBook) => `${book.title}；${book.author ?? "作者未记录"}；${book.finishedDate ?? "读完日期未记录"}；阅读 ${book.readingTime ?? "时长未记录"}；${book.noteCount === undefined ? "笔记数量未记录" : `${book.noteCount} 条笔记`}`;
 
@@ -26,8 +24,11 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
   const activate = (node: EvolutionNode, target: Element) => {
     const rect = target.getBoundingClientRect();
     const center = (rect.top + rect.bottom) / 2;
-    const preferredTop = rect.top < TOOLTIP_HEIGHT + 112 ? center + 18 : center - TOOLTIP_HEIGHT - 18;
-    const top = Math.max(112, Math.min(preferredTop, window.innerHeight - TOOLTIP_HEIGHT - 16));
+    const plot = target.closest(".reading-evolution-plot")!;
+    const columns = Number(getComputedStyle(plot).getPropertyValue("--reading-columns"));
+    const height = ((plot.getBoundingClientRect().width + 20) / columns - 20) * 1.5;
+    const preferredTop = rect.top < height + 112 ? center + 18 : center - height - 18;
+    const top = Math.max(112, Math.min(preferredTop, window.innerHeight - height - 16));
     setActive(node);
     setTooltipOffset(top - center);
   };
@@ -47,7 +48,7 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
           </span>)}
         </div>
         {summary}
-        <div className="relative">
+        <div className="reading-evolution-plot relative">
         <svg viewBox={`0 ${EVOLUTION_HEADER_HEIGHT} ${EVOLUTION_WIDTH} ${plotHeight}`} className="block h-auto w-full text-ink" role="group" aria-label="按年份与书籍分类排列的阅读轨迹">
           <desc>纵向按读完日期由晚到早，横向按分类分列。圆点大小表示阅读时长，连线连接同年相邻读完的书。悬停或聚焦圆点查看信息，点击打开书籍笔记。</desc>
           {READING_GENRES.map((genre, index) => {
@@ -83,20 +84,20 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
           <line aria-hidden="true" x1="0" y1={model.height} x2={EVOLUTION_WIDTH} y2={model.height} stroke="currentColor" strokeOpacity="0.1" />
         </svg>
         {active && <div id={tooltipId} role="tooltip"
-          className="pointer-events-none absolute z-10 isolate aspect-[2/3] max-w-full -translate-x-1/2 overflow-hidden rounded-xl border border-ink/15 bg-surface-raised text-ink shadow-lg"
-          style={{ width: TOOLTIP_WIDTH, left: `clamp(${TOOLTIP_WIDTH / 2}px, ${active.x / EVOLUTION_WIDTH * 100}%, calc(100% - ${TOOLTIP_WIDTH / 2}px))`, top: `calc(${(active.y - EVOLUTION_HEADER_HEIGHT) / plotHeight * 100}% + ${tooltipOffset}px)` }}>
+          className="reading-evolution-tooltip pointer-events-none absolute z-10 isolate aspect-[2/3] max-w-full -translate-x-1/2 overflow-hidden rounded-xl border border-ink/15 bg-surface-raised text-ink shadow-lg"
+          style={{ left: `clamp(calc(var(--reading-cover-width) / 2), ${active.x / EVOLUTION_WIDTH * 100}%, calc(100% - var(--reading-cover-width) / 2))`, top: `calc(${(active.y - EVOLUTION_HEADER_HEIGHT) / plotHeight * 100}% + ${tooltipOffset}px)` }}>
           <div aria-hidden="true" className="absolute inset-0">
             {active.book.cover && <RevealImg src={active.book.cover} alt="" decoding="async" className="h-full w-full object-cover" />}
             <div className="reading-evolution-tooltip-mask absolute inset-0" />
           </div>
-          <div className="relative z-10 flex h-full flex-col justify-between gap-5 p-4">
+          <div className="relative z-10 flex h-full flex-col justify-between gap-px p-1.5 font-sans">
             <div>
-              <p className="break-words font-serif text-base leading-snug">{active.book.title}</p>
-              <p className="mt-2 break-words text-xs leading-relaxed text-ink/80">{active.book.author ?? "作者未记录"}</p>
+              <p className="line-clamp-3 break-words text-lede leading-snug tracking-normal">{active.book.title}</p>
+              <p className="mt-0.5 line-clamp-2 break-words text-annotation leading-tight tracking-normal text-ink/80">{active.book.author ?? "作者未记录"}</p>
             </div>
-            <dl className="space-y-1.5 border-t border-ink/20 pt-3 text-xs">
+            <dl className="shrink-0 border-t border-ink/20 pt-0.5 text-annotation leading-tight tracking-normal">
               {[["分类", active.book.category], ["读完", active.book.finishedDate], ["阅读", active.book.readingTime ?? "未记录"], ["笔记", active.book.noteCount === undefined ? "未记录" : `${active.book.noteCount} 条`]].map(([label, value]) =>
-                <div key={label} className="flex justify-between gap-4"><dt className="shrink-0 text-ink/70">{label}</dt><dd className="text-right">{value}</dd></div>
+                <div key={label} className="flex justify-between gap-1"><dt className="shrink-0 text-ink/70">{label}</dt><dd className="text-right">{value}</dd></div>
               )}
             </dl>
           </div>

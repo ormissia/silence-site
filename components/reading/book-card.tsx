@@ -2,34 +2,9 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useState } from "react";
 import { RevealImg } from "@/components/media/reveal-image";
 import type { ReadingEntry } from "@/lib/reading";
-
-/** 超出宽度的单行文字在背面显示时左右往返，保留完整内容。 */
-function ScrollingText({ children }: { children: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
-  const [distance, setDistance] = useState(0);
-
-  useEffect(() => {
-    const row = ref.current;
-    const text = row?.firstElementChild;
-    if (!row || !text) return;
-    const measure = () => setDistance(Math.max(0, text.scrollWidth - row.clientWidth));
-    const observer = new ResizeObserver(measure);
-    observer.observe(row);
-    observer.observe(text);
-    measure();
-    return () => observer.disconnect();
-  }, [children]);
-
-  return (
-    <span ref={ref} className="reading-book-text" data-scroll={distance > 0}
-      style={{ "--text-pan-distance": `${-distance}px`, "--text-pan-duration": `${Math.max(4, distance / 20 + 2)}s` } as CSSProperties}>
-      <span>{children}</span>
-    </span>
-  );
-}
 
 /** 正面为书封，悬浮或键盘聚焦时翻到资料面；触屏使用独立翻面按钮。 */
 export function BookCard({ book, index }: { book: ReadingEntry; index: number }) {
@@ -67,7 +42,7 @@ export function BookCard({ book, index }: { book: ReadingEntry; index: number })
           </div>
 
           <div className="reading-book-face reading-book-back absolute inset-0 flex flex-col overflow-hidden border border-ink/10 bg-surface-raised p-2 font-sans">
-            <h3 className="text-lede leading-snug tracking-normal text-ink"><ScrollingText>{book.title}</ScrollingText></h3>
+            <h3 className="line-clamp-3 shrink-0 break-words text-lede leading-snug tracking-normal text-ink">{book.title}</h3>
             <p className="mt-1 break-words text-annotation leading-tight tracking-normal text-muted">{book.author ?? "作者未录入"}</p>
             <dl className="mt-auto space-y-1.5 whitespace-nowrap pt-2 text-annotation tracking-normal">
               <div>
