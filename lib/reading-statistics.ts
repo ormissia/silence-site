@@ -1,4 +1,4 @@
-import type { ReadingEntry } from "./reading";
+import type { ReadingSummary } from "./reading/types";
 
 export function readingMinutes(time?: string): number | null {
   const match = time?.trim().match(/^(?:(\d+)小时)?(?:(\d+)分钟)?$/);
@@ -6,7 +6,7 @@ export function readingMinutes(time?: string): number | null {
   return Number(match[1] ?? 0) * 60 + Number(match[2] ?? 0);
 }
 
-export function readingCategoryStatistics(books: ReadingEntry[]) {
+export function readingCategoryStatistics(books: Array<Pick<ReadingSummary, "category" | "readingTime">>) {
   const categories = new Map<string, { category: string; count: number; minutes: number }>();
   let missingTime = 0;
   for (const book of books) {

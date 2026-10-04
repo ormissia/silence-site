@@ -1,7 +1,7 @@
-import type { ReadingEntry } from "./reading";
+import type { ReadingSummary } from "./reading/types";
 import { readingMinutes } from "./reading-statistics";
 
-export type EvolutionBook = Pick<ReadingEntry, "slug" | "title" | "author" | "cover" | "category" | "finishedDate" | "readingTime" | "noteCount">;
+export type EvolutionBook = ReadingSummary;
 
 export const EVOLUTION_WIDTH = 1200;
 export const EVOLUTION_AXIS = 124;

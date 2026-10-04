@@ -1,7 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
-import type { ReadingEntry } from "@/lib/reading";
+import type { ReadingSummary } from "@/lib/reading/types";
 import { readingCategoryStatistics } from "@/lib/reading-statistics";
 
 const COLORS = ["#97816b", "#71877d", "#8c91a7", "#b69b6c", "#a88078", "#7b9aab", "#9a8aa4", "#929964", "#af8e69", "#687d92", "#9c707e", "#7c9994", "#a5a092"];
@@ -20,7 +20,7 @@ function ringArc(radius: number, start: number, share: number) {
   return `M ${point(start)} A ${radius} ${radius} 0 ${share > 50 ? 1 : 0} 1 ${point(start + share)}`;
 }
 
-export function YearStatistics({ books, categories }: { books: ReadingEntry[]; categories: string[] }) {
+export function YearStatistics({ books, categories }: { books: ReadingSummary[]; categories: string[] }) {
   const [active, setActive] = useState<SegmentInfo | null>(null);
   const tooltipId = useId();
   const stats = readingCategoryStatistics(books);

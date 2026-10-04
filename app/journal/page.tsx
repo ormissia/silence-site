@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { listJournal } from "@/lib/journal";
+import { listJournalSummaries } from "@/lib/journal";
 import { JournalList } from "@/components/journal/journal-list";
 import { SecondaryPageHeader } from "@/components/layout/secondary-page-header";
 import { CollectionLoading } from "@/components/layout/page-loading";
@@ -9,7 +9,7 @@ export const metadata = {
 };
 
 export default function JournalPage() {
-  const entries = listJournal();
+  const entries = listJournalSummaries();
 
   return (
     <section className="mx-auto max-w-[1400px] px-6 pb-20 pt-28 md:px-12 md:pt-44">

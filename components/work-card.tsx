@@ -3,14 +3,14 @@
 import { RevealImage as Image } from "@/components/media/reveal-image";
 import Link from "next/link";
 import { buildSrc } from "@/lib/oss";
-import type { Work } from "@/lib/works";
+import type { WorkSummary } from "@/lib/works/types";
 import { CoverFocusFrame } from "@/components/cover-focus-frame";
 import { OverflowText } from "@/components/overflow-text";
 import styles from "./cover-hover.module.css";
 import { rememberListPosition } from "@/components/layout/list-return";
 
 export function WorkCard({ work, index, variant = "wide", tab = "all" }: {
-  work: Work; index: number; variant?: "tall" | "wide" | "square"; tab?: string;
+  work: WorkSummary; index: number; variant?: "tall" | "wide" | "square"; tab?: string;
 }) {
   const isFilm = work.series === "胶片";
   const aspect = variant === "tall" ? "aspect-[4/5]" : variant === "square" ? "aspect-square" : "aspect-video";

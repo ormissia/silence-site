@@ -1,14 +1,14 @@
-import type { ReadingEntry } from "./reading";
+import type { ReadingSummary } from "./reading/types";
 
 export type ReadingYearGroup = {
   year: string | null;
-  books: ReadingEntry[];
+  books: ReadingSummary[];
 };
 
 /** Only a recorded completion date belongs to a reading year. */
-export function groupReadingByYear(books: ReadingEntry[]): ReadingYearGroup[] {
-  const years = new Map<string, ReadingEntry[]>();
-  const undated: ReadingEntry[] = [];
+export function groupReadingByYear(books: ReadingSummary[]): ReadingYearGroup[] {
+  const years = new Map<string, ReadingSummary[]>();
+  const undated: ReadingSummary[] = [];
 
   for (const book of books) {
     const date = book.finishedDate;

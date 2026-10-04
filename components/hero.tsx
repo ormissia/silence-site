@@ -1,9 +1,9 @@
 import { RevealImage as Image } from "@/components/media/reveal-image";
 import Link from "next/link";
 import { buildSrc, presetSize } from "@/lib/oss";
-import type { Work } from "@/lib/works";
+import type { WorkSummary } from "@/lib/works/types";
 
-export function Hero({ work }: { work: Work }) {
+export function Hero({ work }: { work: WorkSummary }) {
   const { width, height } = presetSize("hero");
 
   return (

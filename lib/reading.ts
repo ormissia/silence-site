@@ -1,40 +1,11 @@
+import "server-only";
+
 import { readAllReadingMdx } from "./mdx";
 import { renderMarkdown } from "./markdown";
 import { splitReadingMarkdown } from "./reading-sections";
+import type { ReadingEntry, ReadingSummary, Highlight, HighlightBatch } from "./reading/types";
 
-/**
- * 一本书的元数据 + 笔记。
- * 字段对齐微信读书导出（Obsidian 模板），可选字段尽量保留——书架页可以多角度展示。
- */
-export type ReadingEntry = {
-  /** URL 用 slug，不依赖文件名（避免中文文件名 percent-encode） */
-  slug: string;
-  title: string;
-  author?: string;
-  cover?: string; // 完整 URL 或 OSS key 都行
-  /** 微信读书的进度百分比字符串，如 "53%" */
-  progress?: string;
-  /** 评分百分比字符串 */
-  rating?: string;
-  /** 数字进度（用于排序、过滤） */
-  readProgress?: number;
-  readingTime?: string;
-  readingDate?: string;
-  lastReadDate?: string;
-  /** 读完日期（YYYY-MM-DD），书架默认按这个倒序 */
-  finishedDate?: string;
-  /** 一级分类，已规整：取 frontmatter category 第一段或第一级目录 */
-  category: string;
-  /** frontmatter 原始 category 字段（含次级，如"哲学宗教 西方哲学"） */
-  rawCategory?: string;
-  tags?: string[];
-  isbn?: string;
-  totalWords?: number;
-  /** 微信读书导出的笔记数量（包含划线）。 */
-  noteCount?: number;
-  /** 整理好的 HTML，包含书摘正文 */
-  bodyHtml: string;
-};
+export type { ReadingEntry, ReadingDetail, ReadingSummary, Highlight, HighlightBatch } from "./reading/types";
 
 function ensureString(v: unknown): string | undefined {
   return typeof v === "string" && v.length > 0 ? v : undefined;
@@ -173,6 +144,13 @@ export function listReading(): ReadingEntry[] {
   return ALL;
 }
 
+/** 客户端列表使用显式字段白名单，避免传递详情正文和导出内部字段。 */
+export function listReadingSummaries(): ReadingSummary[] {
+  return ALL.map(({ slug, title, author, cover, category, finishedDate, readingTime, noteCount }) => ({
+    slug, title, author, cover, category, finishedDate, readingTime, noteCount,
+  }));
+}
+
 /** Detail-only presentation, leaving the original body and shelf data intact. */
 export function getReadingSections(slug: string) {
   const raw = readAllReadingMdx().find(({ fileName, data }) => resolveSlug(fileName, data) === slug);
@@ -204,17 +182,6 @@ export function listReadingCategories(): Array<{ name: string; count: number }> 
    从所有读书笔记的正文里抽出"📌 ..."这样的高亮句子，
    首页今日一句用：按当天日期当 seed，同一天稳定，跨天自动换。
 ================================================================ */
-
-export type Highlight = {
-  /** 划线正文 */
-  text: string;
-  /** 来源书名 */
-  bookTitle: string;
-  /** 书的 slug，用于跳转 */
-  bookSlug: string;
-  /** 作者，可选 */
-  author?: string;
-};
 
 /**
  * 从一份原始 markdown 里提取所有 📌 划线。
@@ -330,12 +297,6 @@ export function getDailyIndex(): number {
     today.getUTCDate();
   return seed % ALL_HIGHLIGHTS.length;
 }
-
-/** 每次只返回目标位置附近的五条书摘，索引保持全局顺序并支持首尾循环。 */
-export type HighlightBatch = {
-  total: number;
-  items: Array<{ index: number; highlight: Highlight }>;
-};
 
 export function getHighlightBatch(index: number): HighlightBatch {
   const total = ALL_HIGHLIGHTS.length;

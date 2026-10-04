@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { useMemo } from "react";
-import type { ReadingEntry } from "@/lib/reading";
+import type { ReadingSummary } from "@/lib/reading/types";
 import { groupReadingByYear } from "@/lib/reading-years";
 import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tabs";
 import { BookCard } from "@/components/reading/book-card";
@@ -12,7 +12,7 @@ export function ReadingShelf({
   books,
   categories,
 }: {
-  books: ReadingEntry[];
+  books: ReadingSummary[];
   categories: Array<{ name: string; count: number }>;
 }) {
   const params = useSearchParams();

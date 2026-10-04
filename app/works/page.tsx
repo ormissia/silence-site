@@ -2,7 +2,7 @@ import { Suspense } from "react";
 import { WorksGallery } from "@/components/work/works-gallery";
 import { SecondaryPageHeader } from "@/components/layout/secondary-page-header";
 import { CollectionLoading } from "@/components/layout/page-loading";
-import { listWorks, listWorksCategoryCounts } from "@/lib/works";
+import { listWorkSummaries, listWorksCategoryCounts } from "@/lib/works";
 
 export const metadata = {
   title: "Works — SILENCE",
@@ -10,7 +10,7 @@ export const metadata = {
 
 export default async function WorksPage() {
   const [works, categoryCounts] = await Promise.all([
-    listWorks(),
+    listWorkSummaries(),
     listWorksCategoryCounts(),
   ]);
 

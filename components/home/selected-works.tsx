@@ -1,11 +1,11 @@
 import Link from "next/link";
 import { RevealImage as Image } from "@/components/media/reveal-image";
 import { buildSrc } from "@/lib/oss";
-import type { Work } from "@/lib/works";
+import type { WorkSummary } from "@/lib/works/types";
 import styles from "./selected-works.module.css";
 
 type Props = {
-  works: Work[];
+  works: WorkSummary[];
 };
 
 export function SelectedWorks({ works }: Props) {

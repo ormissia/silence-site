@@ -4,7 +4,7 @@ import { RevealImage as Image } from "@/components/media/reveal-image";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { buildSrc } from "@/lib/oss";
-import type { JournalEntry } from "@/lib/journal";
+import type { JournalSummary } from "@/lib/journal/types";
 import {
   JOURNAL_CATEGORIES,
   JOURNAL_CATEGORY_LABELS,
@@ -30,7 +30,7 @@ function formatDate(iso: string): { day: string; monthYear: string } {
   };
 }
 
-export function JournalList({ entries }: { entries: JournalEntry[] }) {
+export function JournalList({ entries }: { entries: JournalSummary[] }) {
   const params = useSearchParams();
   const cat = (params.get("cat") ?? "all") as "all" | JournalCategory;
   const categoryQuery = cat === "all" ? "" : `?cat=${encodeURIComponent(cat)}`;

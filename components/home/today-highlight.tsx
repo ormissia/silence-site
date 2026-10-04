@@ -3,7 +3,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { LoadingIndicator } from "@/components/layout/page-loading";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { HighlightBatch } from "@/lib/reading";
+import type { HighlightBatch } from "@/lib/reading/types";
 
 const navButtonClass = "silence-pill silence-pill-accent h-11 w-11 !p-0 font-sans text-ink/75 disabled:pointer-events-none disabled:opacity-40";
 

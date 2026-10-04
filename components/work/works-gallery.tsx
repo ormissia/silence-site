@@ -7,11 +7,11 @@ import { useMemo } from "react";
 import { WorkCard } from "@/components/work-card";
 import { tabToSeries, seriesToTab } from "@/lib/categories";
 import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tabs";
-import type { Work } from "@/lib/works";
+import type { WorkSummary } from "@/lib/works/types";
 import { RestoreListScroll } from "@/components/layout/list-return";
 
 type Props = {
-  works: Work[];
+  works: WorkSummary[];
   /** 各 series 的作品数，由 server 在 page.tsx 计算后传入 */
   categoryCounts: Array<{ series: string; count: number }>;
 };

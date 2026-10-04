@@ -5,7 +5,7 @@ import { RevealImage as Image, RevealImg } from "@/components/media/reveal-image
 import { RowsPhotoAlbum } from "react-photo-album";
 import "react-photo-album/rows.css";
 import { buildSrc } from "@/lib/oss";
-import type { Photo } from "@/lib/works";
+import type { Photo } from "@/lib/works/types";
 
 /**
  * 详情页大图浏览组件。

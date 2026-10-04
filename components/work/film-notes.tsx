@@ -1,8 +1,8 @@
 import { RevealImage as Image } from "@/components/media/reveal-image";
-import type { Work } from "@/lib/works";
+import type { WorkDetail } from "@/lib/works/types";
 
 /** The sleeve is decorative; metadata and notes always come from the actual work. */
-export function FilmNotes({ work }: { work: Work }) {
+export function FilmNotes({ work }: { work: WorkDetail }) {
   const film = work.exif.film;
   const iso = film ? /\b(\d{2,4})\b/.exec(film)?.[1] : undefined;
   const meta = [

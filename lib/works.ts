@@ -1,7 +1,12 @@
+import "server-only";
+
 import { readAllWorksMdx, type WorkRaw } from "./mdx";
 import { ensureMeta } from "./image-meta";
 import { ensureManifest, type Manifest } from "./oss-list";
 import { CATEGORIES, TAB_SLUGS, type Category } from "./categories";
+import type { Work, WorkSummary, Photo } from "./works/types";
+
+export type { Work, WorkDetail, WorkSummary, Photo } from "./works/types";
 
 /**
  * 子目录名（如 "landscape"）→ 中文 series（"风光"）。
@@ -12,33 +17,6 @@ function seriesFromPath(pathSegments: string[]): Category | undefined {
   if (!seg) return undefined;
   return (TAB_SLUGS as Record<string, Category>)[seg];
 }
-
-export type Photo = {
-  key: string;
-  caption?: string;
-  /** OSS 探测得到的真实像素宽，Justified Layout 用于排版；缺失时下游回落 */
-  width?: number;
-  /** 同上 */
-  height?: number;
-};
-
-export type Work = {
-  slug: string;
-  title: string;
-  series: string;
-  date: string;
-  location: string;
-  cover: string;
-  /** cover 的真实像素宽，列表 Justified 排版需要 */
-  coverWidth?: number;
-  /** 同上 */
-  coverHeight?: number;
-  deck: string;
-  story: string[];
-  exif: { camera: string; lens: string; film?: string };
-  photos: Photo[];
-  featured?: boolean;
-};
 
 /** YAML 会把无引号 ISO 日期解析成 Date，统一归一为 yyyy-mm-dd 字符串 */
 function normalizeDate(raw: unknown): string {
@@ -220,9 +198,23 @@ export async function listWorks(): Promise<Work[]> {
   return ensureLoaded();
 }
 
+function toWorkSummary({ slug, title, series, date, location, cover, deck }: Work): WorkSummary {
+  return { slug, title, series, date, location, cover, deck };
+}
+
+/** 列表不向客户端传递相册、故事和 EXIF。 */
+export async function listWorkSummaries(): Promise<WorkSummary[]> {
+  return (await ensureLoaded()).map(toWorkSummary);
+}
+
 /** 首页用：当前语义为"按 date 倒序前 5 条"——发新影集自动顶替 */
 export async function listFeatured(): Promise<Work[]> {
   return (await ensureLoaded()).slice(0, 5);
+}
+
+/** 保留首页最新五个作品的顺序，只返回展示字段。 */
+export async function listFeaturedSummaries(): Promise<WorkSummary[]> {
+  return (await listFeatured()).map(toWorkSummary);
 }
 
 export async function listSeries(): Promise<string[]> {

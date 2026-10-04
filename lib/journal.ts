@@ -1,5 +1,8 @@
+import "server-only";
+
 import { readAllJournalMdx } from "./mdx";
 import { renderMarkdown } from "./markdown";
+import type { JournalEntry, JournalSummary } from "./journal/types";
 import {
   JOURNAL_CATEGORIES,
   JOURNAL_CATEGORY_LABELS,
@@ -8,19 +11,7 @@ import {
 
 export { JOURNAL_CATEGORIES, JOURNAL_CATEGORY_LABELS };
 export type { JournalCategory };
-
-export type JournalEntry = {
-  slug: string;
-  title: string;
-  date: string; // yyyy-mm-dd
-  category: JournalCategory;
-  cover?: string;
-  excerpt?: string;
-  location?: string;
-  mood?: string;
-  /** 已经在 server 端渲染好的 HTML，直接 dangerouslySetInnerHTML 用 */
-  bodyHtml: string;
-};
+export type { JournalEntry, JournalDetail, JournalSummary } from "./journal/types";
 
 function normalizeDate(raw: unknown): string {
   if (raw instanceof Date) return raw.toISOString().slice(0, 10);
@@ -97,6 +88,13 @@ const ALL: JournalEntry[] = readAllJournalMdx()
 export function listJournal(category?: JournalCategory): JournalEntry[] {
   if (!category) return ALL;
   return ALL.filter((e) => e.category === category);
+}
+
+/** 随笔列表仅返回卡片使用的元数据。 */
+export function listJournalSummaries(category?: JournalCategory): JournalSummary[] {
+  return listJournal(category).map(({ slug, title, date, category, cover, excerpt, location, mood }) => ({
+    slug, title, date, category, cover, excerpt, location, mood,
+  }));
 }
 
 export function getJournalEntry(slug: string): JournalEntry | undefined {

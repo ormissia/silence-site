@@ -1,5 +1,5 @@
 import { Suspense } from "react";
-import { listReading, listReadingCategories } from "@/lib/reading";
+import { listReadingSummaries, listReadingCategories } from "@/lib/reading";
 import { ReadingShelf } from "@/components/reading/reading-shelf";
 import { CollectionLoading } from "@/components/layout/page-loading";
 
@@ -8,7 +8,7 @@ export const metadata = {
 };
 
 export default function ReadingPage() {
-  const books = listReading();
+  const books = listReadingSummaries();
   const categories = listReadingCategories();
 
   return (

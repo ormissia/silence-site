@@ -2,9 +2,9 @@
 
 import { useEffect, useRef, useState } from "react";
 import { RevealImg } from "@/components/media/reveal-image";
-import type { ReadingEntry } from "@/lib/reading";
+import type { ReadingSummary } from "@/lib/reading/types";
 
-type InformationBook = Pick<ReadingEntry, "title" | "author" | "cover" | "category" | "finishedDate" | "readingTime" | "noteCount">;
+type InformationBook = Omit<ReadingSummary, "slug">;
 
 /** 作者按剩余高度换行；仅在资料面显示时测量，不产生滚动。 */
 function BookAuthor({ author, active }: { author: string; active: boolean }) {

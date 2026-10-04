@@ -5,10 +5,10 @@ import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { RevealImg } from "@/components/media/reveal-image";
 import { BookInformation } from "./book-information";
-import type { ReadingEntry } from "@/lib/reading";
+import type { ReadingSummary } from "@/lib/reading/types";
 
 /** 正面为书封，悬浮或键盘聚焦时翻到资料面；触屏使用独立翻面按钮。 */
-export function BookCard({ book, index }: { book: ReadingEntry; index: number }) {
+export function BookCard({ book, index }: { book: ReadingSummary; index: number }) {
   const [flipped, setFlipped] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);

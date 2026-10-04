@@ -6,7 +6,6 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion, type MotionValue } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { CAMERA, lcdCenter } from "@/components/camera-spec";
-import type { Work } from "@/lib/works";
 
 const POEM_LINES = ["这是一场回忆，", "还是一场梦，", "我不知道。"];
 
@@ -37,7 +36,7 @@ function PoemLine({ text, index, progress }: {
  * - 左右两侧白色文案纵向滚入
  * - prefers-reduced-motion 用户得到静态版（无 scale，无 sticky）
  */
-export function CinemaHero({ work }: { work: Work }) {
+export function CinemaHero() {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const search = useSearchParams();
@@ -103,7 +102,7 @@ export function CinemaHero({ work }: { work: Work }) {
   const titleOpacity = useTransform(scrollYProgress, [0, 0.18], [1, 0]);
 
   if (reduced) {
-    return <CinemaHeroStatic work={work} />;
+    return <CinemaHeroStatic />;
   }
 
   return (
@@ -211,11 +210,6 @@ export function CinemaHero({ work }: { work: Work }) {
           className="absolute bottom-0 left-0 right-0 z-30 mx-auto max-w-[1400px] px-6 pb-32 md:px-10 md:pb-14"
         >
           <OpeningTitle />
-          {/* TODO: 同上，location 跟最新作品挂钩与背景图语义不符，先注释。
-          <div className="mt-8 flex items-center justify-end font-sans text-annotation uppercase tracking-[0.32em] text-muted">
-            <span>Plate No. 01 — {work.location}</span>
-          </div>
-          */}
         </motion.div>
 
         {/* 底部中央滚动提示：跳动动效 + 跟随标题一起渐隐 */}
@@ -326,7 +320,7 @@ function CameraBody({
 }
 
 /** reduced-motion 静态版 */
-function CinemaHeroStatic({ work }: { work: Work }) {
+function CinemaHeroStatic() {
   return (
     <section data-theme-surface="dark" className="relative h-screen w-full overflow-hidden bg-paper">
       <RevealImg

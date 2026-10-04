@@ -51,6 +51,14 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 - 图片处理预设集中在 `lib/oss.ts:PRESET_DIM`：`hero` / `gridThumb` / `detail` / `portrait`。**不要在 JSX 里写 `image/resize,...` 字面量**，新预设加到 `PRESET_DIM` 里。
 - **未配置 `NEXT_PUBLIC_OSS_BASE_URL` 时自动退到 picsum**（按 key 做 hash 出稳定占位图），本地开发不依赖真实 OSS。
 
+### 客户端内容数据边界
+
+- 列表页使用 `listReadingSummaries` / `listWorkSummaries` / `listJournalSummaries`，首页精选使用 `listFeaturedSummaries`；摘要采用显式字段白名单，不向客户端传正文、EXIF 或完整相册。
+- 详情查询继续使用 `getReadingEntry` / `getWork` / `getJournalEntry`。旧的完整列表接口保留兼容，仅在服务端需要完整内容时使用。
+- 客户端与纯模型的类型从 `lib/reading/types.ts` / `lib/works/types.ts` / `lib/journal/types.ts` 导入；类型模块不读取文件、不渲染 Markdown、不访问 OSS。
+- 内容读取、Markdown 渲染和 OSS 资源模块标记为 `server-only`。当前内容准备仍沿用原有缓存和读取流程，摘要接口只裁剪输出数据，资源同步职责另行迁移。
+- 修改数据边界后运行 `npm run build` 和 `npm run check:client-data`；后者检查真实列表 RSC，防止完整对象通过宽松的结构类型再次进入客户端。
+
 ### 内容模块的封面字段约定
 
 `frontmatter.cover` 在 works / journal / reading 都通用，识别规则统一在各自的 lib 里：
@@ -93,6 +101,7 @@ npm run build        # 生产构建（会触发 OSS 列举 + 像素探测，首�
 npm run start        # 启动构建产物
 npm run lint         # next lint
 npm run typecheck    # tsc --noEmit
+npm run check:client-data # 构建后检查列表 RSC 的摘要边界
 ```
 
 ## 目录约定（现状）
