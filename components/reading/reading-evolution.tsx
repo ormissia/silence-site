@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useId, useMemo, useState } from "react";
 import { rememberListPosition, RestoreListScroll } from "@/components/layout/list-return";
-import { RevealImg } from "@/components/media/reveal-image";
+import { BookInformation } from "./book-information";
 import { EVOLUTION_AXIS, EVOLUTION_COLUMN, EVOLUTION_HEADER_HEIGHT, EVOLUTION_WIDTH, READING_GENRES, readingEvolution, type EvolutionBook, type EvolutionNode } from "@/lib/reading-evolution";
 
 const RETURN_HREF = "/reading/evolution";
@@ -86,21 +86,7 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
         {active && <div id={tooltipId} role="tooltip"
           className="reading-evolution-tooltip pointer-events-none absolute z-10 isolate aspect-[2/3] max-w-full -translate-x-1/2 overflow-hidden rounded-xl border border-ink/15 bg-surface-raised text-ink shadow-lg"
           style={{ left: `clamp(calc(var(--reading-cover-width) / 2), ${active.x / EVOLUTION_WIDTH * 100}%, calc(100% - var(--reading-cover-width) / 2))`, top: `calc(${(active.y - EVOLUTION_HEADER_HEIGHT) / plotHeight * 100}% + ${tooltipOffset}px)` }}>
-          <div aria-hidden="true" className="absolute inset-0">
-            {active.book.cover && <RevealImg src={active.book.cover} alt="" decoding="async" className="h-full w-full object-cover" />}
-            <div className="reading-evolution-tooltip-mask absolute inset-0" />
-          </div>
-          <div className="relative z-10 flex h-full flex-col justify-between gap-px p-1.5 font-sans">
-            <div>
-              <p className="line-clamp-3 break-words text-lede leading-snug tracking-normal">{active.book.title}</p>
-              <p className="mt-0.5 line-clamp-2 break-words text-annotation leading-tight tracking-normal text-ink/80">{active.book.author ?? "作者未记录"}</p>
-            </div>
-            <dl className="shrink-0 border-t border-ink/20 pt-0.5 text-annotation leading-tight tracking-normal">
-              {[["分类", active.book.category], ["读完", active.book.finishedDate], ["阅读", active.book.readingTime ?? "未记录"], ["笔记", active.book.noteCount === undefined ? "未记录" : `${active.book.noteCount} 条`]].map(([label, value]) =>
-                <div key={label} className="flex justify-between gap-1"><dt className="shrink-0 text-ink/70">{label}</dt><dd className="text-right">{value}</dd></div>
-              )}
-            </dl>
-          </div>
+          <BookInformation book={active.book} />
         </div>}
         </div>
       </div>}
