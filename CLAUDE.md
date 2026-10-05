@@ -42,7 +42,7 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 - **MDX 路径段即一级分类**：`content/works/landscape/*.mdx` → series=风光；`content/journal/life/*.mdx` → category=life。这是兜底，frontmatter 显式字段优先（见 `lib/works.ts:seriesFromPath`、`lib/journal.ts:resolveCategory`、`lib/reading.ts:resolveCategory`）。
 - **OSS key 由 `lib/oss.ts` 唯一拼装**，域名/region 不允许散落他处。
 - **Works 的相册图片**通过构建期 ListObjectsV2 列举（`lib/oss-list.ts`），结果落到 `content/.album-manifest.json`（不入 git）。配合 `lib/image-meta.ts` 用 `image/info` 探测真实像素宽高，生成 `content/.image-meta.json`，注入 `Photo.width/height` 供相册排版。每次生产构建重新生成两份产物，多 worker 共用本次构建标识；生产运行严格只读，不发起资源同步请求或写盘。
-- **资源产物协议**集中在 `lib/oss-cache.ts`：校验 version / source / buildId / generatedAt 与条目类型，使用本次构建的文件锁及原子替换。运行期拒绝缺失、损坏、来源不符和构建标识不一致的产物；准备失败阻止构建，不将失败请求写成空相册或占位尺寸。空相册的成功响应保持原有隐藏规则。
+- **资源产物协议**集中在 `lib/oss-cache.ts`：校验 version / source / buildId / generatedAt 与条目类型，使用本次构建的文件锁及原子替换。构建标识通过 `next.config.js` 的 env 配置嵌入产物，运行期逐份与该标识比较，拒绝缺失、损坏、来源不符和旧构建的产物；准备失败阻止构建，不将失败请求写成空相册或占位尺寸。空相册的成功响应保持原有隐藏规则。
 - **MDX 读取入口集中在 `lib/mdx.ts`**：`readAllWorksMdx` / `readAllJournalMdx` / `readAllReadingMdx`，解析后先校验字段和最终 slug 唯一性。Works / Journal 缺省 slug 时回退文件名；Reading 依次使用显式 slug、bookId、字符串 ISBN、文件名 hash，规则集中在 `lib/content/fields.ts`。
 
 ### 图片管线
@@ -61,6 +61,13 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 - 快照以进程为单位，构建 worker 或服务端冷启动可能各自读取内容。内容更新通过重新构建/部署生效，本地必要时重启；不能将进程缓存描述为构建后永久无需读盘。
 - 修改内容处理后运行 `npm run lint`、`npm run typecheck` 和 `npm run build`。内容模块在读取 Markdown 时校验；重复最终 slug、错误字段类型、非法日历日期及内容目录缺失会明确失败。非 ISO 字符串日期和未知分类保留现有 fallback。
 - 保留阅读导出兼容性：`readingDate` / `lastReadDate` 仍只消费字符串，无引号 YAML Date 保持原有忽略行为；数字 ISBN 不自动转成字符串。null、未知导出字段和中文阅读时长允许存在。
+
+### 相册与导航职责
+
+- `components/work/plates-grid.tsx` 负责普通/胶片布局、当前照片、循环导航和打开期间的 body 滚动/header 锁定；灯箱视图在 `photo-lightbox.tsx`，缩放、平移、wheel/touch/keyboard 及清理在 `use-photo-viewport.ts`。
+- 拆分保留固定 div 灯箱、原 DOM/class、图片预设、0.5–5 缩放范围及现有手势阈值。改变 dialog、焦点或手势算法需要单独验收，不随目录调整混入。
+- `NavProgressLink` 先执行调用方 `onClick`，再通过纯函数 `lib/route-navigation.ts` 判断进度；使用实际 anchor href 与当前地址，按 pathname 和规范化 query 比较，忽略 hash。不要用 `aria-current` 判断是否导航，同路径分类参数改变仍需要进度。
+- 原生修饰键/target 行为、触屏菜单 capture、分类 replace/scroll:false 和列表返回记录继续沿用现有实现。进度判定不改写 Link 的 href 或取消导航。
 
 ### 内容模块的封面字段约定
 

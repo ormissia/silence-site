@@ -33,12 +33,16 @@ const DEFAULT_FALLBACK_COUNT = 6;
 // ---- XML 解析(无第三方依赖) ---------------------------------------------
 
 function decodeXml(s: string): string {
-  return s
-    .replace(/&amp;/g, "&")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&quot;/g, '"')
-    .replace(/&apos;/g, "'");
+  const named: Record<string, string> = { amp: "&", lt: "<", gt: ">", quot: '"', apos: "'" };
+  // 单次替换，&amp;lt; 必须保留为文字 &lt;，不能再次变成 <。
+  return s.replace(/&(amp|lt|gt|quot|apos|#x[\da-fA-F]+|#\d+);/g, (_, entity: string) => {
+    if (!entity.startsWith("#")) return named[entity];
+    const code = entity.startsWith("#x") ? parseInt(entity.slice(2), 16) : Number(entity.slice(1));
+    const valid = code === 9 || code === 10 || code === 13 ||
+      code >= 0x20 && code <= 0xd7ff || code >= 0xe000 && code <= 0xfffd || code >= 0x10000 && code <= 0x10ffff;
+    if (!valid) throw new Error("Invalid XML character reference in OSS response");
+    return String.fromCodePoint(code);
+  });
 }
 
 /**

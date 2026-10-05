@@ -43,6 +43,7 @@ export function readResourceCache<T>(filename: string, source: string, validValu
       empty.entries[key] = value;
     }
     if (!canPrepareResources()) {
+      if (raw.buildId !== SESSION_ID) throw new Error("resource cache belongs to a different deployment build; rebuild before deployment");
       if (runtimeBuildId && runtimeBuildId !== raw.buildId) throw new Error("resource caches belong to different builds");
       runtimeBuildId = raw.buildId;
     }
