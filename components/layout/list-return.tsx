@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, type MouseEvent, type ReactNode } from "react";
+import { useEffect, type AnchorHTMLAttributes, type MouseEvent, type ReactNode } from "react";
 
 const POSITION_KEY = "silence:list-position";
 const RETURN_KEY = "silence:return-to-list";
@@ -34,7 +34,7 @@ export function requestListReturn(href: string) {
   try { sessionStorage.setItem(RETURN_KEY, href); } catch { /* Navigation remains usable. */ }
 }
 
-export function ReturnToListLink({ href, className, children }: {
+export function ReturnToListLink({ href, className, children, ...rest }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "onClick"> & {
   href: string;
   className?: string;
   children: ReactNode;
@@ -43,5 +43,5 @@ export function ReturnToListLink({ href, className, children }: {
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
     requestListReturn(href);
   };
-  return <Link href={href} className={className} onClick={onClick}>{children}</Link>;
+  return <Link {...rest} href={href} className={className} onClick={onClick}>{children}</Link>;
 }

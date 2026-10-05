@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildSrc } from "@/lib/oss";
 import { tabToSeries } from "@/lib/categories";
-import { ReturnToListLink } from "@/components/layout/list-return";
+import { DetailReturnLink } from "@/components/layout/detail-return";
 import { getWork, listWorks } from "@/lib/works";
 import { PlatesGrid } from "@/components/work/plates-grid";
 import { HeroSpotlight } from "@/components/work/hero-spotlight";
@@ -38,7 +38,7 @@ export default async function WorkDetailPage({ params, searchParams }: {
   return (
     <article className={`detail-enter relative pb-20 ${isFilm ? "pt-[var(--site-header-height)]" : ""}`}>
       <div data-theme-surface="dark" className="absolute left-6 top-36 z-20 md:left-12">
-        <ReturnToListLink href={`/works${query}`} className="silence-pill bg-black/40 text-white backdrop-blur-sm">← Works</ReturnToListLink>
+        <DetailReturnLink href={`/works${query}`} label="Works" ariaLabel="返回作品列表" className="silence-pill bg-black/40 text-white backdrop-blur-sm" />
       </div>
       {/* Cover hero：单独占满一屏，只显示封面 + 标题 */}
       <header data-theme-surface="dark" className={`image-frame relative w-full overflow-hidden ${isFilm ? "h-[calc(100svh-var(--site-header-height))] min-h-[440px]" : "h-screen min-h-[560px]"}`}>

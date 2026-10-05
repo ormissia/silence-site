@@ -7,6 +7,7 @@ import "./theme.css";
 import {SiteHeader} from "@/components/layout/site-header";
 import {RouteProgress, RouteProgressProvider} from "@/components/layout/route-progress";
 import {SiteFooter} from "@/components/layout/site-footer";
+import {DetailReturnProvider} from "@/components/layout/detail-return";
 
 const serif = Playfair_Display({
     subsets: ["latin"],
@@ -39,6 +40,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
         <body className={`${serif.variable} ${sans.variable} ${sansCn.variable} font-sans`}>
         <noscript><style>{`.image-reveal, .image-content img { opacity: 1 !important; animation: none !important; } .image-card > div { visibility: visible !important; } .home-splash { display: none !important; }`}</style></noscript>
         <RouteProgressProvider>
+        <DetailReturnProvider>
             <Suspense fallback={null}>
                 <RouteProgress />
             </Suspense>
@@ -51,6 +53,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
             <SiteFooter year={new Date().getFullYear()} />
             <div aria-hidden="true" className="site-edge-accent site-edge-accent-bottom" />
 
+        </DetailReturnProvider>
         </RouteProgressProvider>
         </body>
         </html>

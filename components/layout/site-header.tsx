@@ -4,6 +4,9 @@ import { Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNo
 import { usePathname, useSearchParams } from "next/navigation";
 import { NavProgressLink } from "./nav-link";
 import { ThemeToggle } from "./theme-toggle";
+import { useDetailReturn } from "./detail-return";
+import { requestListReturn } from "./list-return";
+import styles from "./detail-return.module.css";
 
 const WORKS_MENU: Array<{ href: string; label: string }> = [
   { href: "/works?tab=landscape", label: "Landscape / 风光" },
@@ -164,13 +167,22 @@ function NavMenu({
 
 export function SiteHeader() {
   const headerRef = useRef<HTMLElement>(null);
+  const brandRef = useRef<HTMLDivElement>(null);
   const pathname = usePathname();
+  const { target, pinnedTarget, setPinnedTarget } = useDetailReturn();
+  const returnTarget = target?.pathname === pathname && pinnedTarget === target ? target : null;
   const [overPhoto, setOverPhoto] = useState(false);
   useEffect(() => {
     let frame = 0;
     const update = () => {
       frame = 0;
-      const midpoint = (headerRef.current?.getBoundingClientRect().height ?? 90) / 2;
+      const headerRect = headerRef.current?.getBoundingClientRect();
+      const midpoint = (headerRect?.height ?? 90) / 2;
+      if (target?.pathname === pathname && target.element.isConnected && headerRect) {
+        const top = target.element.getBoundingClientRect().top;
+        if (top <= headerRect.bottom) setPinnedTarget(target);
+        else if (top > headerRect.bottom + 4) setPinnedTarget(current => current === target ? null : current);
+      } else setPinnedTarget(null);
       setOverPhoto(Array.from(document.querySelectorAll('[data-header-photo], main [data-theme-surface="dark"]')).some((element) => {
         const rect = element.getBoundingClientRect();
         return rect.top <= midpoint && rect.bottom > midpoint;
@@ -179,6 +191,8 @@ export function SiteHeader() {
     const schedule = () => { if (!frame) frame = requestAnimationFrame(update); };
     const observer = new ResizeObserver(schedule);
     observer.observe(document.body);
+    if (headerRef.current) observer.observe(headerRef.current);
+    if (target) observer.observe(target.element);
     const themeObserver = new MutationObserver(schedule);
     themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     window.addEventListener("scroll", schedule, { passive: true });
@@ -191,7 +205,12 @@ export function SiteHeader() {
       window.removeEventListener("scroll", schedule);
       window.removeEventListener("resize", schedule);
     };
-  }, [pathname]);
+  }, [pathname, target, setPinnedTarget]);
+  useEffect(() => {
+    if (returnTarget?.element.contains(document.activeElement)) {
+      brandRef.current?.querySelector("a")?.focus({ preventScroll: true });
+    }
+  }, [returnTarget]);
   useEffect(() => {
     const header = headerRef.current;
     if (!header) return;
@@ -206,15 +225,20 @@ export function SiteHeader() {
       {/* 模糊放在独立背景层，避免父级 backdrop-filter 限制下拉面板的背景采样。 */}
       <div aria-hidden className="site-header-glass pointer-events-none absolute inset-0 -z-10" />
       <div className="mx-auto flex max-w-[1400px] items-center justify-between flex-wrap gap-4 px-6 py-4 md:px-12">
-        <NavProgressLink
-          href="/"
-          className="order-1 leading-none text-ink transition-opacity duration-150 active:opacity-60"
-        >
-          <span className="block text-xl font-semibold uppercase tracking-[0.28em] text-gradient-accent">
-            SILENCE
-          </span>
-
-        </NavProgressLink>
+        <div ref={brandRef} className="order-1">
+          <NavProgressLink
+            href={returnTarget?.href ?? "/"}
+            aria-label={returnTarget?.ariaLabel ?? "SILENCE — 首页"}
+            data-return-active={Boolean(returnTarget)}
+            className={`${styles.brand} block leading-none text-ink transition-opacity duration-150 active:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent`}
+            onClick={(event) => {
+              if (returnTarget && !event.defaultPrevented && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0) requestListReturn(returnTarget.href);
+            }}
+          >
+            <span aria-hidden className={`${styles.wordmark} block text-xl font-semibold uppercase tracking-[0.28em] text-gradient-accent`}>SILENCE</span>
+            <span aria-hidden className={`${styles.backLabel} silence-pill`}>← {target?.label}</span>
+          </NavProgressLink>
+        </div>
 
         <nav className="order-3 flex w-full flex-wrap items-center gap-1.5 font-sans uppercase sm:gap-2 md:order-2 md:ml-auto md:w-auto">
           <Suspense fallback={<NavLink href="/works">Works</NavLink>}>

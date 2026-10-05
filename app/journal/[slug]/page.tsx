@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { buildSrc } from "@/lib/oss";
 import { getJournalEntry, getJournalSummary, listJournalSummaries, JOURNAL_CATEGORY_LABELS } from "@/lib/journal";
-import { ReturnToListLink } from "@/components/layout/list-return";
+import { DetailReturnLink } from "@/components/layout/detail-return";
 import { ImageContent } from "@/components/media/image-content";
 
 export function generateStaticParams() {
@@ -49,7 +49,7 @@ export default function JournalEntryPage({ params, searchParams }: {
   return (
     <article className="detail-enter relative">
       <div data-theme-surface={entry.cover ? "dark" : undefined} className="absolute left-6 top-36 z-20 md:left-12">
-        <ReturnToListLink href={`/journal${query}`} className={`silence-pill ${entry.cover ? "bg-black/40 text-white backdrop-blur-sm" : "text-muted"}`}>← Journal</ReturnToListLink>
+        <DetailReturnLink href={`/journal${query}`} label="Journal" ariaLabel="返回文章列表" className={`silence-pill ${entry.cover ? "bg-black/40 text-white backdrop-blur-sm" : "text-muted"}`} />
       </div>
       {entry.cover ? (
         // 有封面：标题压在 hero 底部居中，参考 works 详情页
