@@ -6,6 +6,7 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform, useReducedMotion, type MotionValue } from "framer-motion";
 import { useSearchParams } from "next/navigation";
 import { CAMERA, lcdCenter } from "@/components/camera-spec";
+import { getAccentStyle } from "@/lib/accent";
 
 const POEM_LINES = ["这是一场回忆，", "还是一场梦，", "我不知道。"];
 
@@ -22,7 +23,7 @@ function PoemLine({ text, index, progress }: {
 
   return (
     <span className="block overflow-hidden px-4 -mx-4">
-      <motion.span className="about-hero-quote block" style={{ opacity, y }}>
+      <motion.span className="about-hero-quote block" style={{ ...getAccentStyle(`home:poem:${text}`), opacity, y }}>
         {text}
       </motion.span>
     </span>
@@ -223,8 +224,8 @@ export function CinemaHero() {
             transition={{
               duration: 1.6,
               ease: "easeInOut",
-              repeat: Infinity,
-              repeatDelay: 1.4,  // 每跳完停 1.4 秒，"时不时"而非持续
+              repeat: 1,
+              repeatDelay: 1.4,  // 两次提示后停止，透明或离屏时不保留无限动画。
             }}
             className="flex flex-col items-center gap-3"
           >

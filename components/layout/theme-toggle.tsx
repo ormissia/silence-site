@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { getAccentStyle } from "@/lib/accent";
 
 type Theme = "dark" | "light";
 
@@ -20,6 +21,7 @@ export function ThemeToggle() {
 
   return (
     <button type="button" onClick={toggle} aria-pressed={theme === "light"}
+      style={getAccentStyle("theme-toggle")}
       aria-label={theme === "light" ? "切换到夜间模式" : "切换到白天模式"}
       title={theme === "light" ? "夜间模式" : "白天模式"}
       className="silence-pill silence-pill-nav theme-toggle order-2 ml-auto h-9 w-9 !p-0 text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent md:order-3 md:ml-1">

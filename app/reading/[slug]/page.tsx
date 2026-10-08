@@ -6,6 +6,7 @@ import { BookToolbar } from "@/components/reading/book-toolbar";
 import { BookDialog } from "@/components/reading/book-dialog";
 import { getReadingMetadata, getReadingSections, listReadingSummaries } from "@/lib/reading";
 import { readingBookHref, readingListHref } from "@/lib/navigation/reading";
+import { getAccentStyle } from "@/lib/accent";
 
 export function generateStaticParams() {
   return listReadingSummaries().map((book) => ({ slug: book.slug }));
@@ -55,7 +56,7 @@ export default function ReadingEntryPage({ params, searchParams }: {
             <dl className="mt-7 grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3">
               {stats.map(([label, value]) => (
                 <div key={label} className="min-w-0 border-t divider-gradient pt-4 text-center">
-                  <dt className="silence-pill silence-pill-accent !px-2.5 !py-1.5 !text-[11px] uppercase text-ink/80">{label}</dt>
+                  <dt style={getAccentStyle(`reading:stat:${book.slug}:${label}`)} className="silence-pill silence-pill-accent !px-2.5 !py-1.5 !text-[11px] uppercase text-ink/80">{label}</dt>
                   <dd className="mt-3 break-words text-sm leading-relaxed text-ink/80">{value}</dd>
                 </div>
               ))}

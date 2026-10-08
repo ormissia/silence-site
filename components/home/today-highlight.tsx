@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { LoadingIndicator } from "@/components/layout/page-loading";
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { HighlightBatch } from "@/lib/reading/types";
+import { getAccentStyle } from "@/lib/accent";
 
 const navButtonClass = "silence-pill silence-pill-accent h-11 w-11 !p-0 font-sans text-ink/75 disabled:pointer-events-none disabled:opacity-40";
 
@@ -124,6 +125,7 @@ export function TodayHighlight({
           type="button"
           disabled={loading}
           onClick={prev}
+          style={getAccentStyle("highlight:previous")}
           className={navButtonClass}
           aria-label="上一句"
         >
@@ -138,6 +140,7 @@ export function TodayHighlight({
           type="button"
           disabled={loading}
           onClick={next}
+          style={getAccentStyle("highlight:next")}
           className={navButtonClass}
           aria-label="下一句"
         >

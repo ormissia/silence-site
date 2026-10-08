@@ -100,10 +100,6 @@ html[data-theme="light"] .site-header .site-nav-dropdown-surface {
   box-shadow: 0 12px 32px rgba(62, 47, 30, .12);
 }
 
-html[data-theme="light"] .silence-glow {
-  background: radial-gradient(ellipse 80% 550px at 50% 0%, rgba(196, 179, 224, .5), transparent 70%);
-}
-
 html[data-theme="light"] .loading-skeleton,
 html[data-theme="light"] .loading-indicator {
   background: rgb(var(--color-ink) / .045);

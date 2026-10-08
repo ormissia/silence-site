@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { RevealImage as Image } from "@/components/media/reveal-image";
 import { buildSrc } from "@/lib/oss";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform, useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type SphereBook = {
@@ -47,9 +47,12 @@ export function BookSphere({
   // 限制书数：太多会糊成一团；太少看不出球——25-50 是甜区
   const sliced = useMemo(() => books.filter((b) => b.cover).slice(0, 50), [books]);
   const points = useMemo(() => fibonacciSphere(sliced.length), [sliced.length]);
+  const reducedMotion = useReducedMotion();
+  // A short introduction, then mouse interaction drives the sphere without an idle loop.
+  const rotationRemaining = useRef(6000);
 
   // 鼠标位置 → 叠加在自转之上的方向偏移
-  // 球在视口内持续自转，光标进入后叠加方向偏移
+  // 球进入视口时短暂自转，光标移动后叠加方向偏移
   const mouseX = useMotionValue(0); // -0.5 ~ 0.5
   const mouseY = useMotionValue(0);
   const autoYaw = useMotionValue(0);
@@ -82,24 +85,32 @@ export function BookSphere({
   const hasBooks = sliced.length > 0;
   useEffect(() => {
     const el = containerRef.current;
-    if (!el || !hasBooks) return;
+    if (!el || !hasBooks || reducedMotion) return;
 
     let raf = 0;
     let prev: number | null = null;
     let inViewport = false;
     let running = false;
     const tick = (t: number) => {
+      raf = 0;
       if (!running || document.hidden) return;
       if (prev !== null) {
         // 浏览器后台节流、休眠或主线程卡顿后，不追赶丢失的时间。
-        const dt = Math.min(Math.max(t - prev, 0), 50) / 1000;
+        const elapsed = Math.max(t - prev, 0);
+        const dt = Math.min(elapsed, 50) / 1000;
         autoYaw.set(autoYaw.get() + 6 * dt); // 6°/s
+        rotationRemaining.current = Math.max(0, rotationRemaining.current - elapsed);
+      }
+      if (rotationRemaining.current === 0) {
+        running = false;
+        prev = null;
+        return;
       }
       prev = t;
       raf = requestAnimationFrame(tick);
     };
     const syncPlayback = () => {
-      const shouldRun = inViewport && !document.hidden;
+      const shouldRun = inViewport && !document.hidden && rotationRemaining.current > 0;
       if (running === shouldRun) return;
       running = shouldRun;
       prev = null;
@@ -124,12 +135,12 @@ export function BookSphere({
       document.removeEventListener("visibilitychange", syncPlayback);
       cancelAnimationFrame(raf);
     };
-  }, [autoYaw, hasBooks, yaw, pitch]);
+  }, [autoYaw, hasBooks, yaw, pitch, reducedMotion]);
 
   // 鼠标移动归一化到 -0.5~0.5
   const onMouseMove = (e: React.MouseEvent) => {
     const el = containerRef.current;
-    if (!el) return;
+    if (!el || reducedMotion) return;
     const rect = el.getBoundingClientRect();
     mouseX.set((e.clientX - rect.left) / rect.width - 0.5);
     mouseY.set((e.clientY - rect.top) / rect.height - 0.5);

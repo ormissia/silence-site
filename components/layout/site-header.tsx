@@ -7,6 +7,7 @@ import { ThemeToggle } from "./theme-toggle";
 import { useDetailReturn } from "./detail-return";
 import { requestListReturn } from "./list-return";
 import styles from "./detail-return.module.css";
+import { getAccentStyle } from "@/lib/accent";
 
 const WORKS_MENU: Array<{ href: string; label: string }> = [
   { href: "/works?tab=landscape", label: "Landscape / 风光" },
@@ -235,7 +236,7 @@ export function SiteHeader() {
               if (returnTarget) requestListReturn(returnTarget.href);
             }}
           >
-            <span aria-hidden className={`${styles.wordmark} block text-xl font-semibold uppercase tracking-[0.28em] text-gradient-accent`}>SILENCE</span>
+            <span aria-hidden style={getAccentStyle("site:wordmark")} className={`${styles.wordmark} block text-xl font-semibold uppercase tracking-[0.28em] text-gradient-accent`}>SILENCE</span>
             <span aria-hidden className={`${styles.backLabel} silence-pill`}>← {target?.label}</span>
           </NavProgressLink>
         </div>

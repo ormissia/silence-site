@@ -3,23 +3,36 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import styles from "./overflow-text.module.css";
 
-/** Scroll only the overflowing part, with a reading pause at either end. */
+/** Overflow scrolls on interaction only; offscreen and background cards stay still. */
 export function OverflowText({ text }: { text: string }) {
   const viewport = useRef<HTMLSpanElement>(null);
   const content = useRef<HTMLSpanElement>(null);
   const [distance, setDistance] = useState(0);
+  const [active, setActive] = useState(false);
 
   useEffect(() => {
     const outer = viewport.current;
     const inner = content.current;
     if (!outer || !inner) return;
 
-    const measure = () => setDistance(Math.max(0, inner.offsetWidth - outer.clientWidth));
+    const measure = () => setDistance(Math.max(0, inner.scrollWidth - outer.clientWidth));
     const observer = new ResizeObserver(measure);
     observer.observe(outer);
     observer.observe(inner);
     measure();
-    return () => observer.disconnect();
+    let inViewport = false;
+    const updateActivity = () => setActive(inViewport && !document.hidden);
+    const visibilityObserver = new IntersectionObserver(([entry]) => {
+      inViewport = entry.isIntersecting;
+      updateActivity();
+    });
+    visibilityObserver.observe(outer);
+    document.addEventListener("visibilitychange", updateActivity);
+    return () => {
+      observer.disconnect();
+      visibilityObserver.disconnect();
+      document.removeEventListener("visibilitychange", updateActivity);
+    };
   }, [text]);
 
   const travelSeconds = distance / 20;
@@ -33,7 +46,7 @@ export function OverflowText({ text }: { text: string }) {
 
   return (
     <span ref={viewport} className={styles.viewport} title={text} style={style}>
-      <span ref={content} className={styles.content} data-overflow={distance > 1}>
+      <span ref={content} className={styles.content} data-overflow={distance > 1} data-active={active}>
         {text || "\u00a0"}
       </span>
     </span>

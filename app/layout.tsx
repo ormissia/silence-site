@@ -4,6 +4,8 @@ import {Syne, Noto_Sans_SC, Playfair_Display} from "next/font/google";
 import "./globals.css";
 import "@/components/media/image-reveal.css";
 import "./theme.css";
+import "./accent.css";
+import {ACCENT_INIT_SCRIPT, getAccentStyle} from "@/lib/accent";
 import {SiteHeader} from "@/components/layout/site-header";
 import {RouteProgress, RouteProgressProvider} from "@/components/layout/route-progress";
 import {SiteFooter} from "@/components/layout/site-footer";
@@ -36,7 +38,7 @@ export const metadata: Metadata = {
 export default function RootLayout({children}: { children: React.ReactNode }) {
     return (
         <html lang="zh" suppressHydrationWarning>
-        <head><script dangerouslySetInnerHTML={{__html: `try{if(localStorage.getItem("silence-theme")==="light")document.documentElement.dataset.theme="light"}catch(e){}`}} /></head>
+        <head><script dangerouslySetInnerHTML={{__html: `try{if(localStorage.getItem("silence-theme")==="light")document.documentElement.dataset.theme="light"}catch(e){};${ACCENT_INIT_SCRIPT}`}} /></head>
         <body className={`${serif.variable} ${sans.variable} ${sansCn.variable} font-sans`}>
         <noscript><style>{`.image-reveal, .image-content img { opacity: 1 !important; animation: none !important; } .image-card > div { visibility: visible !important; } .home-splash { display: none !important; }`}</style></noscript>
         <RouteProgressProvider>
@@ -44,14 +46,14 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
             <Suspense fallback={null}>
                 <RouteProgress />
             </Suspense>
-            <div aria-hidden="true" className="site-edge-accent site-edge-accent-top" />
-            <div aria-hidden className="silence-glow pointer-events-none absolute inset-x-0 top-0 h-[800px]" />
+            <div aria-hidden="true" className="site-edge-accent site-edge-accent-top" style={getAccentStyle("edge:top")} />
+            <div aria-hidden className="silence-glow pointer-events-none absolute inset-x-0 top-0 h-[800px]" style={getAccentStyle("page:glow")} />
             <SiteHeader />
 
             <main id="page-top" tabIndex={-1} className="relative z-10 outline-none">{children}</main>
 
             <SiteFooter year={new Date().getFullYear()} />
-            <div aria-hidden="true" className="site-edge-accent site-edge-accent-bottom" />
+            <div aria-hidden="true" className="site-edge-accent site-edge-accent-bottom" style={getAccentStyle("edge:bottom")} />
 
         </DetailReturnProvider>
         </RouteProgressProvider>

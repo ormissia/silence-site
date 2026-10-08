@@ -7,12 +7,23 @@
 
 .content {
   display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   vertical-align: top;
   white-space: nowrap;
 }
 
-.content[data-overflow="true"] {
-  animation: drift var(--scroll-duration) var(--scroll-easing, ease-in-out) infinite alternate;
+:global(a:focus-visible) .content[data-overflow="true"][data-active="true"] {
+  max-width: none;
+  animation: drift var(--scroll-duration) var(--scroll-easing, ease-in-out) 2 alternate;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  :global(a:hover) .content[data-overflow="true"][data-active="true"] {
+    max-width: none;
+    animation: drift var(--scroll-duration) var(--scroll-easing, ease-in-out) 2 alternate;
+  }
 }
 
 @keyframes drift {
@@ -22,5 +33,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .viewport { text-overflow: ellipsis; }
-  .content[data-overflow="true"] { animation: none; }
+  :global(a:is(:hover, :focus-visible)) .content[data-overflow="true"][data-active="true"] {
+    max-width: 100%;
+    animation: none;
+  }
 }

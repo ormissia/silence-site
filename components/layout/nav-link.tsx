@@ -4,6 +4,7 @@ import Link, { type LinkProps } from "next/link";
 import type { AnchorHTMLAttributes, MouseEvent, ReactNode } from "react";
 import { useRouteProgress } from "./route-progress-state";
 import { shouldStartRouteProgress } from "@/lib/route-navigation";
+import { getAccentStyle } from "@/lib/accent";
 
 export type NavProgressLinkProps = LinkProps &
   Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof LinkProps> & {
@@ -41,10 +42,13 @@ export function useNavProgressClick({ onClick, onNavigate }: Pick<NavProgressLin
   };
 }
 
-export function NavProgressLink({ onClick, onNavigate, children, ...rest }: NavProgressLinkProps) {
+export function NavProgressLink({ onClick, onNavigate, children, style, ...rest }: NavProgressLinkProps) {
   const handleClick = useNavProgressClick({ onClick, onNavigate });
+  const accentStyle = rest.className?.includes("silence-pill")
+    ? getAccentStyle(`link:${typeof rest.href === "string" ? rest.href : rest.href.pathname}`)
+    : undefined;
   return (
-    <Link {...rest} onClick={handleClick}>
+    <Link {...rest} style={accentStyle ? { ...accentStyle, ...style } : style} onClick={handleClick}>
       {children}
     </Link>
   );

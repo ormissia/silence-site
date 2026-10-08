@@ -1,3 +1,5 @@
+import { getAccentStyle } from "@/lib/accent";
+
 const DESCRIPTIONS: Record<string, string> = {
   WORKS: "Selected photographs, collected along the way.",
   JOURNAL: "Small observations. Notes on work and life.",
@@ -14,7 +16,7 @@ export function SecondaryPageHeader({ eyebrow, titleEn, titleZh, lede, count }: 
         <div>
           <div className="flex flex-wrap items-center gap-5">
             <h1 className="font-sans text-display font-semibold tracking-[-0.04em] capitalize">{titleEn.toLowerCase()}</h1>
-            {count && <span className="silence-pill text-muted"><span className="h-1.5 w-1.5 rounded-full bg-gradient-accent" />{count}</span>}
+            {count && <span className="silence-pill text-muted" style={getAccentStyle(`count:${titleEn}`)}><span className="h-1.5 w-1.5 rounded-full bg-gradient-accent" />{count}</span>}
           </div>
           <p className="mt-3 font-serif text-sm italic text-muted md:mt-6">{DESCRIPTIONS[titleEn] ?? titleZh}</p>
         </div>

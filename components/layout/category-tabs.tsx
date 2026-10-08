@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { getAccentStyle } from "@/lib/accent";
 
 /**
  * 单个 tab 的数据：slug 是 URL 值（与 basePath 拼成 ?paramName=slug），
@@ -56,6 +57,7 @@ export function CategoryTabs({
       {tabs.map((t) => (
         <TabButton
           key={t.slug}
+          accentKey={`category:${basePath}:${paramName}:${t.slug}`}
           label={t.label}
           count={t.count}
           isActive={t.slug === active}
@@ -72,11 +74,13 @@ export function CategoryTabs({
 }
 
 function TabButton({
+  accentKey,
   label,
   count,
   isActive,
   onClick,
 }: {
+  accentKey: string;
   label: string;
   count?: number;
   isActive: boolean;
@@ -87,6 +91,7 @@ function TabButton({
       type="button"
       onClick={onClick}
       aria-pressed={isActive}
+      style={getAccentStyle(accentKey)}
       className="silence-pill silence-pill-nav shrink-0 font-sans uppercase"
     >
       <span>{label}</span>

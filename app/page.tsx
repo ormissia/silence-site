@@ -10,6 +10,7 @@ import { SelectedWorks } from "@/components/home/selected-works";
 import { PageLoading } from "@/components/layout/page-loading";
 import { listFeaturedSummaries } from "@/lib/works";
 import { getDailyIndex, getHighlightBatch, pickSphereBookSummaries } from "@/lib/reading";
+import { getAccentStyle } from "@/lib/accent";
 
 // 球面书籍每次刷新都换一批，依赖运行时随机 seed → 不能预渲染。
 export const dynamic = "force-dynamic";
@@ -52,6 +53,7 @@ export default async function HomePage() {
               </p>
               <Link
                 href="/reading"
+                style={getAccentStyle("home:reading")}
                 className="mt-10 silence-pill silence-pill-accent font-sans text-ink"
               >
                 进入书架 <span aria-hidden>→</span>
