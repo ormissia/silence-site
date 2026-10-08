@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef, useState, type CSSProperties, type ReactNo
 import { usePathname, useSearchParams } from "next/navigation";
 import { NavProgressLink } from "./nav-link";
 import { ThemeToggle } from "./theme-toggle";
+import { ScrollMarquee } from "./scroll-marquee";
 import { useDetailReturn } from "./detail-return";
 import { requestListReturn } from "./list-return";
 import styles from "./detail-return.module.css";
@@ -255,9 +256,7 @@ export function SiteHeader() {
         </nav>
         <ThemeToggle />
       </div>
-      <div className="site-header-marquee hidden overflow-hidden border-t border-ink/10 py-1.5 text-[9px] uppercase tracking-[0.22em] sm:block" aria-hidden="true">
-        <div className="silence-marquee">{[0, 1].map(i => <span key={i} className="whitespace-nowrap pr-12">SILENCE — PHOTOGRAPHS & NOTES — LANDSCAPE — PORTRAIT — SNAPSHOTS — FILM — READING — JOURNAL — </span>)}</div>
-      </div>
+      <ScrollMarquee />
     </header>
   );
 }

@@ -224,8 +224,8 @@ export function CinemaHero() {
             transition={{
               duration: 1.6,
               ease: "easeInOut",
-              repeat: 1,
-              repeatDelay: 1.4,  // 两次提示后停止，透明或离屏时不保留无限动画。
+              repeat: Infinity,
+              repeatDelay: 1.4,
             }}
             className="flex flex-col items-center gap-3"
           >

@@ -70,6 +70,7 @@ html[data-theme="light"] { --color-glow: 196 179 224; }
   inherits: false;
 }
 @keyframes pill-orbit {
+  from { --pill-orbit-angle: 0deg; }
   to { --pill-orbit-angle: 360deg; }
 }
 @keyframes pill-orbit-burst {
@@ -156,6 +157,14 @@ html[data-theme="light"] { --color-glow: 196 179 224; }
 .silence-pill.silence-pill-nav:hover::after {
   opacity: 1;
   animation: nav-pill-orbit-burst .5s ease-in-out 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .silence-pill:is(.silence-pill-accent, [aria-current="page"], [aria-pressed="true"]:not(:where(.theme-toggle))):not(.silence-pill-nav):hover::before {
+    animation: pill-orbit 1.2s ease-out 1, pill-orbit 6s linear 1.2s infinite;
+  }
+  .silence-pill.silence-pill-nav:hover::after {
+    animation: nav-pill-orbit-burst .5s ease-in-out 1, pill-orbit 6s linear .5s infinite;
+  }
 }
 .site-edge-accent {
   height: 1px;

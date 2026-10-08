@@ -609,7 +609,6 @@ body[data-lightbox-open="true"] .site-header {
 .silence-pill:focus-visible { outline: 2px solid #C9994A; outline-offset: 4px; }
 .category-tabs { scrollbar-width: none; }
 .category-tabs::-webkit-scrollbar { display: none; }
-/* Decorative chrome stays still so an idle page can stop submitting GPU frames. */
 .silence-marquee { display: flex; width: max-content; }
 
 /* Film contact sheets and the archival sleeve stay local to film works. */
@@ -833,26 +832,45 @@ html[data-theme="light"] .reading-evolution-tooltip .reading-book-info-mask {
 }
 .site-nav-dropdown {
   visibility: hidden;
-  opacity: 0;
   pointer-events: none;
-  transition: opacity .16s ease-out, visibility 0s linear .16s;
+  transition: visibility 0s linear .16s;
 }
 .site-nav-dropdown[data-open="true"] {
   visibility: visible;
-  opacity: 1;
   pointer-events: auto;
   transition-delay: 0s;
 }
 .site-nav-dropdown-surface {
+  --dropdown-background: rgba(12,12,12,.72);
+  --dropdown-border: rgba(255,255,255,.14);
+  --dropdown-shadow: 0 12px 32px rgba(0,0,0,.22);
+  position: relative;
   width: 200px;
   max-width: calc(100vw - 48px);
   padding: 8px;
-  border: 1px solid rgba(255,255,255,.14);
+  border: 1px solid transparent;
   border-radius: 24px;
-  background: rgba(12,12,12,.72);
-  box-shadow: 0 12px 32px rgba(0,0,0,.22);
+}
+/* Keep glass separate from animated/masked links; no fading ancestor limits its backdrop. */
+.site-nav-dropdown-surface::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  border: 1px solid var(--dropdown-border);
+  border-radius: inherit;
+  background: var(--dropdown-background);
+  box-shadow: var(--dropdown-shadow);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
+  opacity: 0;
+  transition: opacity .16s ease-out;
+}
+.site-nav-dropdown[data-open="true"] .site-nav-dropdown-surface::before {
+  opacity: 1;
+}
+.site-nav-dropdown-surface > ul {
+  position: relative;
 }
 .site-nav-dropdown-item {
   opacity: 0;
@@ -861,7 +879,7 @@ html[data-theme="light"] .reading-evolution-tooltip .reading-book-info-mask {
 }
 .site-nav-dropdown[data-open="true"] .site-nav-dropdown-item {
   opacity: 1;
-  transform: translateY(0);
+  transform: none;
   transition-duration: .55s, .42s;
   transition-timing-function: ease-out, cubic-bezier(.22,1,.36,1);
   transition-delay: calc(var(--menu-item-index, 0) * .12s);
@@ -870,11 +888,18 @@ html[data-theme="light"] .reading-evolution-tooltip .reading-book-info-mask {
   transition: none;
 }
 .site-header nav .site-nav-dropdown-link {
+  /* Keep masked hover paint inside the pill, separate from the glass. */
+  isolation: isolate;
+  contain: paint;
   width: 100%;
   min-height: 44px;
   justify-content: space-between;
   gap: 20px;
   padding: 10px 14px;
+}
+.site-header nav .site-nav-dropdown-link::before,
+.site-header nav .site-nav-dropdown-link::after {
+  inset: 0;
 }
 .site-header-marquee {
   color: rgba(239,239,237,.48);
@@ -882,6 +907,7 @@ html[data-theme="light"] .reading-evolution-tooltip .reading-book-info-mask {
 }
 @media (prefers-reduced-motion: reduce) {
   .site-nav-dropdown,
+  .site-nav-dropdown-surface::before,
   .site-nav-dropdown[data-open] .site-nav-dropdown-item { transition: none; transform: none; }
 
 }

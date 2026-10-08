@@ -93,11 +93,11 @@ html[data-theme="light"] .site-header .site-nav-dropdown .silence-pill-nav {
 }
 
 html[data-theme="light"] .site-header .site-nav-dropdown-surface {
-  /* The menu stays light even when its header uses white text over a photograph. */
+  /* White glass stays translucent over both photographs and page surfaces. */
   --color-ink: 32 31 29;
-  border-color: rgb(var(--color-ink) / .12);
-  background: rgb(var(--color-surface-raised) / .94);
-  box-shadow: 0 12px 32px rgba(62, 47, 30, .12);
+  --dropdown-border: rgb(var(--color-ink) / .12);
+  --dropdown-background: rgba(255, 255, 255, .36);
+  --dropdown-shadow: 0 12px 32px rgba(62, 47, 30, .12);
 }
 
 html[data-theme="light"] .loading-skeleton,
