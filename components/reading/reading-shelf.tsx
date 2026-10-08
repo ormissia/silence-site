@@ -7,6 +7,7 @@ import { groupReadingByYear } from "@/lib/reading-years";
 import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tabs";
 import { BookCard } from "@/components/reading/book-card";
 import { YearStatistics } from "@/components/reading/year-statistics";
+import { RestoreListScroll } from "@/components/layout/list-return";
 
 export function ReadingShelf({
   books,
@@ -34,6 +35,7 @@ export function ReadingShelf({
 
   return (
     <>
+      <RestoreListScroll />
       <CategoryTabs
         tabs={tabs}
         paramName="cat"

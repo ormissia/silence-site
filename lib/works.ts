@@ -1,36 +1,14 @@
 import "server-only";
 
-import { readAllWorksMdx, type WorkRaw } from "./mdx";
-import { ensureMeta } from "./image-meta";
-import { ensureManifest, type Manifest } from "./oss-list";
-import { CATEGORIES, TAB_SLUGS, type Category } from "./categories";
+import { readAllWorksMdx } from "./mdx";
+import { prepareImageMeta, readImageMeta } from "./image-meta";
+import { prepareAlbumManifest, readAlbumManifest, type Manifest } from "./oss-list";
+import { canPrepareResources } from "./oss-cache";
+import { CATEGORIES } from "./categories";
 import type { Work, WorkSummary, Photo } from "./works/types";
-import { normalizeDateMaybe, resolveContentSlug } from "./content/fields";
+import type { ParsedWorkSource } from "./content/types";
 
 export type { Work, WorkDetail, WorkSummary, Photo } from "./works/types";
-
-/**
- * 子目录名（如 "landscape"）→ 中文 series（"风光"）。
- * MDX 按 category 分目录后，frontmatter 缺 series 时按目录兜底。
- */
-function seriesFromPath(pathSegments: string[]): Category | undefined {
-  const seg = pathSegments[0];
-  if (!seg) return undefined;
-  return (TAB_SLUGS as Record<string, Category>)[seg];
-}
-
-/**
- * mdx 所在子目录 + album 字段 → OSS 完整 prefix。
- * 规则：mdx 文件位置即决定 OSS 顶层路径，album 只保留纯名字。
- * 例：content/works/landscape/2025-07-22-bzlyuj.mdx + album=bzlyuj
- *     → works/landscape/bzlyuj
- * 顶层 mdx（pathSegments 为空）→ works/<album>。
- */
-function albumPrefix(album: string, pathSegments: string[]): string {
-  const cleaned = album.replace(/^\/+|\/+$/g, "");
-  const dir = pathSegments.length > 0 ? `works/${pathSegments.join("/")}` : "works";
-  return `${dir}/${cleaned}`;
-}
 
 /** 文件名自然排序:1.jpg < 2.jpg < 10.jpg；DSC001 < DSC010 */
 function naturalSort(a: string, b: string): number {
@@ -75,50 +53,19 @@ function resolveCoverAndPhotos(
   };
 }
 
-/** works 单一来源（含 film 子目录） */
-function readAllSources(): WorkRaw[] {
-  return readAllWorksMdx();
-}
-
-/** 把单条 MDX 原始数据 + 列举 manifest 映射成 Work（纯同步） */
-function mapRawToWork(raw: WorkRaw, manifest: Manifest): Work {
-  const { fileName, pathSegments, data, storyMd } = raw;
-  const album = typeof data.album === "string" ? data.album : undefined;
-  const explicitCover = typeof data.cover === "string" ? data.cover : undefined;
-  const explicitPhotos = Array.isArray(data.photos)
-    ? (data.photos as Photo[])
-    : undefined;
-
-  let cover = explicitCover ?? "";
-  let photos: Photo[] = explicitPhotos ?? [];
-
-  if (album && !explicitPhotos) {
-    const prefix = albumPrefix(album, pathSegments);
-    const files = manifest[prefix] ?? [];
-    ({ cover, photos } = resolveCoverAndPhotos(prefix, files, explicitCover));
-  }
-
-  // series：frontmatter 优先，否则按子目录名兜底（landscape → 风光）
-  const series =
-    typeof data.series === "string" && data.series.length > 0
-      ? data.series
-      : (seriesFromPath(pathSegments) ?? "");
-
+/** 内容已经校验和归一化；这里只组装相册资源，不再解释 frontmatter。 */
+function mapSourceToWork(source: ParsedWorkSource, manifest: Manifest): Work {
+  const { metadata, albumPrefix, storyMd } = source;
+  const assets = albumPrefix
+    ? resolveCoverAndPhotos(albumPrefix, manifest[albumPrefix] ?? [], metadata.cover)
+    : { cover: metadata.cover, photos: source.photos ?? [] };
   return {
-    slug: resolveContentSlug(fileName, data),
-    title: data.title as string,
-    series,
-    date: normalizeDateMaybe(data.date) ?? "",
-    location: data.location as string,
-    cover,
-    deck: data.deck as string,
+    ...metadata,
+    ...assets,
     story: storyMd
       .split(/\n\n+/)
       .map((p) => p.trim())
       .filter(Boolean),
-    exif: data.exif as Work["exif"],
-    photos,
-    featured: data.featured as boolean | undefined,
   } satisfies Work;
 }
 
@@ -134,16 +81,18 @@ let bySlug = new Map<string, Work>();
 function ensureLoaded(): Promise<Work[]> {
   if (cachePromise) return cachePromise;
   cachePromise = (async () => {
-    const raws = readAllSources();
+    const sources = readAllWorksMdx();
+    // Choose capabilities once at composition; queries do not implicitly repair runtime assets.
+    const resources = canPrepareResources()
+      ? { manifest: prepareAlbumManifest, dimensions: prepareImageMeta }
+      : { manifest: readAlbumManifest, dimensions: readImageMeta };
 
     // 1) 收集所有需要列举的 album prefix
-    const listReqs = raws
-      .filter((r) => typeof r.data.album === "string" && !Array.isArray(r.data.photos))
-      .map((r) => ({ prefix: albumPrefix(r.data.album as string, r.pathSegments) }));
-    const manifest = await ensureManifest(listReqs);
+    const listReqs = sources.flatMap(({ albumPrefix }) => albumPrefix ? [{ prefix: albumPrefix }] : []);
+    const manifest = await resources.manifest(listReqs);
 
-    // 2) 映射成 Work,过滤空相册(未上传/列举失败 → 无图,避免 404),按 date 倒序
-    const mapped = raws.map((r) => mapRawToWork(r, manifest));
+    // 2) 成功列举的空相册不展示；网络失败已在资源层阻止加载。
+    const mapped = sources.map((source) => mapSourceToWork(source, manifest));
     const excluded = mapped.filter((w) => w.photos.length === 0);
     for (const work of excluded) {
       console.warn(`[works] excluded ${work.slug}: no photos`);
@@ -151,7 +100,7 @@ function ensureLoaded(): Promise<Work[]> {
     const works = mapped
       .filter((w) => w.photos.length > 0)
       .sort((a, b) => b.date.localeCompare(a.date));
-    console.log(`[works] sources=${raws.length}, available=${works.length}, excluded=${excluded.length}`);
+    console.log(`[works] sources=${sources.length}, available=${works.length}, excluded=${excluded.length}`);
 
     // 3) 收集全部 OSS key 探测尺寸,注入 width/height
     const allKeys = Array.from(
@@ -160,7 +109,7 @@ function ensureLoaded(): Promise<Work[]> {
       // 外链与本地 public/ 资源跳过探测,只对 OSS key 探测
       (k) => k && !/^https?:\/\//.test(k) && !k.startsWith("/")
     );
-    const meta = await ensureMeta(allKeys);
+    const meta = await resources.dimensions(allKeys);
     const result = works.map((w) => ({
       ...w,
       coverWidth: meta[w.cover]?.w,

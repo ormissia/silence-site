@@ -2,9 +2,8 @@
 
 import { RevealImg } from "@/components/media/reveal-image";
 
-import Link from "next/link";
-import { useEffect, useRef, useState, type MouseEvent } from "react";
-import { requestListReturn } from "@/components/layout/list-return";
+import { useEffect, useRef, useState } from "react";
+import { ReturnToListLink } from "@/components/layout/list-return";
 
 export function BookToolbar({ title, titleId, returnHref, returnLabel = "书架", cover, author, rating, readingTime }: {
   title: string;
@@ -18,9 +17,6 @@ export function BookToolbar({ title, titleId, returnHref, returnLabel = "书架"
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [showTitle, setShowTitle] = useState(false);
-  const onReturn = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (!event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0) requestListReturn(returnHref);
-  };
 
   useEffect(() => {
     const toolbar = ref.current;
@@ -45,9 +41,9 @@ export function BookToolbar({ title, titleId, returnHref, returnLabel = "书架"
 
   return (
     <div ref={ref} className="sticky top-0 z-20 flex items-center gap-3 bg-surface-raised/95 px-4 py-3 backdrop-blur-md md:gap-6 md:px-10">
-      <Link replace scroll={false} href={returnHref} onClick={onReturn} aria-label={`返回${returnLabel}`} className="shrink-0 text-annotation uppercase tracking-[0.2em] text-muted transition-colors hover:text-ink">
+      <ReturnToListLink replace scroll={false} href={returnHref} aria-label={`返回${returnLabel}`} className="shrink-0 text-annotation uppercase tracking-[0.2em] text-muted transition-colors hover:text-ink">
         <span className="hidden sm:inline">← Reading / 返回{returnLabel}</span><span className="inline-flex h-8 w-6 items-center justify-center text-base sm:hidden" aria-hidden>←</span>
-      </Link>
+      </ReturnToListLink>
       <div
         aria-hidden={!showTitle}
         data-book-sticky-title
@@ -67,9 +63,9 @@ export function BookToolbar({ title, titleId, returnHref, returnLabel = "书架"
           </div>}
         </div>
       </div>
-      <Link replace scroll={false} href={returnHref} onClick={onReturn} aria-label={`关闭书籍详情，返回${returnLabel}`} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink/[0.06] text-muted transition-colors hover:bg-ink/10 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
+      <ReturnToListLink replace scroll={false} href={returnHref} aria-label={`关闭书籍详情，返回${returnLabel}`} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-ink/[0.06] text-muted transition-colors hover:bg-ink/10 hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent">
         <svg aria-hidden width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="m3 3 8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.2" /></svg>
-      </Link>
+      </ReturnToListLink>
     </div>
   );
 }

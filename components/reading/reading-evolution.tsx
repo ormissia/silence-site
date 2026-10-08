@@ -1,15 +1,15 @@
 "use client";
 
-import Link from "next/link";
 import { useReducedMotion } from "framer-motion";
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { rememberListPosition, RestoreListScroll } from "@/components/layout/list-return";
+import { EnterListLink, RestoreListScroll, useEnterListClick } from "@/components/layout/list-return";
 import { BookCoverBackground, BookInformation } from "./book-information";
 import { EvolutionYearGraph } from "./evolution-year-graph";
 import { EVOLUTION_HEADER_HEIGHT, EVOLUTION_WIDTH, EVOLUTION_YEAR_GAP, readingEvolution, type EvolutionBook, type EvolutionNode } from "@/lib/reading-evolution";
+import { readingBookHref, readingListHref } from "@/lib/navigation/reading";
 
-const RETURN_HREF = "/reading/evolution";
-const bookHref = (book: EvolutionBook) => `/reading/${book.slug}?view=evolution`;
+const EVOLUTION_NAVIGATION = { view: "evolution" };
+const RETURN_HREF = readingListHref(EVOLUTION_NAVIGATION);
 
 export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
   const reduceMotion = useReducedMotion();
@@ -62,7 +62,7 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
     observer.observe(plot);
     return () => observer.disconnect();
   }, [model.datedCount]);
-  const remember = () => rememberListPosition(RETURN_HREF);
+  const remember = useEnterListClick(RETURN_HREF);
   const activate = (node: EvolutionNode, target: Element, source: "pointer" | "focus") => {
     if (source === "pointer" && activeSource.current === "focus") return;
     const rect = target.getBoundingClientRect();
@@ -122,7 +122,7 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
           <ol className="ml-2 border-l border-ink/15">
             {nodes.map(({ book, radius }) => <li key={book.slug} className="relative pl-6">
               <span aria-hidden="true" className="absolute left-0 top-6 -translate-x-1/2 rounded-full border-2 border-paper bg-ink/60" style={{ width: radius * 1.4 + 4, height: radius * 1.4 + 4 }} />
-              <Link href={bookHref(book)} prefetch={false} scroll={false} onClick={remember} className="relative isolate my-3 block overflow-hidden rounded-xl border border-ink/10 bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+              <EnterListLink href={readingBookHref(book.slug, EVOLUTION_NAVIGATION)} listHref={RETURN_HREF} prefetch={false} scroll={false} className="relative isolate my-3 block overflow-hidden rounded-xl border border-ink/10 bg-surface-raised focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
                 <BookCoverBackground cover={book.cover} />
                 <div className="relative z-10 min-h-[180px] p-4">
                 <div className="flex flex-wrap items-center gap-2 text-[10px] tracking-wide text-ink/80">
@@ -133,7 +133,7 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
                 {book.author && <p className="mt-1 break-words text-xs leading-relaxed text-ink/80">{book.author}</p>}
                 <p className="mt-2 break-words text-[11px] text-ink/80">{book.readingTime ?? "时长未记录"} · {book.noteCount === undefined ? "笔记数量未记录" : `${book.noteCount} 条笔记`}</p>
                 </div>
-              </Link>
+              </EnterListLink>
             </li>)}
           </ol>
         </section>)}
@@ -144,10 +144,10 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
         <p className="mt-4 text-xs leading-relaxed text-muted">这些书暂未放入时间轨迹，补全读完日期后会归入对应年度。</p>
         <ul className="mt-5 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
           {model.undated.map((book) => <li key={book.slug} className="min-w-0 border-b border-rule py-4">
-            <Link href={bookHref(book)} prefetch={false} scroll={false} onClick={remember} className="block rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+            <EnterListLink href={readingBookHref(book.slug, EVOLUTION_NAVIGATION)} listHref={RETURN_HREF} prefetch={false} scroll={false} className="block rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
               <p className="break-words font-serif text-sm leading-relaxed">{book.title}</p>
               <p className="mt-1 break-words text-xs leading-relaxed text-muted">{book.author ?? "作者未记录"} · {book.category}</p>
-            </Link>
+            </EnterListLink>
           </li>)}
         </ul>
       </details>}

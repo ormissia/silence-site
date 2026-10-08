@@ -1,3 +1,5 @@
+import type { Photo, Work } from "../works/types";
+
 export type ContentKind = "works" | "journal" | "reading";
 
 export type ContentSource = {
@@ -7,4 +9,17 @@ export type ContentSource = {
   pathSegments: string[];
   data: Record<string, unknown>;
   storyMd: string;
+};
+
+/** Domain queries never need to inspect untrusted frontmatter again. */
+export type ParsedContent<T> = {
+  sourcePath: string;
+  metadata: T;
+  storyMd: string;
+};
+
+/** Asset resolution happens after parsing, not inside the frontmatter boundary. */
+export type ParsedWorkSource = ParsedContent<Omit<Work, "photos" | "story" | "coverWidth" | "coverHeight">> & {
+  albumPrefix?: string;
+  photos?: Photo[];
 };

@@ -1,24 +1,25 @@
 "use client";
 
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { RevealImg } from "@/components/media/reveal-image";
 import { BookInformation } from "./book-information";
 import type { ReadingSummary } from "@/lib/reading/types";
+import { EnterListLink } from "@/components/layout/list-return";
+import { readingBookHref, readingListHref } from "@/lib/navigation/reading";
 
 /** 正面为书封，悬浮或键盘聚焦时翻到资料面；触屏使用独立翻面按钮。 */
 export function BookCard({ book, index }: { book: ReadingSummary; index: number }) {
   const [flipped, setFlipped] = useState(false);
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
-  const category = useSearchParams().get("cat");
-  const shelfQuery = category && category !== "all" ? `?cat=${encodeURIComponent(category)}` : "";
+  const navigation = { cat: useSearchParams().get("cat") };
 
   return (
     <div className="reading-book relative min-w-0" data-flipped={flipped}>
-      <Link
-        href={`/reading/${book.slug}${shelfQuery}`}
+      <EnterListLink
+        href={readingBookHref(book.slug, navigation)}
+        listHref={readingListHref(navigation)}
         className="reading-book-link block aspect-[2/3]"
         aria-label={`查看《${book.title}》的读书笔记`}
         onPointerEnter={() => setHovered(true)}
@@ -51,7 +52,7 @@ export function BookCard({ book, index }: { book: ReadingSummary; index: number 
             <BookInformation book={book} active={hovered || focused || flipped} titleAs="h3" coverBackground={false} />
           </div>
         </div>
-      </Link>
+      </EnterListLink>
       <button
         type="button"
         className="reading-book-toggle absolute bottom-2 right-2 rounded-full border border-white/20 bg-black/75 px-3 py-1.5 font-sans text-annotation tracking-normal text-white backdrop-blur-sm"

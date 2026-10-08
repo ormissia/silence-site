@@ -1,7 +1,9 @@
 "use client";
 
-import Link from "next/link";
-import { useEffect, type AnchorHTMLAttributes, type MouseEvent, type ReactNode } from "react";
+import { Suspense, useEffect } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { NavProgressLink, useNavProgressClick, type NavProgressLinkProps } from "./nav-link";
+import { useRouteProgress } from "./route-progress-state";
 
 const POSITION_KEY = "silence:list-position";
 const RETURN_KEY = "silence:return-to-list";
@@ -15,18 +17,36 @@ export function rememberListPosition(href: string) {
   }
 }
 
+/** 与进度共用导航意图；修饰键、下载或调用方取消时不写列表位置。 */
+export function EnterListLink({ listHref, ...props }: Omit<NavProgressLinkProps, "onNavigate"> & { listHref: string }) {
+  return <NavProgressLink {...props} onNavigate={() => rememberListPosition(listHref)} />;
+}
+
+/** 适配已有 Link 回调入口（如 SVG 书籍节点），不监听页面级点击。 */
+export function useEnterListClick(listHref: string) {
+  return useNavProgressClick({ onNavigate: () => rememberListPosition(listHref) });
+}
+
 export function RestoreListScroll() {
+  return <Suspense fallback={null}><ListScrollRestoration /></Suspense>;
+}
+
+function ListScrollRestoration() {
+  const pathname = usePathname();
+  const search = useSearchParams().toString();
   useEffect(() => {
     try {
       const href = `${window.location.pathname}${window.location.search}`;
-      if (sessionStorage.getItem(RETURN_KEY) !== href) return;
+      const requested = sessionStorage.getItem(RETURN_KEY);
+      if (requested === null) return;
       sessionStorage.removeItem(RETURN_KEY);
+      if (requested !== href) return;
       const saved = sessionStorage.getItem(positionKey(href));
-      if (saved !== null && Number.isFinite(Number(saved))) window.scrollTo(0, Number(saved));
+      if (saved?.trim() && Number.isFinite(Number(saved))) window.scrollTo(0, Number(saved));
     } catch {
       // A corrupt or unavailable storage entry should never block the list.
     }
-  }, []);
+  }, [pathname, search]);
   return null;
 }
 
@@ -34,14 +54,19 @@ export function requestListReturn(href: string) {
   try { sessionStorage.setItem(RETURN_KEY, href); } catch { /* Navigation remains usable. */ }
 }
 
-export function ReturnToListLink({ href, className, children, ...rest }: Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href" | "onClick"> & {
-  href: string;
-  className?: string;
-  children: ReactNode;
-}) {
-  const onClick = (event: MouseEvent<HTMLAnchorElement>) => {
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+/** 非链接关闭操作（Escape / 点击弹窗外部）与返回链接使用同一记录协议。 */
+export function useReturnToList(href: string) {
+  const router = useRouter();
+  const progress = useRouteProgress();
+  return () => {
     requestListReturn(href);
+    progress.start();
+    router.replace(href, { scroll: false });
   };
-  return <Link {...rest} href={href} className={className} onClick={onClick}>{children}</Link>;
+}
+
+export function ReturnToListLink({ href, ...props }: Omit<NavProgressLinkProps, "href" | "onNavigate"> & {
+  href: string;
+}) {
+  return <NavProgressLink {...props} href={href} onNavigate={() => requestListReturn(href)} />;
 }

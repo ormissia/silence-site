@@ -1,7 +1,6 @@
 "use client";
 
 import { RevealImage as Image } from "@/components/media/reveal-image";
-import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { buildSrc } from "@/lib/oss";
 import type { JournalSummary } from "@/lib/journal/types";
@@ -14,7 +13,7 @@ import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tab
 import { CoverFocusFrame } from "@/components/cover-focus-frame";
 import { OverflowText } from "@/components/overflow-text";
 import styles from "@/components/cover-hover.module.css";
-import { rememberListPosition, RestoreListScroll } from "@/components/layout/list-return";
+import { EnterListLink, RestoreListScroll } from "@/components/layout/list-return";
 
 const MONTH_EN = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -66,7 +65,7 @@ export function JournalList({ entries }: { entries: JournalSummary[] }) {
           {filtered.map((entry, i) => {
             const { day, monthYear } = formatDate(entry.date);
             return (
-              <Link key={entry.slug} href={`/journal/${entry.slug}${categoryQuery}`} onClick={() => rememberListPosition(`/journal${categoryQuery}`)}
+              <EnterListLink key={entry.slug} href={`/journal/${entry.slug}${categoryQuery}`} listHref={`/journal${categoryQuery}`}
                 className={`${styles.link} group grid overflow-hidden rounded-xl border border-ink/10 bg-surface md:grid-cols-[200px_minmax(0,1fr)]`}>
                 <div className="flex items-start justify-between gap-4 p-5 md:flex-col md:p-6">
                   <div className="shrink-0">
@@ -89,7 +88,7 @@ export function JournalList({ entries }: { entries: JournalSummary[] }) {
                     {entry.excerpt && <p className="journal-cover-excerpt mt-2 text-sm leading-relaxed text-white/75"><OverflowText text={entry.excerpt} /></p>}
                   </div>
                 </div>
-              </Link>
+              </EnterListLink>
             );
           })}
         </div>

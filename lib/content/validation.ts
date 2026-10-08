@@ -128,6 +128,8 @@ export function formatContentIssue(issue: ContentIssue): string {
 }
 
 export function assertValidContent(kind: ContentKind, sources: ContentSource[]): void {
-  const errors = validateContent(kind, sources).filter((issue) => issue.severity === "error");
+  const issues = validateContent(kind, sources);
+  const errors = issues.filter((issue) => issue.severity === "error");
   if (errors.length) throw new Error(`Invalid ${kind} content:\n${errors.map(formatContentIssue).join("\n")}`);
+  for (const issue of issues) console.warn(`[content] ${formatContentIssue(issue)}`);
 }

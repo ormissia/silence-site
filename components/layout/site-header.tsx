@@ -231,8 +231,8 @@ export function SiteHeader() {
             aria-label={returnTarget?.ariaLabel ?? "SILENCE — 首页"}
             data-return-active={Boolean(returnTarget)}
             className={`${styles.brand} block leading-none text-ink transition-opacity duration-150 active:opacity-60 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent`}
-            onClick={(event) => {
-              if (returnTarget && !event.defaultPrevented && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey && event.button === 0) requestListReturn(returnTarget.href);
+            onNavigate={() => {
+              if (returnTarget) requestListReturn(returnTarget.href);
             }}
           >
             <span aria-hidden className={`${styles.wordmark} block text-xl font-semibold uppercase tracking-[0.28em] text-gradient-accent`}>SILENCE</span>

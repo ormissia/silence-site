@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type ReactNode } from "react";
-import { useRouter } from "next/navigation";
-import { requestListReturn } from "@/components/layout/list-return";
+import { useReturnToList } from "@/components/layout/list-return";
 
 /** Native top-layer dialog stays above the site's fixed header and stacking contexts. */
 export function BookDialog({ children, returnHref, titleId }: {
@@ -11,7 +10,7 @@ export function BookDialog({ children, returnHref, titleId }: {
   titleId: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
-  const router = useRouter();
+  const close = useReturnToList(returnHref);
 
   useEffect(() => {
     const dialog = ref.current;
@@ -24,11 +23,6 @@ export function BookDialog({ children, returnHref, titleId }: {
       document.body.style.overflow = previousOverflow;
     };
   }, []);
-
-  const close = () => {
-    requestListReturn(returnHref);
-    router.replace(returnHref, { scroll: false });
-  };
 
   return (
     <dialog

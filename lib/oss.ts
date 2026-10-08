@@ -1,4 +1,5 @@
 import { readOssBase } from "./oss-config";
+import { buildOssObjectUrl } from "./oss-url";
 
 /**
  * 图片源统一出口。
@@ -37,10 +38,10 @@ export function buildSrc(key: string, preset: ImagePreset): string {
     return `https://picsum.photos/seed/${seed}/${w}/${h}`;
   }
 
-  // OSS 图片处理：缩放 + WebP。key 已含扩展名,直接拼;
+  // OSS 图片处理：缩放 + WebP。key 按原始对象名逐段编码；
   // format,webp 会覆盖原扩展名输出 WebP,所以源是 .jpg / .png 都不影响最终格式。
   const process = `image/resize,w_${w},h_${h},m_lfit/format,webp/quality,q_82`;
-  return `${OSS_BASE}/${key}?x-oss-process=${process}`;
+  return `${buildOssObjectUrl(OSS_BASE, key)}?x-oss-process=${process}`;
 }
 
 /** Derive the small preview from a generated image URL; external book covers are left alone. */

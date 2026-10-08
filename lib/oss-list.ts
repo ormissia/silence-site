@@ -3,7 +3,7 @@ import "server-only";
 import path from "node:path";
 import { mapWithConcurrency, withRetry } from "./concurrency";
 import { readOssBase } from "./oss-config";
-import { canPrepareResources, readResourceCache, writeResourceCache, withResourceLock, resourceFetchOptions, OssHttpError } from "./oss-cache";
+import { assertCanPrepareResources, canPrepareResources, isCurrentResourceBuild, readResourceCache, writeResourceCache, withResourceLock, resourceFetchOptions, OssHttpError } from "./oss-cache";
 
 /**
  * 构建期 OSS 文件夹列举 + 持久化缓存。
@@ -132,7 +132,7 @@ function validAlbum(value: unknown, prefix: string): value is string[] {
   );
 }
 
-/** demo / 列举失败时的占位 key:prefix/1.jpg .. prefix/N.jpg */
+/** 仅 demo 使用占位 key:prefix/1.jpg .. prefix/N.jpg；列举失败必须抛错。 */
 function fallbackKeys(prefix: string, count: number): string[] {
   const n = Math.max(count, 1);
   return Array.from({ length: n }, (_, i) => `${prefix}/${i + 1}.jpg`);
@@ -140,32 +140,50 @@ function fallbackKeys(prefix: string, count: number): string[] {
 
 export type ListRequest = { prefix: string };
 
+function requestedPrefixes(requests: ListRequest[]): string[] {
+  return Array.from(new Set(requests.map(({ prefix }) => prefix.replace(/\/$/, ""))));
+}
+
+function demoManifest(prefixes: string[]): Manifest {
+  return Object.fromEntries(prefixes.map((prefix) => [prefix, fallbackKeys(prefix, DEFAULT_FALLBACK_COUNT)]));
+}
+
+/** 严格只读：即使在开发/构建阶段也不会列举、加锁或写盘。 */
+export async function readAlbumManifest(requests: ListRequest[]): Promise<Manifest> {
+  const base = readOssBase();
+  const prefixes = requestedPrefixes(requests);
+  if (!prefixes.length) return {};
+  if (!base) return demoManifest(prefixes);
+
+  const cache = readResourceCache(MANIFEST_PATH, base, validAlbum);
+  const missing = prefixes.filter((prefix) => !cache.entries[prefix]);
+  if (missing.length) throw new Error(`Required album manifest entries missing: ${missing.join(", ")}; rebuild before deployment`);
+  return Object.fromEntries(prefixes.map((prefix) => [prefix, cache.entries[prefix]]));
+}
+
 /**
- * 批量确保每个 prefix 在 manifest 里有列举结果。
+ * 显式准备每个 prefix 的列举结果，仅构建/开发阶段允许调用。
  *
  * - demo 模式（无 OSS base）:不发请求、不写盘,内存返回占位 key,
  *   让本地开发仍能用 picsum 出图,且不污染真实构建的缓存。
  * - 每次生产构建重新列举，构建 worker 共用本次结果；开发补齐缺失条目。
- * - 生产运行：严格只读；缺失条目抛错，不能发起请求或写入文件。
  * - 列举失败不把失败/部分响应当作空相册写入；缺失条目会阻止构建。
  */
-export async function ensureManifest(requests: ListRequest[]): Promise<Manifest> {
+export async function prepareAlbumManifest(requests: ListRequest[]): Promise<Manifest> {
+  assertCanPrepareResources();
   const base = readOssBase();
-  const prefixes = Array.from(new Set(requests.map(({ prefix }) => prefix.replace(/\/$/, ""))));
+  const prefixes = requestedPrefixes(requests);
   if (!prefixes.length) return {};
-  if (!base) {
-    return Object.fromEntries(prefixes.map((prefix) => [prefix, fallbackKeys(prefix, DEFAULT_FALLBACK_COUNT)]));
-  }
-  async function resolve(): Promise<Manifest> {
-    const cache = readResourceCache(MANIFEST_PATH, base, validAlbum);
+  if (!base) return demoManifest(prefixes);
+
+  return withResourceLock(MANIFEST_PATH, async () => {
+    const cache = readResourceCache(MANIFEST_PATH, base, validAlbum, "prepare");
     const missing = prefixes.filter((prefix) => !cache.entries[prefix]);
-    if (!canPrepareResources() && missing.length) throw new Error(`Required album manifest entries missing: ${missing.join(", ")}; rebuild before deployment`);
-    const refresh = canPrepareResources() ? missing : [];
-    if (refresh.length) {
-      console.log(`[album-manifest] refreshing ${refresh.length}/${prefixes.length} albums`);
-      let changed = false;
-      const unavailable: string[] = [];
-      await mapWithConcurrency(refresh, LIST_CONCURRENCY, async (prefix) => {
+    let changed = !isCurrentResourceBuild(cache);
+    const unavailable: string[] = [];
+    if (missing.length) {
+      console.log(`[album-manifest] refreshing ${missing.length}/${prefixes.length} albums`);
+      await mapWithConcurrency(missing, LIST_CONCURRENCY, async (prefix) => {
         if (unavailable.length) return;
         try {
           const files = await withRetry(() => listAlbumFiles(prefix));
@@ -176,10 +194,14 @@ export async function ensureManifest(requests: ListRequest[]): Promise<Manifest>
           console.warn(`[album-manifest] ${prefix}: listing failed`, error);
         }
       });
-      if (changed) writeResourceCache(MANIFEST_PATH, cache);
-      if (unavailable.length) throw new Error(`Unable to prepare album manifest: ${unavailable.join(", ")}`);
     }
+    if (changed) writeResourceCache(MANIFEST_PATH, cache);
+    if (unavailable.length) throw new Error(`Unable to prepare album manifest: ${unavailable.join(", ")}`);
     return Object.fromEntries(prefixes.map((prefix) => [prefix, cache.entries[prefix]]));
-  }
-  return canPrepareResources() ? withResourceLock(MANIFEST_PATH, resolve) : resolve();
+  });
+}
+
+/** 兼容旧调用方；新组合边界应显式选择 prepareAlbumManifest / readAlbumManifest。 */
+export async function ensureManifest(requests: ListRequest[]): Promise<Manifest> {
+  return canPrepareResources() ? prepareAlbumManifest(requests) : readAlbumManifest(requests);
 }

@@ -16,6 +16,11 @@ export type ResourceCache<T> = {
 const SESSION_ID = process.env.SILENCE_OSS_BUILD_ID || randomUUID();
 let runtimeBuildId: string | undefined;
 
+/** Development may reuse entries, but prepared artifacts must belong to this session. */
+export function isCurrentResourceBuild(cache: ResourceCache<unknown>): boolean {
+  return cache.buildId === SESSION_ID;
+}
+
 /** Next 14 在生成静态参数/页面前设置 NEXT_PHASE；该值不编译进运行产物。 */
 export function canPrepareResources(): boolean {
   return process.env.NODE_ENV !== "production" || process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD;
@@ -29,7 +34,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-export function readResourceCache<T>(filename: string, source: string, validValue: (value: unknown, key: string) => value is T): ResourceCache<T> {
+/** 读取默认严格校验；仅显式准备模式可以将不可用产物视为待重建。 */
+export function readResourceCache<T>(filename: string, source: string, validValue: (value: unknown, key: string) => value is T, mode: "read" | "prepare" = "read"): ResourceCache<T> {
+  const preparing = mode === "prepare";
+  if (preparing) assertCanPrepareResources();
   const empty: ResourceCache<T> = { version: 1, source, buildId: SESSION_ID, generatedAt: 0, entries: {} };
   try {
     const raw: unknown = JSON.parse(fs.readFileSync(filename, "utf8"));
@@ -37,12 +45,12 @@ export function readResourceCache<T>(filename: string, source: string, validValu
       throw new Error("missing/unsupported cache version, source or entries; rebuild to regenerate");
     }
     // 每次生产构建重新准备；同一次构建的 worker 共用已完成的数据。
-    if (process.env.NODE_ENV === "production" && canPrepareResources() && raw.buildId !== SESSION_ID) return empty;
+    if (process.env.NODE_ENV === "production" && preparing && raw.buildId !== SESSION_ID) return empty;
     for (const [key, value] of Object.entries(raw.entries)) {
       if (!validValue(value, key)) throw new Error(`invalid cache entry: ${key}`);
       empty.entries[key] = value;
     }
-    if (!canPrepareResources()) {
+    if (!preparing) {
       if (raw.buildId !== SESSION_ID) throw new Error("resource cache belongs to a different deployment build; rebuild before deployment");
       if (runtimeBuildId && runtimeBuildId !== raw.buildId) throw new Error("resource caches belong to different builds");
       runtimeBuildId = raw.buildId;
@@ -53,7 +61,7 @@ export function readResourceCache<T>(filename: string, source: string, validValu
   } catch (error) {
     const label = path.relative(process.cwd(), filename);
     const reason = error instanceof Error ? error.message : String(error);
-    if (!canPrepareResources()) throw new Error(`Required OSS cache ${label} is unavailable: ${reason}`);
+    if (!preparing) throw new Error(`Required OSS cache ${label} is unavailable: ${reason}`);
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") console.warn(`[oss-cache] ${label}: ${reason}; regenerating`);
     return { ...empty, entries: {} };
   }
@@ -64,7 +72,7 @@ export function writeResourceCache<T>(filename: string, cache: ResourceCache<T>)
   assertCanPrepareResources();
   const temporary = `${filename}.${process.pid}.${randomUUID()}.tmp`;
   try {
-    fs.writeFileSync(temporary, JSON.stringify({ ...cache, generatedAt: Date.now() }, null, 2), "utf8");
+    fs.writeFileSync(temporary, JSON.stringify({ ...cache, buildId: SESSION_ID, generatedAt: Date.now() }, null, 2), "utf8");
     fs.renameSync(temporary, filename);
   } finally {
     if (fs.existsSync(temporary)) fs.unlinkSync(temporary);

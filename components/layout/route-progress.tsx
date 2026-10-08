@@ -1,16 +1,11 @@
 "use client";
 
-import {
-  createContext,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { useEffect, useRef } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { useRouteProgress } from "./route-progress-state";
+
+export { RouteProgressProvider, useRouteProgress } from "./route-progress-state";
 
 /**
  * 顶部 2px 路由进度条 + Provider。
@@ -26,36 +21,6 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
  *   - 任何 client 组件可以 useRouteProgress().start() 在 click handler 立即触发
  */
 
-type Ctx = {
-  /** 立刻把条子拉起来（click 时调） */
-  start: () => void;
-  /** 立刻收尾（少用；通常由路由变化自动触发） */
-  done: () => void;
-  /** 当前是否在加载状态——provider 内部用 */
-  isLoading: boolean;
-};
-
-const RouteProgressCtx = createContext<Ctx | null>(null);
-
-export function useRouteProgress(): Ctx {
-  const ctx = useContext(RouteProgressCtx);
-  // 没在 Provider 下时返回一个空操作，避免 Provider 没挂时崩
-  if (!ctx) return { start: () => {}, done: () => {}, isLoading: false };
-  return ctx;
-}
-
-export function RouteProgressProvider({ children }: { children: ReactNode }) {
-  const [isLoading, setLoading] = useState(false);
-
-  const start = useCallback(() => setLoading(true), []);
-  const done = useCallback(() => setLoading(false), []);
-
-  return (
-    <RouteProgressCtx.Provider value={{ start, done, isLoading }}>
-      {children}
-    </RouteProgressCtx.Provider>
-  );
-}
 
 /**
  * 进度条本体。挂在 layout 顶部，固定 viewport。
@@ -63,7 +28,7 @@ export function RouteProgressProvider({ children }: { children: ReactNode }) {
  */
 export function RouteProgress() {
   const reducedMotion = useReducedMotion();
-  const ctx = useContext(RouteProgressCtx);
+  const ctx = useRouteProgress();
   const pathname = usePathname();
   const search = useSearchParams();
   // 第一次挂载时记下当前 key，之后变化才视为路由切换
@@ -78,11 +43,10 @@ export function RouteProgress() {
     if (key !== initialKey.current) {
       initialKey.current = key;
       // 路由真换了 → 收尾
-      ctx?.done();
+      ctx.done();
     }
   }, [pathname, search, ctx]);
 
-  if (!ctx) return null;
 
   return (
     <AnimatePresence>

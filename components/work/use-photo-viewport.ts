@@ -1,9 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-
-const MIN_SCALE = 0.5;
-const MAX_SCALE = 5;
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
+import { INITIAL_PHOTO_VIEWPORT, photoViewportReducer } from "@/lib/photo-viewport";
 
 type PhotoViewportOptions = {
   src: string;
@@ -14,40 +12,36 @@ type PhotoViewportOptions = {
 
 /** 负责灯箱视口与输入事件；导航和关闭由相册提供，数值规则保持原样。 */
 export function usePhotoViewport({ src, onClose, onPrev, onNext }: PhotoViewportOptions) {
-  const [scale, setScale] = useState(1);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [{ scale, position }, dispatch] = useReducer(photoViewportReducer, INITIAL_PHOTO_VIEWPORT);
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
   const touchStartRef = useRef<{ x: number; y: number; dist: number } | null>(null);
   const touchTriggeredRef = useRef(false);
-  // wheel handler 在 useCallback 里读 scale 会闭包旧值，用 ref 同步当前缩放
+  // ref 只判断原生事件是否取消默认行为；视口更新由 reducer 按队列顺序处理。
   const scaleRef = useRef(scale);
   useEffect(() => {
     scaleRef.current = scale;
   }, [scale]);
 
-  const resetView = useCallback(() => {
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
+  const getViewportSize = useCallback(() => {
+    const container = containerRef.current;
+    return container ? { width: container.clientWidth, height: container.clientHeight } : null;
   }, []);
 
-  const handleZoom100 = useCallback(() => {
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
+  const resetView = useCallback(() => {
+    dispatch({ type: "reset" });
   }, []);
+
+  const handleZoom100 = resetView;
 
   const handleZoomIn = useCallback(() => {
-    setScale((s) => Math.min(s + 0.5, MAX_SCALE));
-  }, []);
+    dispatch({ type: "zoom", delta: 0.5, size: getViewportSize() });
+  }, [getViewportSize]);
 
   const handleZoomOut = useCallback(() => {
-    setScale((s) => {
-      const newScale = Math.max(s - 0.5, MIN_SCALE);
-      if (newScale <= 1) setPosition({ x: 0, y: 0 });
-      return newScale;
-    });
-  }, []);
+    dispatch({ type: "zoom", delta: -0.5, size: getViewportSize() });
+  }, [getViewportSize]);
 
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -66,17 +60,6 @@ export function usePhotoViewport({ src, onClose, onPrev, onNext }: PhotoViewport
     [onClose, onPrev, onNext, handleZoomIn, handleZoomOut, resetView, handleZoom100]
   );
 
-  const clampPosition = useCallback((x: number, y: number, currentScale: number) => {
-    const container = containerRef.current;
-    if (!container) return { x, y };
-    const maxX = (container.clientWidth * (currentScale - 1)) / 2;
-    const maxY = (container.clientHeight * (currentScale - 1)) / 2;
-    return {
-      x: Math.max(-maxX, Math.min(maxX, x)),
-      y: Math.max(-maxY, Math.min(maxY, y)),
-    };
-  }, []);
-
   /**
    * 触摸板/滚轮兼容：
    * - macOS 触摸板捏合 → 浏览器触发带 ctrlKey=true 的 wheel；deltaY 很小（±10），用指数函数细腻缩放
@@ -92,23 +75,11 @@ export function usePhotoViewport({ src, onClose, onPrev, onNext }: PhotoViewport
       const rect = container?.getBoundingClientRect();
       const cx = rect ? e.clientX - rect.left - rect.width / 2 : 0;
       const cy = rect ? e.clientY - rect.top - rect.height / 2 : 0;
-      setScale((prev) => {
-        const factor = Math.exp(-e.deltaY * 0.02);
-        const next = Math.max(MIN_SCALE, Math.min(MAX_SCALE, prev * factor));
-        if (next === prev) return prev;
-        if (next <= 1) {
-          setPosition({ x: 0, y: 0 });
-        } else {
-          // 锚点公式：保持 (cx, cy) 屏幕坐标在缩放前后映射到同一图像点
-          setPosition((p) => {
-            const ratio = next / prev;
-            return {
-              x: cx - (cx - p.x) * ratio,
-              y: cy - (cy - p.y) * ratio,
-            };
-          });
-        }
-        return next;
+      dispatch({
+        type: "pinch",
+        factor: Math.exp(-e.deltaY * 0.02),
+        anchor: { x: cx, y: cy },
+        size: getViewportSize(),
       });
       return;
     }
@@ -121,24 +92,13 @@ export function usePhotoViewport({ src, onClose, onPrev, onNext }: PhotoViewport
     if (isMouseWheel) {
       // 鼠标滚轮：保持原行为，按固定步长缩放
       e.preventDefault();
-      if (e.deltaY < 0) {
-        setScale((s) => Math.min(s + 0.2, MAX_SCALE));
-      } else {
-        setScale((s) => {
-          const newScale = Math.max(s - 0.2, MIN_SCALE);
-          if (newScale <= 1) setPosition({ x: 0, y: 0 });
-          return newScale;
-        });
-      }
+      dispatch({ type: "zoom", delta: e.deltaY < 0 ? 0.2 : -0.2, size: getViewportSize() });
     } else {
       // 触摸板双指滑动：放大后平移；未放大时不响应（避免误关 / 误缩放）
-      if (scaleRef.current <= 1) return;
-      e.preventDefault();
-      setPosition((p) =>
-        clampPosition(p.x - e.deltaX, p.y - e.deltaY, scaleRef.current)
-      );
+      if (scaleRef.current > 1) e.preventDefault();
+      dispatch({ type: "pan", delta: { x: -e.deltaX, y: -e.deltaY }, size: getViewportSize() });
     }
-  }, [clampPosition]);
+  }, [getViewportSize]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (scale > 1) {
@@ -151,7 +111,7 @@ export function usePhotoViewport({ src, onClose, onPrev, onNext }: PhotoViewport
     if (isDragging && scale > 1) {
       const rawX = e.clientX - dragStart.x;
       const rawY = e.clientY - dragStart.y;
-      setPosition(clampPosition(rawX, rawY, scale));
+      dispatch({ type: "move", position: { x: rawX, y: rawY }, size: getViewportSize() });
     }
   };
 
@@ -175,10 +135,10 @@ export function usePhotoViewport({ src, onClose, onPrev, onNext }: PhotoViewport
       e.preventDefault();
       const newDist = getTouchDist(e.touches);
       const ratio = newDist / touchStartRef.current.dist;
-      setScale((s) => Math.max(MIN_SCALE, Math.min(MAX_SCALE, s * ratio)));
+      dispatch({ type: "pinch", factor: ratio, size: getViewportSize() });
       touchStartRef.current = { ...touchStartRef.current, dist: newDist };
     }
-  }, []);
+  }, [getViewportSize]);
 
   const handleTouchEnd = useCallback(
     (e: React.TouchEvent) => {

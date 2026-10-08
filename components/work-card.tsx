@@ -1,13 +1,12 @@
 "use client";
 
 import { RevealImage as Image } from "@/components/media/reveal-image";
-import Link from "next/link";
 import { buildSrc } from "@/lib/oss";
 import type { WorkSummary } from "@/lib/works/types";
 import { CoverFocusFrame } from "@/components/cover-focus-frame";
 import { OverflowText } from "@/components/overflow-text";
 import styles from "./cover-hover.module.css";
-import { rememberListPosition } from "@/components/layout/list-return";
+import { EnterListLink } from "@/components/layout/list-return";
 
 export function WorkCard({ work, index, variant = "wide", tab = "all" }: {
   work: WorkSummary; index: number; variant?: "tall" | "wide" | "square"; tab?: string;
@@ -16,7 +15,7 @@ export function WorkCard({ work, index, variant = "wide", tab = "all" }: {
   const aspect = variant === "tall" ? "aspect-[4/5]" : variant === "square" ? "aspect-square" : "aspect-video";
   const query = tab === "all" ? "" : `?tab=${encodeURIComponent(tab)}`;
   return (
-    <Link href={`/works/${work.slug}${query}`} onClick={() => rememberListPosition(`/works${query}`)} className={`${styles.link} editorial-card block`}>
+    <EnterListLink href={`/works/${work.slug}${query}`} listHref={`/works${query}`} className={`${styles.link} editorial-card block`}>
       <div className={`${styles.cover} ${isFilm ? styles.film : ""} image-frame image-card ${aspect}`}>
         <Image revealIndex={index} src={buildSrc(work.cover, "gridThumb")} alt={work.title} fill
           sizes="(min-width: 768px) 50vw, 100vw"
@@ -38,6 +37,6 @@ export function WorkCard({ work, index, variant = "wide", tab = "all" }: {
           </div>
         </div>
       </div>
-    </Link>
+    </EnterListLink>
   );
 }

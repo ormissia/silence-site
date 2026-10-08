@@ -3,22 +3,22 @@ import "server-only";
 import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
-import { assertValidContent, assertValidDateLiterals } from "./content/validation";
+import { assertValidDateLiterals } from "./content/validation";
+import { parseJournalSources, parseReadingSources, parseWorkSources } from "./content/parse";
 import type { ContentKind, ContentSource } from "./content/types";
 
 const WORKS_DIR = path.join(process.cwd(), "content/works");
 const JOURNAL_DIR = path.join(process.cwd(), "content/journal");
 const READING_DIR = path.join(process.cwd(), "content/reading");
 
-export type WorkRaw = ContentSource;
 
 /**
  * 递归扫描某个目录下的所有 .md/.mdx，返回每个文件的 frontmatter + 正文 + 路径段。
  * 每个内容模块持有自己的进程快照；构建 worker 或服务端冷启动首次读取。
  */
-function readAllMdx(rootDir: string, kind: ContentKind): WorkRaw[] {
+function readAllMdx(rootDir: string, kind: ContentKind): ContentSource[] {
   if (!fs.existsSync(rootDir)) throw new Error(`Missing content directory: ${path.relative(process.cwd(), rootDir)}`);
-  const out: WorkRaw[] = [];
+  const out: ContentSource[] = [];
   const walk = (dir: string, segments: string[]) => {
     for (const name of fs.readdirSync(dir)) {
       // 跳过 .DS_Store、隐藏文件、Obsidian 的 .obsidian/ 等
@@ -46,18 +46,17 @@ function readAllMdx(rootDir: string, kind: ContentKind): WorkRaw[] {
     }
   };
   walk(rootDir, []);
-  assertValidContent(kind, out);
   return out;
 }
 
-export function readAllWorksMdx(): WorkRaw[] {
-  return readAllMdx(WORKS_DIR, "works");
+export function readAllWorksMdx() {
+  return parseWorkSources(readAllMdx(WORKS_DIR, "works"));
 }
 
-export function readAllJournalMdx(): WorkRaw[] {
-  return readAllMdx(JOURNAL_DIR, "journal");
+export function readAllJournalMdx() {
+  return parseJournalSources(readAllMdx(JOURNAL_DIR, "journal"));
 }
 
-export function readAllReadingMdx(): WorkRaw[] {
-  return readAllMdx(READING_DIR, "reading");
+export function readAllReadingMdx() {
+  return parseReadingSources(readAllMdx(READING_DIR, "reading"));
 }

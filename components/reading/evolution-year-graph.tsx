@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type MouseEventHandler } from "react";
 import { RevealImg } from "@/components/media/reveal-image";
 import { EVOLUTION_CATEGORY_HEADER, EVOLUTION_WIDTH, evolutionColumns, evolutionCoverTiles, evolutionLayout, type EvolutionLayout, type EvolutionNode, type EvolutionYear } from "@/lib/reading-evolution";
+import { readingBookHref } from "@/lib/navigation/reading";
 
 type Props = {
   year: EvolutionYear;
@@ -12,7 +13,7 @@ type Props = {
   onActivate: (node: EvolutionNode, target: Element, source: "pointer" | "focus") => void;
   onDeactivate: (source: "pointer" | "focus", slug?: string) => void;
   onPositions: (nodes: EvolutionNode[], xs: number[]) => void;
-  onBookClick: () => void;
+  onBookClick: MouseEventHandler<HTMLAnchorElement>;
 };
 
 /** One bounded animation per affected year; nodes and line endpoints share each frame's coordinates. */
@@ -209,7 +210,7 @@ export function EvolutionYearGraph({ year, activeSlug, tooltipId, onActivate, on
       const selected = activeSlug === node.book.slug;
       const activate = (target: Element) => onActivate({ ...node, x: current.current.xs[index] }, target, "focus");
       return <g key={node.book.slug} data-node transform={`translate(${base.xs[index]},0)`}>
-        <Link href={`/reading/${node.book.slug}?view=evolution`} prefetch={false} scroll={false} onClick={onBookClick}
+        <Link href={readingBookHref(node.book.slug, { view: "evolution" })} prefetch={false} scroll={false} onClick={onBookClick}
           data-reading-category={node.category}
           data-book-index={index}
           aria-label={`${node.book.title}；${node.book.author ?? "作者未记录"}；分类 ${node.category}；${node.book.finishedDate}；阅读 ${node.book.readingTime ?? "时长未记录"}；${node.book.noteCount === undefined ? "笔记数量未记录" : `${node.book.noteCount} 条笔记`}`}

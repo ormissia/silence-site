@@ -1,10 +1,11 @@
 import { RevealImg } from "@/components/media/reveal-image";
 import { ImageContent } from "@/components/media/image-content";
-import Link from "next/link";
+import { NavProgressLink } from "@/components/layout/nav-link";
 import { notFound } from "next/navigation";
 import { BookToolbar } from "@/components/reading/book-toolbar";
 import { BookDialog } from "@/components/reading/book-dialog";
 import { getReadingMetadata, getReadingSections, listReadingSummaries } from "@/lib/reading";
+import { readingBookHref, readingListHref } from "@/lib/navigation/reading";
 
 export function generateStaticParams() {
   return listReadingSummaries().map((book) => ({ slug: book.slug }));
@@ -24,10 +25,8 @@ export default function ReadingEntryPage({ params, searchParams }: {
   const sections = getReadingSections(book.slug);
   const all = listReadingSummaries();
   const next = all[(all.findIndex((entry) => entry.slug === book.slug) + 1) % all.length];
-  const category = typeof searchParams.cat === "string" ? searchParams.cat : undefined;
   const fromEvolution = searchParams.view === "evolution";
-  const shelfQuery = fromEvolution ? "?view=evolution" : category && category !== "all" ? `?cat=${encodeURIComponent(category)}` : "";
-  const shelfHref = fromEvolution ? "/reading/evolution" : `/reading${shelfQuery}`;
+  const shelfHref = readingListHref(searchParams);
   const stats = [
     ["Progress", book.progress], ["Rating", book.rating],
     ["Reading time", book.readingTime], ["Finished", book.finishedDate],
@@ -81,10 +80,10 @@ export default function ReadingEntryPage({ params, searchParams }: {
         </div>
       </div>
 
-      {all.length > 1 && <Link href={`/reading/${next.slug}${shelfQuery}`} className="group mx-6 mb-8 mt-6 flex items-center justify-between gap-6 border-t divider-gradient pt-6 md:mx-10">
+      {all.length > 1 && <NavProgressLink href={readingBookHref(next.slug, searchParams)} className="group mx-6 mb-8 mt-6 flex items-center justify-between gap-6 border-t divider-gradient pt-6 md:mx-10">
         <div><p className="text-annotation uppercase tracking-[0.22em] text-muted">Next book</p><h2 className="mt-2 text-lg text-ink/80 transition-colors group-hover:text-accent">{next.title}</h2></div>
         <span className="silence-pill shrink-0 text-muted">Continue →</span>
-      </Link>}
+      </NavProgressLink>}
     </article>
     </BookDialog>
   );
