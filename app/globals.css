@@ -62,6 +62,11 @@ body::before {
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='240' height='240'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.5 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 }
 
+/* 首页的滤镜场景与导航毛玻璃叠加时，overlay 噪点会在悬停重绘中留下矩形残影。 */
+body:has([data-home-hero])::before {
+  mix-blend-mode: normal;
+}
+
 .divider-gradient {
   border-color: transparent;
   border-image: linear-gradient(to right, transparent 0%, theme(colors.rule) 15%, theme(colors.rule) 85%, transparent 100%) 1;
@@ -863,8 +868,6 @@ html[data-theme="light"] .reading-evolution-tooltip .reading-book-info-mask {
   box-shadow: var(--dropdown-shadow);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
-  /* Clip the filtered layer explicitly: masked hover repaint can leak a rectangular backdrop on the home hero. */
-  clip-path: inset(0 round 24px);
   opacity: 0;
   transition: opacity .16s ease-out;
 }

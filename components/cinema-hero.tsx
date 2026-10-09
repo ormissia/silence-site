@@ -107,7 +107,7 @@ export function CinemaHero() {
   }
 
   return (
-    <section ref={ref} data-theme-surface="dark" className="relative h-[378vh]">
+    <section ref={ref} data-home-hero data-theme-surface="dark" className="relative h-[378vh]">
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-paper">
         {/* 背景与 LCD 保留原图地址，共用加载完成后的淡入。 */}
         <motion.div className="absolute inset-0" style={{ opacity: sceneOpacity }}>
@@ -323,7 +323,7 @@ function CameraBody({
 /** reduced-motion 静态版 */
 function CinemaHeroStatic() {
   return (
-    <section data-theme-surface="dark" className="relative h-screen w-full overflow-hidden bg-paper">
+    <section data-home-hero data-theme-surface="dark" className="relative h-screen w-full overflow-hidden bg-paper">
       <RevealImg
         src="/images/background.jpg" alt="" loading="eager"
         className="cinema-tone-soft absolute inset-0 h-full w-full object-cover object-center"
