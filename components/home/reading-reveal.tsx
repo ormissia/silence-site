@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import { motion, useAnimationControls, useReducedMotion } from "framer-motion";
+import styles from "./reading-reveal.module.css";
 
 /** 默认可见，进入视口时只播放一次；键盘聚焦时立即显示。 */
 export function ReadingReveal({ children }: { children: ReactNode }) {
@@ -35,7 +36,7 @@ export function ReadingReveal({ children }: { children: ReactNode }) {
       animate={controls}
       transition={{ duration: reduced ? 0 : 0.9, ease: "easeOut" }}
       onFocusCapture={() => controls.set({ opacity: 1, y: 0 })}
-      className="grid items-center gap-12 lg:grid-cols-12 lg:gap-8"
+      className={styles.intro}
     >
       {children}
     </motion.div>

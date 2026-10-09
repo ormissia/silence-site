@@ -4,7 +4,7 @@ import { readingBookHref, readingListHref } from "@/lib/navigation/reading";
 describe("reading navigation URLs", () => {
   it.each([
     {}, { cat: null }, { cat: "" }, { cat: "all" }, { cat: ["历史", "文学"] },
-    { view: ["evolution"] }, { view: "unknown" },
+    { view: ["evolution"] }, { view: ["home"] }, { view: "unknown" },
   ])("preserves the default/fallback URLs for %j", (context) => {
     expect(readingListHref(context)).toBe("/reading");
     expect(readingBookHref("book-42", context)).toBe("/reading/book-42");
@@ -20,6 +20,12 @@ describe("reading navigation URLs", () => {
     const context = { view: "evolution", cat: "历史" };
     expect(readingListHref(context)).toBe("/reading/evolution");
     expect(readingBookHref("book-42", context)).toBe("/reading/book-42?view=evolution");
+  });
+
+  it("keeps homepage returns and the homepage source for subsequent books", () => {
+    const context = { view: "home", cat: "历史" };
+    expect(readingListHref(context)).toBe("/");
+    expect(readingBookHref("book-42", context)).toBe("/reading/book-42?view=home");
   });
 
   it("preserves category encoding and slug bytes for both sides of the list protocol", () => {

@@ -5,6 +5,9 @@ import type { ComponentProps, ReactNode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import ReadingEntryPage from "@/app/reading/[slug]/page";
 import { RouteProgressProvider, useRouteProgress } from "@/components/layout/route-progress";
+import { RestoreListScroll } from "@/components/layout/list-return";
+
+const router = vi.hoisted(() => ({ replace: vi.fn() }));
 
 vi.mock("@/lib/reading", () => ({
   getReadingMetadata: () => ({ slug: "first", title: "First book", category: "历史" }),
@@ -16,7 +19,7 @@ vi.mock("@/lib/reading", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ replace: vi.fn() }),
+  useRouter: () => router,
   usePathname: () => window.location.pathname,
   useSearchParams: () => new URLSearchParams(window.location.search),
   notFound: () => { throw new Error("Unexpected missing fixture"); },
@@ -61,6 +64,7 @@ describe("reading detail navigation", () => {
     { searchParams: { cat: ["历史", "文学"] }, list: "/reading", next: "/reading/second%2Fbook", label: "书架" },
     { searchParams: { cat: "历史 & +/%" }, list: "/reading?cat=%E5%8E%86%E5%8F%B2%20%26%20%2B%2F%25", next: "/reading/second%2Fbook?cat=%E5%8E%86%E5%8F%B2%20%26%20%2B%2F%25", label: "书架" },
     { searchParams: { view: "evolution", cat: "历史" }, list: "/reading/evolution", next: "/reading/second%2Fbook?view=evolution", label: "阅读演化" },
+    { searchParams: { view: "home", cat: "历史" }, list: "/", next: "/reading/second%2Fbook?view=home", label: "首页" },
     { searchParams: { view: ["evolution"], cat: "历史" }, list: "/reading?cat=%E5%8E%86%E5%8F%B2", next: "/reading/second%2Fbook?cat=%E5%8E%86%E5%8F%B2", label: "书架" },
   ])("preserves detail return and next-book URLs for $searchParams", ({ searchParams, list, next, label }) => {
     render(ReadingEntryPage({ params: { slug: "first" }, searchParams }), { wrapper: Wrapper });
@@ -78,15 +82,39 @@ describe("reading detail navigation", () => {
     expect(sessionStorage.length).toBe(0);
   });
 
-  it("starts next-book progress without replacing the original list scroll position", () => {
-    const key = "silence:list-position:/reading/evolution";
+  it.each([
+    { view: "evolution", list: "/reading/evolution" },
+    { view: "home", list: "/" },
+  ])("starts next-book progress without replacing the original $view scroll position", ({ view, list }) => {
+    const key = `silence:list-position:${list}`;
     sessionStorage.setItem(key, "900");
-    render(ReadingEntryPage({ params: { slug: "first" }, searchParams: { view: "evolution" } }), { wrapper: Wrapper });
+    render(ReadingEntryPage({ params: { slug: "first" }, searchParams: { view } }), { wrapper: Wrapper });
 
     fireEvent.click(screen.getByRole("link", { name: /Next book/ }));
 
     expect(screen.getByTestId("progress").textContent).toBe("true");
     expect(sessionStorage.getItem(key)).toBe("900");
     expect(sessionStorage.getItem("silence:return-to-list")).toBeNull();
+  });
+
+  it.each(["返回首页", "关闭书籍详情，返回首页", "Escape"])("restores the saved homepage position once after %s", (action) => {
+    sessionStorage.setItem("silence:list-position:/", "3663");
+    const scroll = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
+    const detail = render(ReadingEntryPage({ params: { slug: "first" }, searchParams: { view: "home" } }), { wrapper: Wrapper });
+    if (action === "Escape") {
+      fireEvent(screen.getByRole("dialog"), new Event("cancel", { cancelable: true }));
+      expect(router.replace).toHaveBeenCalledExactlyOnceWith("/", { scroll: false });
+    } else {
+      fireEvent.click(screen.getByRole("link", { name: action }));
+    }
+    expect(sessionStorage.getItem("silence:return-to-list")).toBe("/");
+    detail.unmount();
+    window.history.replaceState(null, "", "/");
+    const home = render(<RestoreListScroll />);
+    expect(scroll).toHaveBeenCalledExactlyOnceWith(0, 3663);
+    expect(sessionStorage.getItem("silence:return-to-list")).toBeNull();
+    home.unmount();
+    render(<RestoreListScroll />);
+    expect(scroll).toHaveBeenCalledTimes(1);
   });
 });

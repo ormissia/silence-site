@@ -26,7 +26,7 @@ export default function ReadingEntryPage({ params, searchParams }: {
   const sections = getReadingSections(book.slug);
   const all = listReadingSummaries();
   const next = all[(all.findIndex((entry) => entry.slug === book.slug) + 1) % all.length];
-  const fromEvolution = searchParams.view === "evolution";
+  const returnLabel = searchParams.view === "home" ? "首页" : searchParams.view === "evolution" ? "阅读演化" : "书架";
   const shelfHref = readingListHref(searchParams);
   const stats = [
     ["Progress", book.progress], ["Rating", book.rating],
@@ -39,7 +39,7 @@ export default function ReadingEntryPage({ params, searchParams }: {
     <BookDialog key={book.slug} returnHref={shelfHref} titleId="book-detail-title">
     <article>
       <div className="reading-detail-panel relative bg-surface-raised">
-        <BookToolbar title={book.title} cover={book.cover} author={book.author} rating={book.rating} readingTime={book.readingTime} titleId="book-detail-title" returnHref={shelfHref} returnLabel={fromEvolution ? "阅读演化" : "书架"} />
+        <BookToolbar title={book.title} cover={book.cover} author={book.author} rating={book.rating} readingTime={book.readingTime} titleId="book-detail-title" returnHref={shelfHref} returnLabel={returnLabel} />
 
         <header className="grid gap-8 px-6 pb-10 pt-6 md:grid-cols-[180px_minmax(0,1fr)] md:gap-10 md:px-10 lg:grid-cols-[224px_minmax(0,1fr)] lg:gap-14">
           <div className="mx-auto w-40 self-start overflow-hidden rounded-xl border border-ink/10 bg-ink/5 shadow-[0_16px_40px_rgba(0,0,0,0.18)] md:w-full">

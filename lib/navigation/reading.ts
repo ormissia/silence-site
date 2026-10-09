@@ -5,11 +5,13 @@ export type ReadingNavigationContext = {
 };
 
 function readingQuery({ cat, view }: ReadingNavigationContext) {
+  if (view === "home") return "?view=home";
   if (view === "evolution") return "?view=evolution";
   return typeof cat === "string" && cat && cat !== "all" ? `?cat=${encodeURIComponent(cat)}` : "";
 }
 
 export function readingListHref(context: ReadingNavigationContext = {}) {
+  if (context.view === "home") return "/";
   return context.view === "evolution" ? "/reading/evolution" : `/reading${readingQuery(context)}`;
 }
 

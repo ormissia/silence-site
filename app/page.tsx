@@ -1,26 +1,27 @@
 import { Suspense } from "react";
 import Link from "next/link";
 import { CinemaHero } from "@/components/cinema-hero";
-import { BookSphere } from "@/components/home/book-sphere";
+import { BookRows } from "@/components/home/book-rows";
 import { HomeSplash } from "@/components/home/home-splash";
 import { TodayHighlight } from "@/components/home/today-highlight";
 import { ReadingBackground } from "@/components/home/reading-background";
 import { ReadingReveal } from "@/components/home/reading-reveal";
 import { SelectedWorks } from "@/components/home/selected-works";
 import { PageLoading } from "@/components/layout/page-loading";
+import { RestoreListScroll } from "@/components/layout/list-return";
 import { listFeaturedSummaries } from "@/lib/works";
 import { getDailyIndex, getHighlightBatch, pickSphereBookSummaries } from "@/lib/reading";
 import { getAccentStyle } from "@/lib/accent";
 
-// 球面书籍每次刷新都换一批，依赖运行时随机 seed → 不能预渲染。
+// 首页书封每次刷新换一批，依赖运行时随机 seed → 不能预渲染。
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const featured = await listFeaturedSummaries();
 
-  // 每次请求重新洗牌，从所有有封面的书里抽 50 本上球。
+  // 每次请求重新洗牌，从所有有封面的书里抽 30 本分成三行。
   // 不传 seed → 默认 Date.now()，每次刷新换一批。
-  const sphereBooks = pickSphereBookSummaries(50).map((b) => ({
+  const coverBooks = pickSphereBookSummaries(30).map((b) => ({
     slug: b.slug,
     title: b.title,
     author: b.author,
@@ -33,42 +34,41 @@ export default async function HomePage() {
   return (
     <>
       <HomeSplash />
+      <RestoreListScroll />
       <Suspense fallback={<PageLoading heroOnly />}>
         <CinemaHero />
       </Suspense>
 
       <SelectedWorks works={featured} />
 
-      {/* 阅读区保持深色底，照片留给页脚揭幕，避免同一画面重复裁切。 */}
+      {/* 阅读区沿用主题纸色，照片留给页脚揭幕。 */}
       <ReadingBackground>
-        <div className="relative z-10 mx-auto max-w-[1400px] px-6 py-24 md:px-10 md:py-32">
+        <div className="relative z-10">
           <ReadingReveal>
-            <header className="lg:col-span-5">
+            <header>
               <p className="font-sans text-caption uppercase text-muted">Reading &amp; Notes</p>
               <h2 id="reading-heading" className="mt-4 font-sans text-headline font-normal leading-[1.35] tracking-[0.04em]">
                 字里行间
               </h2>
-              <p className="mt-6 max-w-sm font-sans text-body text-ink/70">
-                划过的句子比走过的路更长。把它们围成一颗星球，每一面都通向一段未完的对话。
+              <p className="mt-6 max-w-lg font-sans text-body text-ink/70">
+                划过的句子比走过的路更长。让书页缓缓流过，每一本都通向一段未完的对话。
               </p>
-              <Link
-                href="/reading"
-                style={getAccentStyle("home:reading")}
-                className="mt-10 silence-pill silence-pill-accent font-sans text-ink"
-              >
-                进入书架 <span aria-hidden>→</span>
-              </Link>
             </header>
+            <Link
+              href="/reading"
+              style={getAccentStyle("home:reading")}
+              className="silence-pill silence-pill-accent font-sans text-ink"
+            >
+              进入书架 <span aria-hidden>→</span>
+            </Link>
 
-            {sphereBooks.length > 0 && (
-              <div className="min-w-0 lg:col-span-7">
-                <BookSphere books={sphereBooks} radius={240} size={76} />
-              </div>
+            {coverBooks.length > 0 && (
+              <BookRows books={coverBooks} />
             )}
           </ReadingReveal>
 
           {highlights.total > 0 && (
-            <div className="mt-16 pt-16 md:mt-24 md:pt-20">
+            <div className="mx-auto mt-16 max-w-[1400px] px-6 pb-24 pt-16 md:mt-24 md:px-10 md:pb-32 md:pt-20">
               <TodayHighlight initialBatch={highlights} startIndex={startIndex} />
             </div>
           )}
