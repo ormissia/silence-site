@@ -863,6 +863,8 @@ html[data-theme="light"] .reading-evolution-tooltip .reading-book-info-mask {
   box-shadow: var(--dropdown-shadow);
   -webkit-backdrop-filter: blur(18px);
   backdrop-filter: blur(18px);
+  /* Clip the filtered layer explicitly: masked hover repaint can leak a rectangular backdrop on the home hero. */
+  clip-path: inset(0 round 24px);
   opacity: 0;
   transition: opacity .16s ease-out;
 }
