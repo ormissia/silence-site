@@ -4,6 +4,7 @@ import { buildSrc } from "@/lib/oss";
 import type { WorkSummary } from "@/lib/works/types";
 import styles from "./selected-works.module.css";
 import { getAccentStyle } from "@/lib/accent";
+import { SelectedWorksGallery } from "./selected-works-gallery";
 
 type Props = {
   works: WorkSummary[];
@@ -22,11 +23,12 @@ export function SelectedWorks({ works }: Props) {
           </h2>
         </header>
 
-        <div className={`${styles.gallery} mt-10 md:mt-12`}>
+        <SelectedWorksGallery>
           {works.slice(0, 5).map((work, index) => (
             <Link
               key={work.slug}
               href={`/works/${work.slug}`}
+              data-work-card
               className={`${styles.card} focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent`}
             >
               <Image
@@ -51,7 +53,7 @@ export function SelectedWorks({ works }: Props) {
               </div>
             </Link>
           ))}
-        </div>
+        </SelectedWorksGallery>
         <div className="mt-10 flex justify-center md:mt-12">
           <Link href="/works" style={getAccentStyle("home:works")} className="silence-pill silence-pill-accent font-sans text-ink">
             全部作品 <span aria-hidden>→</span>

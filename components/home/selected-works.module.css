@@ -62,17 +62,17 @@
 
   /* Keyboard focus takes precedence when the pointer remains over another card. */
   .card:focus-visible,
-  .gallery:not(:has(:focus-visible)) .card:hover {
+  .gallery:not(:has(:focus-visible)) .card[data-pointer-active="true"] {
     flex-basis: 560px;
   }
 
   .card:focus-visible .image,
-  .gallery:not(:has(:focus-visible)) .card:hover .image {
+  .gallery:not(:has(:focus-visible)) .card[data-pointer-active="true"] .image {
     filter: grayscale(0);
   }
 
   .card:focus-visible .caption,
-  .gallery:not(:has(:focus-visible)) .card:hover .caption {
+  .gallery:not(:has(:focus-visible)) .card[data-pointer-active="true"] .caption {
     opacity: 1;
     transform: translateY(0);
   }
