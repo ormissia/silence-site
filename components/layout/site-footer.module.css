@@ -22,9 +22,9 @@
   content: "";
   position: absolute;
   z-index: 1;
-  inset: 0 0 auto;
-  height: 18px;
-  /* Evenly fade the edge shadow into the footer photo. */
+  /* Overlap the clip edge so fractional pixels cannot expose a bright photo seam. */
+  inset: -1px 0 auto;
+  height: 19px;
   background: linear-gradient(to bottom, #000, transparent);
   pointer-events: none;
 }
