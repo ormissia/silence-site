@@ -75,31 +75,9 @@ body:has([data-home-hero])::before {
 }
 
 @media (min-width: 1024px) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
-  html[data-home-snap="active"]:has([data-home-hero]):not(:has(.home-splash, dialog[open])) {
-    scroll-snap-type: y proximity;
-    scroll-padding-top: var(--site-header-height);
-  }
-
-  html[data-home-snap="active"] [data-home-snap-point] {
-    scroll-snap-align: start;
-  }
-
-  .home-hero-snap-point {
-    scroll-snap-stop: always;
-  }
-
-  [data-home-snap-point="works"],
-  [data-home-snap-point="highlight"] {
-    scroll-margin-top: 32px;
-  }
-
   /* Reserve enough trailing space for even a short quote to reach its landing point. */
   .home-highlight {
     min-height: calc(100svh - var(--site-header-height) - 32px);
-  }
-
-  html[data-home-snap="active"] body:has([data-home-hero]) .site-footer {
-    scroll-snap-align: end;
   }
 }
 

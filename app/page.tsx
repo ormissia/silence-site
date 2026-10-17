@@ -3,7 +3,6 @@ import Link from "next/link";
 import { CinemaHero } from "@/components/cinema-hero";
 import { BookRows } from "@/components/home/book-rows";
 import { HomeSplash } from "@/components/home/home-splash";
-import { HomeScrollSnap } from "@/components/home/home-scroll-snap";
 import { TodayHighlight } from "@/components/home/today-highlight";
 import { ReadingBackground } from "@/components/home/reading-background";
 import { ReadingReveal } from "@/components/home/reading-reveal";
@@ -35,7 +34,6 @@ export default async function HomePage() {
   return (
     <>
       <HomeSplash />
-      <HomeScrollSnap />
       <RestoreListScroll />
       <Suspense fallback={<PageLoading heroOnly />}>
         <CinemaHero />

@@ -30,10 +30,22 @@ function FooterLetter({ letter, index, visible, reduced }: {
 
 export function SiteFooter({ year }: { year: number }) {
   const footer = useRef<HTMLElement>(null);
+  const info = useRef<HTMLDivElement>(null);
+  const [infoHeight, setInfoHeight] = useState<number | null>(null);
   const [showImage, setShowImage] = useState(false);
   const reduced = useReducedMotion() ?? false;
   const [visible, setVisible] = useState(false);
   const revealed = visible || reduced;
+
+  useEffect(() => {
+    const element = info.current;
+    if (!element) return;
+    const measure = () => setInfoHeight(element.getBoundingClientRect().height);
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const element = footer.current;
@@ -62,6 +74,10 @@ export function SiteFooter({ year }: { year: number }) {
 
   return (
     <footer ref={footer} className={`${styles.footer} site-footer font-sans`} aria-labelledby="footer-title">
+      {infoHeight !== null && (
+        <span aria-hidden="true" data-footer-snap-point className={styles.snapPoint}
+          style={{ height: `min(100%, calc(${infoHeight}px + var(--footer-info-bottom) + var(--footer-snap-gap)))` }} />
+      )}
       <div className={styles.scene}>
         <div className={styles.background} aria-hidden="true">
           {showImage && <Image src="/images/cover.jpg" alt="" fill sizes="100vw" className="object-cover object-[center_40%]" />}
@@ -88,7 +104,7 @@ export function SiteFooter({ year }: { year: number }) {
           >收着光、句子与几次远行。</motion.p>
         </div>
 
-        <div className={styles.info}>
+        <div ref={info} data-footer-info className={styles.info}>
           <div className={styles.contact}>
             <Link href="/" className={styles.signature}>SILENCE <span>by Song</span></Link>
             <a href="mailto:ormissia@outlook.com">ormissia@outlook.com <span aria-hidden="true">↗</span></a>

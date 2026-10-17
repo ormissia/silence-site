@@ -9,6 +9,7 @@ import {ACCENT_INIT_SCRIPT, getAccentStyle} from "@/lib/accent";
 import {SiteHeader} from "@/components/layout/site-header";
 import {RouteProgress, RouteProgressProvider} from "@/components/layout/route-progress";
 import {SiteFooter} from "@/components/layout/site-footer";
+import {PageScrollSnap} from "@/components/layout/page-scroll-snap";
 import {DetailReturnProvider} from "@/components/layout/detail-return";
 
 const serif = Playfair_Display({
@@ -45,6 +46,7 @@ export default function RootLayout({children}: { children: React.ReactNode }) {
         <DetailReturnProvider>
             <Suspense fallback={null}>
                 <RouteProgress />
+                <PageScrollSnap />
             </Suspense>
             <div aria-hidden="true" className="site-edge-accent site-edge-accent-top" style={getAccentStyle("edge:top")} />
             <div aria-hidden className="silence-glow pointer-events-none absolute inset-x-0 top-0 h-[800px]" style={getAccentStyle("page:glow")} />

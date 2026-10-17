@@ -50,6 +50,7 @@ export default function AboutPage() {
   return (
     <>
       <AboutScrollScene
+        backgroundReserveRatio={0.5}
         hero={
           <header data-header-photo className="about-hero relative mx-auto flex min-h-[calc(100svh+3rem)] max-w-[1400px] flex-col justify-between gap-12 px-6 pb-24 pt-[calc(var(--site-header-height)+2.5rem)] md:min-h-[calc(100svh+5rem)] md:px-12">
             <div>
@@ -88,9 +89,10 @@ export default function AboutPage() {
 
       <section className="relative z-10 bg-paper">
         <div className="mx-auto max-w-[1400px] px-6 pb-24 pt-16 md:px-12">
-          <div className="grid grid-cols-1 gap-12 border-t divider-gradient pt-16 md:grid-cols-[3fr_2fr] lg:gap-20">
+          <div className="relative grid grid-cols-1 gap-12 border-t divider-gradient pt-16 md:grid-cols-[3fr_2fr] lg:gap-20">
+            <span aria-hidden="true" data-about-snap-point="scene-end" className="pointer-events-none absolute inset-x-0 top-0 h-px" />
             <div>
-              <h2 className="mb-6 font-serif text-3xl leading-tight">How to read this place.</h2>
+              <h2 data-about-snap-point="guide" className="mb-6 font-serif text-3xl leading-tight">How to read this place.</h2>
               {sections.map(({ href, label, zh, blurb }) => (
                 <Link key={href} href={href} className="group block border-t divider-gradient py-4">
                   <div className="flex items-center justify-between gap-4">

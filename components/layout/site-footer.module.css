@@ -1,5 +1,7 @@
 .footer {
   --footer-height: clamp(480px, 62svh, 620px);
+  --footer-info-bottom: 28px;
+  --footer-snap-gap: 48px;
   position: relative;
   z-index: 0;
   height: var(--footer-height);
@@ -8,6 +10,12 @@
   isolation: isolate;
   background: rgb(var(--color-paper));
   color: rgb(var(--color-ink));
+}
+
+.snapPoint {
+  position: absolute;
+  inset: 0 0 auto;
+  pointer-events: none;
 }
 
 .footer::after {
@@ -88,7 +96,7 @@
 
 .info {
   position: absolute;
-  bottom: 28px;
+  bottom: var(--footer-info-bottom);
   left: 0;
   right: 0;
   max-width: 1400px;
@@ -121,7 +129,7 @@
   .footer { --footer-height: 460px; }
   /* Center within the space above the stacked contact details on narrow screens. */
   .title { top: calc((100% - 180px) / 2); }
-  .info { bottom: 28px; padding: 0 24px; }
+  .info { padding: 0 24px; }
   .contact, .bottom { align-items: flex-start; flex-direction: column; gap: 16px; }
   .contact { padding-bottom: 18px; }
   .bottom { margin-top: 16px; font-size: 10px; }
