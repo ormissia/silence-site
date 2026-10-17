@@ -4,6 +4,7 @@ import { readAllReadingMdx } from "./mdx";
 import { renderMarkdown } from "./markdown";
 import { dailyHighlightIndex, highlightBatch } from "./reading/highlights";
 import { pickCoveredBooks } from "./reading/selection";
+import { HOME_HIGHLIGHTS, pickHighlightBooks } from "./reading/highlight-books";
 import { createReadingSnapshot } from "./reading/snapshot";
 import type { ReadingEntry, ReadingMetadata, ReadingSummary, Highlight, HighlightBatch } from "./reading/types";
 
@@ -70,6 +71,10 @@ export function getDailyIndex(today = new Date()): number {
 
 export function getHighlightBatch(index: number): HighlightBatch {
   return highlightBatch(snapshot.getHighlights(), index);
+}
+
+export function getHomeHighlightBooks(options = HOME_HIGHLIGHTS, seed = Date.now()) {
+  return pickHighlightBooks(ALL, snapshot.getHighlights(), options, seed);
 }
 
 /**

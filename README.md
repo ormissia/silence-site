@@ -10,13 +10,15 @@
 
 客户端类型位于 `lib/reading/types.ts`、`lib/works/types.ts`、`lib/journal/types.ts`。内容读取、Markdown 渲染及 OSS 资源读取模块通过 `server-only` 限制为服务端使用。
 
-Reading 和 Journal 在构建 worker 或服务端冷启动时各扫描一次 Markdown，持有进程内的原文、元数据和 slug 索引。摘要查询不渲染正文，详情和阅读分段在首次查询时渲染并缓存；书摘复用同一份阅读原文。首页使用 `pickSphereBookSummaries`，保留每次请求随机选书，UTC 每日书摘规则不变。旧完整接口仍可使用，但会按需渲染其返回对象的正文。
+Reading 和 Journal 在构建 worker 或服务端冷启动时各扫描一次 Markdown，持有进程内的原文、元数据和 slug 索引。摘要查询不渲染正文，详情和阅读分段在首次查询时渲染并缓存；书摘复用同一份阅读原文。首页使用 `pickSphereBookSummaries`，保留每次请求随机选书，旧每日书摘 API 的 UTC 日期规则不变。旧完整接口仍可使用，但会按需渲染其返回对象的正文。
 
 进程内快照不提供热刷新；修改内容后需要重新构建并部署，本地开发必要时重启服务。
 
 `lib/mdx.ts` 的三个读取入口统一经过 `lib/content/parse.ts`，返回带类型的元数据与原文，不向领域查询暴露未知 frontmatter。解析边界保留各模块的默认值与导出兼容性；错误阻止读取，兼容性 warning 按源文件/字段输出。
 
 Reading 的查询门面仍是 `lib/reading.ts`；`lib/reading/snapshot.ts` 管理同一份原文、索引和惰性渲染缓存，`highlights.ts` / `selection.ts` 只做纯计算，日期和随机种子由调用方提供。不要让纯算法读取文件或自行决定当前时间。
+
+首页「今日划线」独立于三行滚动书封屏。`lib/reading/highlight-books.ts` 的 `HOME_HIGHLIGHTS` 配置默认抽取 1 本书、每本最多 10 条划线；只选择有封面及有效划线的书，去重后按实际数量展示。每次首页请求重新抽取，当前页面悬浮、切换主题不重新抽样。`getHomeHighlightBooks` 复用阅读快照，仅发送选中书籍的展示字段和划线文本；旧每日书摘 API 保留兼容。
 
 每次 `npm run build` 都重新列举 OSS 相册并探测图片尺寸，包括同 key 替换的图片。两个资源产物仍位于 `content/.album-manifest.json` 和 `content/.image-meta.json`，包含格式版本、OSS 来源、构建标识和生成时间，不入 Git。多个构建 worker 通过锁共用本次结果，产物以临时文件加原子替换写入。
 

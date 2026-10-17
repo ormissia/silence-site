@@ -40,6 +40,12 @@ export type Highlight = {
   author?: string;
 };
 
+export type HighlightBook = Pick<ReadingSummary, "slug" | "title" | "author"> & {
+  cover: string;
+  coverRotation: number;
+  highlights: string[];
+};
+
 /** 目标位置附近的书摘，索引保持全局顺序并支持首尾循环。 */
 export type HighlightBatch = {
   total: number;

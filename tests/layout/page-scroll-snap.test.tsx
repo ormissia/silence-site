@@ -36,11 +36,15 @@ function HomeFixture({ blocked = false, restore = false }: { blocked?: boolean; 
       if (element) element.getBoundingClientRect = rect(2928);
     }}>Works</h2>
     <section data-home-snap-point="reading" ref={(element) => {
-      if (element) element.getBoundingClientRect = rect(3696);
+      if (element) element.getBoundingClientRect = rect(3696, 4320);
     }} />
-    <h2 data-home-snap-point="highlight" ref={(element) => {
-      if (element) element.getBoundingClientRect = rect(4628);
-    }}>Highlight</h2>
+    <section className="home-highlight" ref={(element) => {
+      if (element) element.getBoundingClientRect = rect(4416);
+    }}>
+      <h2 data-home-snap-point="highlight" ref={(element) => {
+        if (element) element.getBoundingClientRect = rect(4496);
+      }}>Highlight</h2>
+    </section>
     <footer className="site-footer" ref={(element) => {
       if (element) element.getBoundingClientRect = rect(5520, 6000);
     }}><span data-footer-snap-point ref={(element) => {
@@ -81,7 +85,7 @@ afterEach(() => {
 });
 
 describe("page snap configurations", () => {
-  it.each([0, 540, 828, 1332, 1836, 2800, 3600, 4500, 4960])("keeps the homepage landing position at %i", (target) => {
+  it.each([0, 540, 828, 1332, 1836, 2800, 3600, 4272, 4960])("keeps the homepage landing position at %i", (target) => {
     const from = target === 0 ? 100 : target - 100;
     const to = target === 0 ? 40 : target - 40;
     y = from;
@@ -95,6 +99,22 @@ describe("page snap configurations", () => {
       move(target + 12);
       settle();
       expect(y).toBeCloseTo(target + 12);
+    }
+  });
+
+  it.each([96, 120])("aligns the gap between reading and highlights below a %ipx header in both directions", (headerHeight) => {
+    document.documentElement.style.setProperty("--site-header-height", `${headerHeight}px`);
+    const boundary = (4320 + 4416) / 2;
+    const target = boundary - headerHeight;
+    render(<HomeFixture />);
+    for (const direction of [1, -1]) {
+      move(target - direction * 120);
+      fireEvent.wheel(document.body, { deltaY: direction * 40 });
+      move(target - direction * 40);
+      settle();
+      const reading = document.querySelector("[data-home-snap-point='reading']")!.getBoundingClientRect();
+      const highlight = document.querySelector(".home-highlight")!.getBoundingClientRect();
+      expect((reading.bottom + highlight.top) / 2).toBeCloseTo(headerHeight);
     }
   });
 

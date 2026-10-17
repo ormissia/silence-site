@@ -75,9 +75,13 @@ body:has([data-home-hero])::before {
 }
 
 @media (min-width: 1024px) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
-  /* The snap target follows 5rem of top padding; keep the footer 32px below the viewport. */
-  .home-highlight {
-    min-height: calc(100svh - var(--site-header-height) + 5rem);
+  /* The snap boundary sits 48px above this block; balance that space below its content. */
+  main .home-highlight {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: calc(100svh - var(--site-header-height) - 48px);
+    padding-block: 0 48px;
   }
 }
 
@@ -665,7 +669,7 @@ body[data-lightbox-open="true"] .site-header {
 @media (min-width: 1280px) {
   .reading-shelf-grid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
 }
-.reading-book-link { perspective: 1200px; }
+.reading-book-link { perspective: 1200px; border-radius: 8px; }
 .reading-book-info-mask {
   background: linear-gradient(180deg, rgb(var(--color-paper) / .68), rgb(var(--color-paper) / .8) 45%, rgb(var(--color-paper) / .94));
 }
@@ -760,7 +764,7 @@ html[data-theme="light"] .reading-evolution-tooltip .reading-book-info-mask {
   transform-style: preserve-3d;
   transition: transform 650ms cubic-bezier(.2,.7,.2,1);
 }
-.reading-book-face { backface-visibility: hidden; -webkit-backface-visibility: hidden; }
+.reading-book-face { border-radius: 8px; backface-visibility: hidden; -webkit-backface-visibility: hidden; }
 .reading-book-front { transform: rotateY(0deg); }
 .reading-book-back { transform: rotateY(180deg); }
 .reading-book-back h3 { padding-right: 36px; }

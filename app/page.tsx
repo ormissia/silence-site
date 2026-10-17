@@ -10,7 +10,7 @@ import { SelectedWorks } from "@/components/home/selected-works";
 import { PageLoading } from "@/components/layout/page-loading";
 import { RestoreListScroll } from "@/components/layout/list-return";
 import { listFeaturedSummaries } from "@/lib/works";
-import { getDailyIndex, getHighlightBatch, pickSphereBookSummaries } from "@/lib/reading";
+import { getHomeHighlightBooks, pickSphereBookSummaries } from "@/lib/reading";
 import { getAccentStyle } from "@/lib/accent";
 
 // 首页书封每次刷新换一批，依赖运行时随机 seed → 不能预渲染。
@@ -28,8 +28,7 @@ export default async function HomePage() {
     cover: b.cover,
   }));
 
-  const startIndex = getDailyIndex();
-  const highlights = getHighlightBatch(startIndex);
+  const highlightBooks = getHomeHighlightBooks();
 
   return (
     <>
@@ -50,9 +49,6 @@ export default async function HomePage() {
               <h2 id="reading-heading" className="mt-4 font-sans text-headline font-normal leading-[1.35] tracking-[0.04em]">
                 字里行间
               </h2>
-              <p className="mt-6 max-w-lg font-sans text-body text-ink/70">
-                划过的句子比走过的路更长。让书页缓缓流过，每一本都通向一段未完的对话。
-              </p>
             </header>
             <Link
               href="/reading"
@@ -67,11 +63,9 @@ export default async function HomePage() {
             )}
           </ReadingReveal>
 
-          {highlights.total > 0 && (
-            <div className="home-highlight mx-auto mt-16 max-w-[1400px] px-6 pb-24 pt-16 md:mt-24 md:px-10 md:pb-32 md:pt-20">
-              <TodayHighlight initialBatch={highlights} startIndex={startIndex} />
-            </div>
-          )}
+          <div className="home-highlight mx-auto mt-16 max-w-[1400px] px-6 pb-24 pt-16 md:mt-24 md:px-10 md:pb-32 md:pt-20">
+            <TodayHighlight books={highlightBooks} />
+          </div>
         </div>
       </ReadingBackground>
     </>
