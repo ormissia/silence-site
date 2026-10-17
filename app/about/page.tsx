@@ -11,7 +11,7 @@ const facts = [
   ["Cameras", "Sony A1M2 · Hasselblad X2D · FUJI GSW960"],
   ["Film stock", "Kodak Portra 400 · Fuji Velvia 100"],
   ["Reading", "康德 · 黑格尔 · 黑塞 · 毛姆"],
-  ["Off-screen", "Reading · Hiking"],
+  ["Off-screen", "Reading · Hiking · Photography"],
   ["Print & press", "Available on request"],
 ];
 const sections = [
@@ -52,13 +52,13 @@ export default function AboutPage() {
       <AboutScrollScene
         backgroundReserveRatio={0.5}
         hero={
-          <header data-header-photo className="about-hero relative mx-auto flex min-h-[calc(100svh+3rem)] max-w-[1400px] flex-col justify-between gap-12 px-6 pb-24 pt-[calc(var(--site-header-height)+2.5rem)] md:min-h-[calc(100svh+5rem)] md:px-12">
+          <header data-header-photo className="about-hero relative mx-auto flex min-h-[calc(100svh+3rem)] max-w-[1400px] flex-col justify-between gap-12 px-6 pb-32 pt-[calc(var(--site-header-height)+2.5rem)] md:min-h-[calc(100svh+5rem)] md:px-12">
             <div>
               <p className="text-xs uppercase tracking-[0.24em] text-white/75">About — Song</p>
               <h1 className="mt-4 font-sans text-display font-semibold text-white [text-shadow:0_2px_18px_rgba(0,0,0,0.45)]">About</h1>
               <p className="mt-5 font-serif text-sm italic text-white/90 [text-shadow:0_2px_8px_rgba(0,0,0,0.9),0_0_24px_rgba(0,0,0,0.7)]">A note on the person behind the camera.</p>
             </div>
-            <p style={getAccentStyle("about:quote")} className="about-hero-quote ml-auto w-max max-w-full whitespace-pre text-right text-[clamp(12px,3.5vw,16px)] leading-[1.9]">
+            <p style={getAccentStyle("about:quote")} className="about-hero-quote mx-auto w-max max-w-full whitespace-pre-line text-center text-lede leading-[1.9]">
               {"我在代码里寻找秩序，在书页间追问命运\n走进群山，用镜头留下那些尚未来得及命名的光"}
             </p>
           </header>

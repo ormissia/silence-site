@@ -75,9 +75,9 @@ body:has([data-home-hero])::before {
 }
 
 @media (min-width: 1024px) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
-  /* Reserve enough trailing space for even a short quote to reach its landing point. */
+  /* The snap target follows 5rem of top padding; keep the footer 32px below the viewport. */
   .home-highlight {
-    min-height: calc(100svh - var(--site-header-height) - 32px);
+    min-height: calc(100svh - var(--site-header-height) + 5rem);
   }
 }
 

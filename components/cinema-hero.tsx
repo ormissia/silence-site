@@ -39,7 +39,6 @@ function PoemLine({ text, index, progress }: {
  * 电影感序章。
  * - 容器高 378vh，内层 sticky 钉住，实际固定滚动行程为 278vh
  * - 相机模型在屏幕中央随滚动 scale 放大，最终 LCD 取景器恰好占满屏
- * - 左右两侧白色文案纵向滚入
  * - prefers-reduced-motion 用户得到静态版（无 scale，无 sticky）
  */
 export function CinemaHero() {
@@ -95,14 +94,6 @@ export function CinemaHero() {
   const poemShadeOpacity = useTransform(scrollYProgress, [0.42, 0.52], [0, 1]);
   // 整场不再淡出，靠 sticky 容器到底后自然滚出屏幕，让标题/背景一起被推走
   const sceneOpacity = useTransform(scrollYProgress, [0, 1], [1, 1]);
-
-  // 左侧文案：从下方滚入，再向上推走（在照片铺满前结束）
-  const leftY = useTransform(scrollYProgress, [0.05, 0.22, 0.4], [120, 0, -160]);
-  const leftOpacity = useTransform(scrollYProgress, [0.05, 0.12, 0.3, 0.4], [0, 1, 1, 0]);
-
-  // 右侧文案：晚一拍出现
-  const rightY = useTransform(scrollYProgress, [0.1, 0.28, 0.45], [140, 0, -140]);
-  const rightOpacity = useTransform(scrollYProgress, [0.1, 0.2, 0.35, 0.45], [0, 1, 1, 0]);
 
   // 标题渐隐（hero 底部那行 display 字）
   const titleOpacity = useTransform(scrollYProgress, [0, 0.18], [1, 0]);
@@ -168,50 +159,6 @@ export function CinemaHero() {
               <PoemLine key={text} text={text} index={index} progress={sceneProgress} />
             ))}
           </h2>
-        </div>
-
-        {/* 左右文案 */}
-        <motion.div
-          aria-hidden
-          style={{ opacity: leftOpacity }}
-          className="pointer-events-none absolute inset-0 z-[19] bg-[linear-gradient(90deg,rgba(10,10,11,0.5)_0%,transparent_32%,transparent_72%,rgba(10,10,11,0.35)_100%)]"
-        />
-        <div className="pointer-events-none absolute inset-0 z-20 mx-auto flex max-w-[1400px] items-center justify-between px-6 md:px-10">
-          <motion.div
-            style={{ y: leftY, opacity: leftOpacity }}
-            className="pointer-events-auto max-w-[18rem] font-sans font-normal [text-shadow:0_2px_16px_rgba(0,0,0,0.65)] md:max-w-xs"
-          >
-            <h2 className="text-headline font-normal leading-[1.35] tracking-[0.04em] text-ink">
-              <span className="mb-3 block text-deck leading-relaxed tracking-[0.08em] text-ink/70">这里是</span>
-              寂静无声。
-            </h2>
-            <p className="mt-6 text-body leading-[2] tracking-[0.025em] text-ink/85">
-              一个收着光、句子
-              <br />与几次远行的小房间。
-            </p>
-            <p className="mt-7 text-deck leading-[2.1] tracking-[0.025em] text-ink/70">
-              从一次按下的快门、<br />
-              到一句被划下的话、<br />
-              偶尔写下的几行字，<br />
-              慢慢攒成现在的样子。
-            </p>
-          </motion.div>
-
-          <motion.div
-            style={{ y: rightY, opacity: rightOpacity }}
-            className="pointer-events-auto hidden max-w-[18rem] font-sans font-normal text-right [text-shadow:0_2px_16px_rgba(0,0,0,0.65)] md:block"
-          >
-            <p className="text-body leading-[2.1] tracking-[0.025em] text-ink/75">
-              如果记忆不好，
-              <br />旅途中的景色
-              <br />大概很快就会忘记，
-            </p>
-            <p className="mt-7 text-body leading-[2.1] tracking-[0.025em] text-ink/90">
-              而摄影，
-              <br />让这份
-              <span className="text-accent">记忆</span>历久弥新。
-            </p>
-          </motion.div>
         </div>
 
         {/* hero 底部标题（仅标题，跟随相机推近一起淡出） */}
