@@ -9,15 +9,20 @@ import { CAMERA, lcdCenter } from "@/components/camera-spec";
 import { getAccentStyle } from "@/lib/accent";
 
 const POEM_LINES = ["这是一场回忆，", "还是一场梦，", "我不知道。"];
+const SCENE_TRAVEL_VH = 278;
+const PHOTO_FILLED_VH = 75;
+const POEM_START_VH = PHOTO_FILLED_VH + 10;
+const POEM_STEP_VH = 70;
+const POEM_REVEAL_VH = 30;
+const HERO_STOPS = [0, PHOTO_FILLED_VH, ...POEM_LINES.map((_, index) => POEM_START_VH + index * POEM_STEP_VH + POEM_REVEAL_VH)];
 
 function PoemLine({ text, index, progress }: {
   text: string;
   index: number;
   progress: MotionValue<number>;
 }) {
-  // 278vh 滚动行程：每隔 70vh 开始下一句，每句用 30vh 缓慢揭开。
-  const start = (69 + index * 70) / 278;
-  const end = start + 30 / 278;
+  const start = (POEM_START_VH + index * POEM_STEP_VH) / SCENE_TRAVEL_VH;
+  const end = start + POEM_REVEAL_VH / SCENE_TRAVEL_VH;
   const opacity = useTransform(progress, [start, end], [0, 1]);
   const y = useTransform(progress, [start, end], ["40%", "0%"]);
 
@@ -49,7 +54,7 @@ export function CinemaHero() {
     offset: ["start start", "end end"],
   });
   // 前 75vh 保持原有相机推近节奏，新增行程用于后半段诗句与停留。
-  const scrollYProgress = useTransform(sceneProgress, [0, 75 / 278, 1], [0, 0.5, 1]);
+  const scrollYProgress = useTransform(sceneProgress, [0, PHOTO_FILLED_VH / SCENE_TRAVEL_VH, 1], [0, 0.5, 1]);
 
   // 前段保持原推近节奏，40% 起平滑接到按视口计算的铺满尺寸。
   const cameraScale = useTransform(
@@ -86,7 +91,7 @@ export function CinemaHero() {
   const shellOpacity = useTransform(scrollYProgress, [0.42, 0.5], [1, 0]);
   // 原 LCD 照片成为背景后，仅叠加逐渐加深的暗角。
   const fgVignette = useTransform(scrollYProgress, [0.5, 1], [0, 0.5]);
-  // 诗句在 239vh 时全部显示，最后 39vh 留给阅读。
+  // 诗句在 255vh 时全部显示，最后 23vh 留给阅读。
   const poemShadeOpacity = useTransform(scrollYProgress, [0.42, 0.52], [0, 1]);
   // 整场不再淡出，靠 sticky 容器到底后自然滚出屏幕，让标题/背景一起被推走
   const sceneOpacity = useTransform(scrollYProgress, [0, 1], [1, 1]);
@@ -108,6 +113,10 @@ export function CinemaHero() {
 
   return (
     <section ref={ref} data-home-hero data-theme-surface="dark" className="relative h-[378vh]">
+      {HERO_STOPS.map((top, index) => (
+        <span key={top} aria-hidden="true" data-home-snap-point={`hero-${index}`}
+          className="home-hero-snap-point" style={{ top: `calc(${top}vh + var(--site-header-height, 90px))` }} />
+      ))}
       <div className="sticky top-0 h-screen w-full overflow-hidden bg-paper">
         {/* 背景与 LCD 保留原图地址，共用加载完成后的淡入。 */}
         <motion.div className="absolute inset-0" style={{ opacity: sceneOpacity }}>

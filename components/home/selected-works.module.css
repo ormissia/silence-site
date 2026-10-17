@@ -38,7 +38,8 @@
     display: flex;
     justify-content: center;
     gap: 16px;
-    height: clamp(400px, 38vw, 520px);
+    /* Fit the heading and action above a 64px bottom breathing space at the snap point. */
+    height: min(clamp(400px, 38vw, 520px), max(220px, calc(100svh - var(--site-header-height, 90px) - 320px)));
   }
 
   .card {

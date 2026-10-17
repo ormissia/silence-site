@@ -49,6 +49,11 @@
 @media (min-width: 1024px) {
   .intro > [role="group"] { --book-width: clamp(32px, calc((100svh - var(--site-header-height, 90px) - 132px) * .2222), 104px); }
 }
+@media (min-width: 1024px) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
+  .intro { height: calc(100svh - var(--site-header-height, 90px)); }
+  .intro > header { top: var(--intro-gap); }
+  .intro > [role="group"] { top: 50%; }
+}
 @media (prefers-reduced-motion: reduce) {
   .intro > header::before { transition: none; }
 }

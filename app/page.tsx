@@ -3,6 +3,7 @@ import Link from "next/link";
 import { CinemaHero } from "@/components/cinema-hero";
 import { BookRows } from "@/components/home/book-rows";
 import { HomeSplash } from "@/components/home/home-splash";
+import { HomeScrollSnap } from "@/components/home/home-scroll-snap";
 import { TodayHighlight } from "@/components/home/today-highlight";
 import { ReadingBackground } from "@/components/home/reading-background";
 import { ReadingReveal } from "@/components/home/reading-reveal";
@@ -34,6 +35,7 @@ export default async function HomePage() {
   return (
     <>
       <HomeSplash />
+      <HomeScrollSnap />
       <RestoreListScroll />
       <Suspense fallback={<PageLoading heroOnly />}>
         <CinemaHero />
@@ -68,7 +70,7 @@ export default async function HomePage() {
           </ReadingReveal>
 
           {highlights.total > 0 && (
-            <div className="mx-auto mt-16 max-w-[1400px] px-6 pb-24 pt-16 md:mt-24 md:px-10 md:pb-32 md:pt-20">
+            <div className="home-highlight mx-auto mt-16 max-w-[1400px] px-6 pb-24 pt-16 md:mt-24 md:px-10 md:pb-32 md:pt-20">
               <TodayHighlight initialBatch={highlights} startIndex={startIndex} />
             </div>
           )}

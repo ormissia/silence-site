@@ -74,6 +74,7 @@ export function TodayHighlight({
 
   return (
     <div
+      data-home-snap-point="highlight"
       className="grid gap-8 lg:grid-cols-12 lg:gap-x-8"
       aria-busy={loading}
       onKeyDown={(event) => {

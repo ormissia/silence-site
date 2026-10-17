@@ -30,15 +30,17 @@ export function ReadingReveal({ children }: { children: ReactNode }) {
   }, [controls, reduced]);
 
   return (
-    <motion.div
-      ref={ref}
-      initial={false}
-      animate={controls}
-      transition={{ duration: reduced ? 0 : 0.9, ease: "easeOut" }}
-      onFocusCapture={() => controls.set({ opacity: 1, y: 0 })}
-      className={styles.intro}
-    >
-      {children}
-    </motion.div>
+    <div data-home-snap-point="reading">
+      <motion.div
+        ref={ref}
+        initial={false}
+        animate={controls}
+        transition={{ duration: reduced ? 0 : 0.9, ease: "easeOut" }}
+        onFocusCapture={() => controls.set({ opacity: 1, y: 0 })}
+        className={styles.intro}
+      >
+        {children}
+      </motion.div>
+    </div>
   );
 }

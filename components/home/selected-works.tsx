@@ -16,7 +16,7 @@ export function SelectedWorks({ works }: Props) {
   return (
     <section aria-labelledby="selected-works-heading" className="relative z-20 bg-paper">
       <div className="mx-auto max-w-[1400px] px-6 py-24 md:px-10 md:py-28">
-        <header className="text-center">
+        <header data-home-snap-point="works" className="text-center">
           <p className="font-sans text-caption uppercase text-muted">Selected Works</p>
           <h2 id="selected-works-heading" className="mt-4 font-sans text-headline font-normal leading-[1.35] tracking-[0.04em]">
             光的片段
