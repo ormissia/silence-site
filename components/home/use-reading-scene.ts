@@ -54,6 +54,9 @@ export function useReadingScene(root: RefObject<HTMLDivElement>, stage: RefObjec
     let restoredPhases = false;
     let pendingRestore = restored;
     let lastRate = -1;
+    let previousProgress = 0;
+    let scrollingBack = false;
+    let brakingStart = 0;
     let source: HTMLElement | undefined;
 
     const animations = () => tracks.map(track => track.getAnimations?.()[0]);
@@ -102,11 +105,18 @@ export function useReadingScene(root: RefObject<HTMLDivElement>, stage: RefObjec
       const header = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--site-header-height")) || 90;
       const travel = scene.offsetHeight - canvas.clientHeight;
       const progress = travel > 0 ? clamp((header - scene.getBoundingClientRect().top) / travel) : 0;
+      if (!resizing && progress !== previousProgress) {
+        const nextScrollingBack = progress < previousProgress;
+        if (scrollingBack && !nextScrollingBack) brakingStart = Math.min(previousProgress, SCENE_STOPS.freeze);
+        scrollingBack = nextScrollingBack;
+      }
+      previousProgress = progress;
       setReduced(media.matches);
       const staticScene = media.matches;
       setTransitioning(!staticScene && progress > 0);
+      const previousFocus = locked.current;
 
-      if (!staticScene && progress <= 0 && !pendingRestore) {
+      if (!staticScene && progress <= SCENE_STOPS.freeze && !pendingRestore) {
         locked.current = undefined;
         source = undefined;
         setSelected(undefined);
@@ -121,17 +131,20 @@ export function useReadingScene(root: RefObject<HTMLDivElement>, stage: RefObjec
         setSelected({ ...locked.current });
       }
 
-      changeRate(staticScene || locked.current || pendingRestore?.selectedSlug ? 0 : (1 - clamp(progress / SCENE_STOPS.freeze)) ** 2);
+      const brakingRange = SCENE_STOPS.freeze - brakingStart;
+      const forwardRate = brakingRange > 0 ? clamp((SCENE_STOPS.freeze - progress) / brakingRange) ** 2 : 0;
+      changeRate(staticScene || locked.current || pendingRestore?.selectedSlug ? 0 : scrollingBack ? 1 : forwardRate);
+      const focus = locked.current ?? previousFocus;
       const settle = staticScene ? 1 : ease((progress - SCENE_STOPS.freeze) / (SCENE_STOPS.center - SCENE_STOPS.freeze));
       const peek = staticScene ? 1 : ease((progress - SCENE_STOPS.center) / (SCENE_STOPS.finish - SCENE_STOPS.center));
       const rotation = locked.current ? (Array.from(locked.current.book.slug).reduce((sum, letter) => sum + letter.charCodeAt(0), 0) % 2 ? -3 : 3) : 0;
       scene.style.setProperty("--wall-opacity", String(staticScene ? 1 : 1 - settle));
-      scene.style.setProperty("--focus-x", `${(locked.current?.x ?? 0) * (1 - settle)}px`);
-      scene.style.setProperty("--focus-y", `${(locked.current?.y ?? 0) * (1 - settle)}px`);
+      scene.style.setProperty("--focus-x", `${(focus?.x ?? 0) * (1 - settle)}px`);
+      scene.style.setProperty("--focus-y", `${(focus?.y ?? 0) * (1 - settle)}px`);
       const viewportWidth = canvas.clientWidth;
       const columns = viewportWidth >= 1280 ? 8 : viewportWidth >= 1024 ? 7 : viewportWidth >= 768 ? 5 : viewportWidth >= 640 ? 3 : 2;
       const targetWidth = (Math.min(viewportWidth, 1400) - (viewportWidth >= 768 ? 96 : 48) + 20) / columns - 20;
-      const startWidth = locked.current?.width ?? 104;
+      const startWidth = focus?.width ?? 104;
       scene.style.setProperty("--focus-width", `${startWidth + (Math.max(startWidth, targetWidth) - startWidth) * settle}px`);
       scene.style.setProperty("--cover-veil", String(.55 * (1 - settle)));
       scene.style.setProperty("--peek", String(peek));

@@ -86,7 +86,7 @@ describe("continuous homepage reading scene", () => {
   it("slows all rows without restarting their phases, then keeps the nearest book even when it has no notes", () => {
     const view = render(<Fixture />); flush();
     progress(.175);
-    expect(animations.map(animation => animation.playbackRate)).toEqual([.25, .25, .25]);
+    animations.forEach(animation => expect(animation.playbackRate).toBeCloseTo(.25));
     expect(animations.map(animation => animation.currentTime)).toEqual([100, 200, 300]);
     expect(view.queryByTestId("selected")).toBeNull();
     progress(.36);
@@ -101,15 +101,39 @@ describe("continuous homepage reading scene", () => {
     expect(parseFloat(view.getByTestId("scene").style.getPropertyValue("--focus-width"))).toBeGreaterThan(100);
   });
 
-  it("reverses the composition without choosing again, resuming rows only back at the start", () => {
-    const view = render(<Fixture />); flush(); progress(.95); progress(.2);
+  it("resumes rows at their current phases as soon as the cover shrinks back to its original size", () => {
+    bookLeft = 430;
+    const view = render(<Fixture />); flush(); progress(.95); progress(.5);
     expect(view.getByTestId("selected").dataset.id).toBe("1:1:b");
     expect(animations[1].playbackRate).toBe(0);
+    expect(parseFloat(view.getByTestId("scene").style.getPropertyValue("--focus-width"))).toBeGreaterThan(100);
+    progress(.35);
+    expect(view.queryByTestId("selected")).toBeNull();
+    expect(animations.map(animation => animation.playbackRate)).toEqual([1, 1, 1]);
+    expect(animations.map(animation => animation.currentTime)).toEqual([100, 200, 300]);
+    expect(view.getByTestId("scene").style.getPropertyValue("--wall-opacity")).toBe("1");
     expect(view.getByTestId("scene").style.getPropertyValue("--peek")).toBe("0");
     expect(view.getByTestId("scene").style.getPropertyValue("--focus-width")).toBe("100px");
+    expect(view.getByTestId("scene").style.getPropertyValue("--focus-x")).toBe("-20px");
+    progress(.2);
+    act(() => resizes.forEach(resize => resize())); flush();
+    expect(animations[1].playbackRate).toBe(1);
     progress(0);
     expect(view.queryByTestId("selected")).toBeNull();
     expect(animations[1].playbackRate).toBe(1);
+  });
+
+  it("decelerates again after changing direction and selects the book now nearest the center", () => {
+    const view = render(<Fixture />); flush(); progress(.95); progress(.2);
+    expect(animations[1].playbackRate).toBe(1);
+    bookLeft = 900;
+    progress(.201);
+    expect(animations[1].playbackRate).toBeGreaterThan(.95);
+    progress(.25);
+    expect(animations[1].playbackRate).toBeCloseTo((.1 / .15) ** 2);
+    progress(.4);
+    expect(animations[1].playbackRate).toBe(0);
+    expect(view.getByTestId("selected").dataset.id).toBe("1:0:a");
   });
 
   it("restores the actual book list and row phases after detail return even if the server sends new books", () => {
