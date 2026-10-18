@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
 import { useRef } from "react";
+import { motionValue } from "framer-motion";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AboutIceReveal } from "@/components/about/about-ice-reveal";
 import { createIceRenderer, ICE_LIFETIME_MS } from "@/components/about/ice-reveal-renderer";
@@ -11,6 +12,8 @@ vi.mock("@/components/about/ice-reveal-renderer", () => ({
 }));
 
 const renderer = { resize: vi.fn(), draw: vi.fn(), clear: vi.fn(), dispose: vi.fn() };
+const fadeOpacity = motionValue(0.4);
+const shadeOpacity = motionValue(0);
 let reduced = false;
 let hidden = false;
 let imageTop = -120;
@@ -27,7 +30,7 @@ class FakeImage {
 }
 function Fixture() {
   const ref = useRef<HTMLDivElement>(null);
-  return <div ref={ref} data-testid="surface"><AboutIceReveal interactionRef={ref} /><a href="/works">Works</a></div>;
+  return <div ref={ref} data-testid="surface"><AboutIceReveal interactionRef={ref} fadeOpacity={fadeOpacity} shadeOpacity={shadeOpacity} /><a href="/works">Works</a></div>;
 }
 function loadImages() {
   act(() => images.forEach(image => {
@@ -46,6 +49,7 @@ const advance = (ms = 20) => act(() => vi.advanceTimersByTime(ms));
 beforeEach(() => {
   vi.useFakeTimers(); vi.clearAllMocks();
   reduced = false; hidden = false; imageTop = -120; images.length = 0; mediaListeners.clear();
+  fadeOpacity.set(0.4); shadeOpacity.set(0);
   vi.mocked(createIceRenderer).mockReturnValue(renderer);
   vi.stubGlobal("Image", FakeImage);
   vi.stubGlobal("matchMedia", () => ({
@@ -90,9 +94,12 @@ describe("About ice reveal lifecycle", () => {
     const surface = view.getByTestId("surface");
     pointer(surface, 200, 300); advance();
     imageTop = -200; fireEvent.scroll(window);
+    act(() => { fadeOpacity.set(0.65); shadeOpacity.set(0.22); });
     const event = pointer(surface, 220, 300, "pointerdown"); advance();
     expect(event.defaultPrevented).toBe(false);
     expect(renderer.draw.mock.calls.at(-1)![0]).toEqual([[220, 400, 220, 400]]);
+    expect(renderer.draw.mock.calls.at(-1)!.slice(3)).toEqual([0.65, 0.22]);
+    expect(createIceRenderer).toHaveBeenCalledTimes(1);
     pointer(view.getByText("Works"), 100, 100); advance();
     expect(renderer.draw.mock.calls.at(-1)![0]).toEqual([]);
     pointer(surface, 600, 300); advance();

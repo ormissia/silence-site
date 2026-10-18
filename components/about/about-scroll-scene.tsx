@@ -53,12 +53,12 @@ export function AboutScrollScene({
             src="/images/background.jpg" alt="" loading="eager"
             className="absolute inset-0 h-full w-full object-cover object-center brightness-[0.9] saturate-[0.85]"
           />
-          <AboutIceReveal interactionRef={sceneRef} />
           <motion.div className="about-scene-fade absolute inset-0" style={{ opacity: reducedMotion ? 1 : fadeOpacity }} />
           <motion.div
             className="about-scene-shade absolute inset-0 bg-paper"
             style={{ "--about-shade-opacity": reducedMotion ? 0 : shadeOpacity } as MotionStyle}
           />
+          <AboutIceReveal interactionRef={sceneRef} fadeOpacity={fadeOpacity} shadeOpacity={shadeOpacity} />
         </motion.div>
       </div>
       <div className="about-scene-foreground relative z-10 -mt-[100svh] motion-reduce:-mt-[calc(100svh+var(--about-background-travel))]">

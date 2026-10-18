@@ -1,9 +1,14 @@
 "use client";
 
 import { useEffect, useRef, type RefObject } from "react";
+import type { MotionValue } from "framer-motion";
 import { createIceRenderer, ICE_LIFETIME_MS, type IceSegment } from "./ice-reveal-renderer";
 
-export function AboutIceReveal({ interactionRef }: { interactionRef: RefObject<HTMLDivElement> }) {
+export function AboutIceReveal({ interactionRef, fadeOpacity, shadeOpacity }: {
+  interactionRef: RefObject<HTMLDivElement>;
+  fadeOpacity: MotionValue<number>;
+  shadeOpacity: MotionValue<number>;
+}) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -49,7 +54,7 @@ export function AboutIceReveal({ interactionRef }: { interactionRef: RefObject<H
       frame = 0;
       if (!renderer || motion.matches || !visible || document.hidden) { reset(); return; }
       if (time - lastStroke > ICE_LIFETIME_MS + 100) { reset(); return; }
-      renderer.draw(segments, Math.max(0, time - previousTime), time);
+      renderer.draw(segments, Math.max(0, time - previousTime), time, fadeOpacity.get(), shadeOpacity.get());
       segments = []; previousTime = time;
       canvas!.style.opacity = "1";
       frame = requestAnimationFrame(tick);
@@ -117,7 +122,7 @@ export function AboutIceReveal({ interactionRef }: { interactionRef: RefObject<H
       canvas.removeEventListener("webglcontextlost", contextLost);
       canvas.removeEventListener("webglcontextrestored", contextRestored);
     };
-  }, [interactionRef]);
+  }, [interactionRef, fadeOpacity, shadeOpacity]);
 
-  return <canvas ref={canvasRef} aria-hidden="true" className="about-ice-canvas pointer-events-none absolute inset-0 h-full w-full opacity-0 brightness-[0.9] saturate-[0.85]" />;
+  return <canvas ref={canvasRef} aria-hidden="true" className="about-ice-canvas pointer-events-none absolute inset-0 h-full w-full opacity-0" />;
 }

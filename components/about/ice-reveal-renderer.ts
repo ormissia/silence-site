@@ -4,7 +4,9 @@ export const ICE_LIFETIME_MS = 3000;
 export type IceSegment = [number, number, number, number];
 
 export function createIceRenderer(canvas: HTMLCanvasElement, original: HTMLImageElement, ice: HTMLImageElement) {
-  const gl = canvas.getContext("webgl", { alpha: false, antialias: false, depth: false, preserveDrawingBuffer: false });
+  const gl = canvas.getContext("webgl", {
+    alpha: true, premultipliedAlpha: false, antialias: false, depth: false, preserveDrawingBuffer: false,
+  });
   if (!gl) throw new Error("WebGL unavailable");
   gl.disable(gl.DITHER);
 
@@ -69,7 +71,6 @@ export function createIceRenderer(canvas: HTMLCanvasElement, original: HTMLImage
     gl.bindBuffer(gl.ARRAY_BUFFER, quad);
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
 
-    const originalTexture = texture(original);
     const iceTexture = texture(ice);
     const masks = [texture(), texture()];
     const targets = masks.map(mask => {
@@ -82,10 +83,12 @@ export function createIceRenderer(canvas: HTMLCanvasElement, original: HTMLImage
     });
     const locations = (shader: WebGLProgram, names: string[]) => Object.fromEntries(names.map(name => [name, gl.getUniformLocation(shader, name)]));
     const maskUniforms = locations(maskProgram, ["u_mask", "u_size", "u_segments[0]", "u_count", "u_radius", "u_decay"]);
-    const sceneUniforms = locations(sceneProgram, ["u_original", "u_ice", "u_mask", "u_size", "u_cover", "u_time"]);
+    const sceneUniforms = locations(sceneProgram, ["u_ice", "u_mask", "u_size", "u_cover", "u_time", "u_overlay", "u_paper"]);
     const positions = new Map([maskProgram, sceneProgram].map(shader => [shader, gl.getAttribLocation(shader, "a_position")]));
     const segmentsBuffer = new Float32Array(48);
     let width = 1, height = 1, maskWidth = 1, maskHeight = 1, read = 0;
+    let theme: string | undefined;
+    let paper = [12 / 255, 12 / 255, 12 / 255];
 
     function bindTexture(value: WebGLTexture, unit: number) {
       gl!.activeTexture(gl!.TEXTURE0 + unit);
@@ -124,7 +127,13 @@ export function createIceRenderer(canvas: HTMLCanvasElement, original: HTMLImage
         });
         clear();
       },
-      draw(segments: IceSegment[], elapsed: number, time: number) {
+      draw(segments: IceSegment[], elapsed: number, time: number, fadeOpacity: number, shadeOpacity: number) {
+        const currentTheme = document.documentElement.dataset.theme || "dark";
+        if (theme !== currentTheme) {
+          const channels = getComputedStyle(canvas).getPropertyValue("--color-paper").trim().split(/\s+/).map(Number);
+          if (channels.length === 3 && channels.every(Number.isFinite)) paper = channels.map(value => value / 255);
+          theme = currentTheme;
+        }
         const count = Math.min(segments.length, 12);
         segments.slice(0, count).forEach((segment, index) => segmentsBuffer.set(segment, index * 4));
         const write = 1 - read;
@@ -144,15 +153,16 @@ export function createIceRenderer(canvas: HTMLCanvasElement, original: HTMLImage
         use(sceneProgram);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.viewport(0, 0, canvas.width, canvas.height);
-        bindTexture(originalTexture, 0); bindTexture(iceTexture, 1); bindTexture(masks[read], 2);
-        gl.uniform1i(sceneUniforms.u_original, 0);
-        gl.uniform1i(sceneUniforms.u_ice, 1);
-        gl.uniform1i(sceneUniforms.u_mask, 2);
+        bindTexture(iceTexture, 0); bindTexture(masks[read], 1);
+        gl.uniform1i(sceneUniforms.u_ice, 0);
+        gl.uniform1i(sceneUniforms.u_mask, 1);
         gl.uniform2f(sceneUniforms.u_size, width, height);
         const imageAspect = original.naturalWidth / original.naturalHeight;
         const aspect = width / height;
         gl.uniform2f(sceneUniforms.u_cover, Math.min(1, aspect / imageAspect), Math.min(1, imageAspect / aspect));
         gl.uniform1f(sceneUniforms.u_time, time / 1000);
+        gl.uniform2f(sceneUniforms.u_overlay, fadeOpacity, shadeOpacity);
+        gl.uniform3fv(sceneUniforms.u_paper, paper);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
       },
       clear,

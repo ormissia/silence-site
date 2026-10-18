@@ -54,12 +54,13 @@ void main() {
 export const sceneShader = `
 precision highp float;
 varying vec2 v_uv;
-uniform sampler2D u_original;
 uniform sampler2D u_ice;
 uniform sampler2D u_mask;
 uniform vec2 u_size;
 uniform vec2 u_cover;
 uniform float u_time;
+uniform vec2 u_overlay;
+uniform vec3 u_paper;
 ${noiseShader}
 
 float angularNoise(vec2 p) {
@@ -86,9 +87,8 @@ float maskLife(vec2 uv) {
 
 void main() {
   vec2 uv = (v_uv - .5) * u_cover + .5;
-  vec3 original = texture2D(u_original, uv).rgb;
   float life = maskLife(v_uv);
-  if (life < .003) { gl_FragColor = vec4(original, 1.); return; }
+  if (life < .003) { gl_FragColor = vec4(0.); return; }
 
   vec2 p = v_uv * u_size;
   float grain = noise(p * .105);
@@ -106,7 +106,7 @@ void main() {
   vec3 ice = texture2D(u_ice, clamp(uv + refraction, .001, .999)).rgb;
   ice = mix(ice, vec3(.71, .86, .92), frozen * (.16 + frost * .28));
   ice += vec3(.52, .76, .86) * cracks * frozen * .18;
-  vec3 color = mix(original, ice, reveal);
+  vec3 color = ice;
 
   float shards = cracks * .65 + smoothstep(.62, .86, grain) * .35;
   float mist = rim * (.18 + drift * .22);
@@ -122,5 +122,19 @@ void main() {
   fog += reveal * frozen * smoothstep(.36, .76, billow) * .19;
   color = mix(color, vec3(.74, .86, .91), clamp(fog, 0., .65));
 
-  gl_FragColor = vec4(color, 1.);
+  // Match .about-scene-fade with premultiplied gradient stops.
+  float y = 1. - v_uv.y;
+  vec4 top = vec4(vec3(4., 8., 13.) / 255. * .46, .46);
+  vec4 upper = vec4(vec3(4., 8., 13.) / 255. * .12, .12);
+  vec4 middle = vec4(vec3(8., 9., 11.) / 255. * .12, .12);
+  vec4 gradient = y < .25 ? mix(top, upper, y / .25)
+    : y < .30 ? mix(upper, middle, (y - .25) / .05)
+    : mix(middle, vec4(u_paper, 1.), clamp((y - .30) / .65, 0., 1.));
+  float retained = mix(.65, 1., smoothstep(.65, .95, y));
+  float fade = u_overlay.x * retained;
+  color = color * (1. - gradient.a * fade) + gradient.rgb * fade;
+  color = mix(color, u_paper, u_overlay.y * retained);
+  // Leave the terminal fade entirely to the original, including while frosting.
+  reveal *= 1. - smoothstep(.85, .95, y);
+  gl_FragColor = vec4(color, reveal);
 }`;
