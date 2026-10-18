@@ -74,17 +74,6 @@ body:has([data-home-hero])::before {
   pointer-events: none;
 }
 
-@media (min-width: 1024px) and (min-height: 640px) and (prefers-reduced-motion: no-preference) {
-  /* The snap boundary sits 48px above this block; balance that space below its content. */
-  main .home-highlight {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: calc(100svh - var(--site-header-height) - 48px);
-    padding-block: 0 48px;
-  }
-}
-
 .divider-gradient {
   border-color: transparent;
   border-image: linear-gradient(to right, transparent 0%, theme(colors.rule) 15%, theme(colors.rule) 85%, transparent 100%) 1;

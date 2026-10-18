@@ -18,7 +18,7 @@ Reading 和 Journal 在构建 worker 或服务端冷启动时各扫描一次 Mar
 
 Reading 的查询门面仍是 `lib/reading.ts`；`lib/reading/snapshot.ts` 管理同一份原文、索引和惰性渲染缓存，`highlights.ts` / `selection.ts` 只做纯计算，日期和随机种子由调用方提供。不要让纯算法读取文件或自行决定当前时间。
 
-首页「今日划线」独立于三行滚动书封屏。`lib/reading/highlight-books.ts` 的 `HOME_HIGHLIGHTS` 配置默认抽取 1 本书、每本最多 10 条划线；只选择有封面及有效划线的书，去重后按实际数量展示。每次首页请求重新抽取，当前页面悬浮、切换主题不重新抽样。`getHomeHighlightBooks` 复用阅读快照，仅发送选中书籍的展示字段和划线文本；旧每日书摘 API 保留兼容。
+首页阅读区由 `ReadingScene` 连续呈现三行书封和单本书籍。书封继续通过 `pickSphereBookSummaries` 每次请求随机抽取，不按划线数量筛选；向下滚动时三行逐渐减速，停止后保留中间行最靠近屏幕中心的实际书封，居中放大、轻微旋转并露出该书的真实划线。标题展示对应作者和书名；悬停或聚焦展开笔记，触屏使用弹窗。没有划线时保留该书和详情入口。`getBookHighlights` 提供最多 10 条去重划线，未展开时最多露出 4 张；旧的独立随机书摘屏已删除，每日书摘 API 保留兼容。
 
 每次 `npm run build` 都重新列举 OSS 相册并探测图片尺寸，包括同 key 替换的图片。两个资源产物仍位于 `content/.album-manifest.json` 和 `content/.image-meta.json`，包含格式版本、OSS 来源、构建标识和生成时间，不入 Git。多个构建 worker 通过锁共用本次结果，产物以临时文件加原子替换写入。
 

@@ -8,6 +8,9 @@ import { useRouteProgress } from "./route-progress-state";
 const POSITION_KEY = "silence:list-position";
 const RETURN_KEY = "silence:return-to-list";
 const positionKey = (href: string) => `${POSITION_KEY}:${href}`;
+let lastReturn: { href: string; id: number } | undefined;
+
+export function getLastListReturn() { return lastReturn; }
 
 export function rememberListPosition(href: string) {
   try {
@@ -51,6 +54,7 @@ function ListScrollRestoration() {
 }
 
 export function requestListReturn(href: string) {
+  lastReturn = { href, id: (lastReturn?.id ?? 0) + 1 };
   try { sessionStorage.setItem(RETURN_KEY, href); } catch { /* Navigation remains usable. */ }
 }
 

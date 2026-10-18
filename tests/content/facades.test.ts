@@ -18,6 +18,13 @@ describe("content query facade compatibility", () => {
     expect(reading.getReadingSections(first.slug)).toBe(reading.getReadingSections(first.slug));
     expect(reading.getReadingEntry("missing")).toBeUndefined();
     expect(reading.getReadingSections("missing")).toEqual({ metadataHtml: "", notesHtml: "" });
+    expect(reading.getBookHighlights("missing")).toEqual([]);
+    for (const book of summaries) {
+      const notes = reading.getBookHighlights(book.slug);
+      expect(notes.length).toBeLessThanOrEqual(10);
+      expect(new Set(notes).size).toBe(notes.length);
+      expect(notes.every(note => note.trim().length > 0)).toBe(true);
+    }
     const entries = journal.listJournalSummaries();
     expect(entries[0]).not.toHaveProperty("bodyHtml");
     expect(journal.getJournalEntry(entries[0].slug)).toBe(journal.getJournalEntry(entries[0].slug));

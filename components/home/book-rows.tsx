@@ -7,7 +7,7 @@ import { readingBookHref } from "@/lib/navigation/reading";
 import { buildSrc } from "@/lib/oss";
 import styles from "./book-rows.module.css";
 
-type CoverBook = { slug: string; title: string; author?: string; cover?: string };
+export type CoverBook = { slug: string; title: string; author?: string; cover?: string };
 type Selection = { id: string; row: number; source: "pointer" | "keyboard" };
 const ROW_STARTS = [0.08, 0.32, 0.6];
 const SPEED = 16;
@@ -36,7 +36,9 @@ function revealFocusedBook(link: HTMLAnchorElement, gallery: HTMLDivElement) {
   gallery.scrollLeft = 0;
 }
 
-export function BookRows({ books }: { books: CoverBook[] }) {
+export function BookRows({ books, transitioning = false, retainedId }: {
+  books: CoverBook[]; transitioning?: boolean; retainedId?: string;
+}) {
   const covered = useMemo(() => books.filter(book => book.cover).slice(0, 30), [books]);
   const rows = useMemo(() => Array.from({ length: 3 }, (_, row) =>
     covered.length < 3 ? covered : covered.filter((_, index) => index % 3 === row)
@@ -65,6 +67,9 @@ export function BookRows({ books }: { books: CoverBook[] }) {
     if (selectionRef.current?.source === "pointer") select(null);
     // Keep the last coordinates: moving books cannot reactivate a stationary pointer.
   }, [clearTimer, select]);
+  useEffect(() => {
+    if (transitioning) { clearTimer(); select(null); }
+  }, [transitioning, clearTimer, select]);
   const onResize = useCallback(() => {
     clearPointer();
     const gallery = galleryRef.current;
@@ -106,6 +111,7 @@ export function BookRows({ books }: { books: CoverBook[] }) {
   }, [hasBooks, clearPointer, clearTimer]);
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
+    if (transitioning) return;
     if (event.pointerType !== "mouse") return;
     const previous = pointRef.current;
     const point = { x: event.clientX, y: event.clientY };
@@ -119,6 +125,7 @@ export function BookRows({ books }: { books: CoverBook[] }) {
     idleRef.current = setTimeout(() => { idleRef.current = null; select(null); }, IDLE_MS);
   };
   const onFocus = (event: FocusEvent<HTMLDivElement>) => {
+    if (transitioning) return;
     const link = (event.target as Element).closest<HTMLAnchorElement>("[data-book-id]");
     if (!link) return;
     if (link.getAttribute("aria-hidden") === "true") { link.blur(); return; }
@@ -131,7 +138,8 @@ export function BookRows({ books }: { books: CoverBook[] }) {
   if (!hasBooks) return null;
   return (
     <div ref={galleryRef} role="group" aria-label="精选书籍" className={styles.gallery}
-      data-running={available && !reduced && !selection} data-active={Boolean(selection)}
+      data-running={available && !reduced && (transitioning || !selection)} data-active={Boolean(selection) && !transitioning}
+      data-transitioning={transitioning}
       onPointerMove={onPointerMove} onPointerLeave={clearPointer} onPointerCancel={clearPointer}
       onPointerDownCapture={() => { keyboardRef.current = false; }}
       onMouseDownCapture={event => {
@@ -141,14 +149,16 @@ export function BookRows({ books }: { books: CoverBook[] }) {
       onFocusCapture={onFocus} onBlurCapture={event => {
         if (!event.currentTarget.contains(event.relatedTarget)) { clearTimer(); select(null); }
       }}>
-      {rows.map((row, index) => <BookRow key={index} books={row} index={index} selection={selection}
+      {rows.map((row, index) => <BookRow key={index} books={row} index={index} selection={transitioning ? null : selection}
+        transitioning={transitioning} retainedId={retainedId}
         canonical={covered.length >= 3 || index === 0} onResize={onResize} />)}
     </div>
   );
 }
 
-function BookRow({ books, index, selection, canonical, onResize }: {
+function BookRow({ books, index, selection, canonical, onResize, transitioning, retainedId }: {
   books: CoverBook[]; index: number; selection: Selection | null; canonical: boolean; onResize: () => void;
+  transitioning: boolean; retainedId?: string;
 }) {
   const rowRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -202,8 +212,9 @@ function BookRow({ books, index, selection, canonical, onResize }: {
               return (
                 <EnterListLink key={book.slug} listHref="/" href={readingBookHref(book.slug, { view: "home" })} prefetch={false} scroll={false}
                   aria-label={book.title + (book.author ? ` · ${book.author}` : "")}
-                  aria-hidden={duplicate || undefined} tabIndex={duplicate ? -1 : undefined}
-                  data-book-id={id} data-row={index} data-selected={selection?.id === id}
+                  aria-hidden={duplicate || transitioning || undefined} tabIndex={duplicate || transitioning ? -1 : undefined}
+                  data-book-id={id} data-book-slug={book.slug} data-retained={retainedId === id}
+                  data-row={index} data-selected={selection?.id === id}
                   className={styles.book}>
                   <Image src={buildSrc(book.cover!, "portrait")} width={104} height={156} alt=""
                     loading="lazy" draggable={false} revealIndex={copy === 0 ? bookIndex : undefined}

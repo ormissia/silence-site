@@ -73,6 +73,8 @@
 }
 .book[data-selected="true"] .veil { opacity: .05; }
 .book:focus-visible { outline: 2px solid rgb(var(--color-accent)); outline-offset: 3px; }
+.book[data-retained="true"] { visibility: hidden; }
+.gallery[data-transitioning="true"] { pointer-events: none; }
 @media (min-width: 640px) { .gallery { --book-width: 92px; --book-gap: 16px; } }
 @media (min-width: 1024px) { .gallery { --book-width: 104px; } }
 @media (prefers-reduced-motion: reduce) {

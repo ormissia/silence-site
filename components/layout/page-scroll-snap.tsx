@@ -10,8 +10,7 @@ const HOME: readonly ScrollSnapPoint[] = [
   { selector: ".home-hero-snap-point" },
   { selector: "[data-home-snap-point='works']", gap: 32 },
   { selector: "[data-home-snap-point='reading']" },
-  // Split the 96px desktop margin between the reading and highlight screens.
-  { selector: ".home-highlight", gap: 48 },
+  { selector: "[data-home-snap-point='reading-end']" },
   ...FOOTER,
 ];
 const ABOUT: readonly ScrollSnapPoint[] = [

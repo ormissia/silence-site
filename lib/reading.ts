@@ -4,7 +4,6 @@ import { readAllReadingMdx } from "./mdx";
 import { renderMarkdown } from "./markdown";
 import { dailyHighlightIndex, highlightBatch } from "./reading/highlights";
 import { pickCoveredBooks } from "./reading/selection";
-import { HOME_HIGHLIGHTS, pickHighlightBooks } from "./reading/highlight-books";
 import { createReadingSnapshot } from "./reading/snapshot";
 import type { ReadingEntry, ReadingMetadata, ReadingSummary, Highlight, HighlightBatch } from "./reading/types";
 
@@ -64,7 +63,7 @@ export function getDailyHighlight(today = new Date()): Highlight | null {
   return highlights[dailyHighlightIndex(highlights.length, today)];
 }
 
-/** 今日 highlight 在数组中的索引，TodayHighlight 用它做"上一句/下一句"的起点 */
+/** 今日书摘在数组中的索引，供书摘 API 分页使用。 */
 export function getDailyIndex(today = new Date()): number {
   return dailyHighlightIndex(snapshot.getHighlights().length, today);
 }
@@ -73,8 +72,11 @@ export function getHighlightBatch(index: number): HighlightBatch {
   return highlightBatch(snapshot.getHighlights(), index);
 }
 
-export function getHomeHighlightBooks(options = HOME_HIGHLIGHTS, seed = Date.now()) {
-  return pickHighlightBooks(ALL, snapshot.getHighlights(), options, seed);
+export function getBookHighlights(slug: string): string[] {
+  return [...new Set(snapshot.getHighlights()
+    .filter(highlight => highlight.bookSlug === slug)
+    .map(highlight => highlight.text.trim())
+    .filter(Boolean))].slice(0, 10);
 }
 
 /**

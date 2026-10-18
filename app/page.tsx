@@ -1,17 +1,13 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { CinemaHero } from "@/components/cinema-hero";
-import { BookRows } from "@/components/home/book-rows";
 import { HomeSplash } from "@/components/home/home-splash";
-import { TodayHighlight } from "@/components/home/today-highlight";
 import { ReadingBackground } from "@/components/home/reading-background";
-import { ReadingReveal } from "@/components/home/reading-reveal";
+import { ReadingScene } from "@/components/home/reading-scene";
 import { SelectedWorks } from "@/components/home/selected-works";
 import { PageLoading } from "@/components/layout/page-loading";
 import { RestoreListScroll } from "@/components/layout/list-return";
 import { listFeaturedSummaries } from "@/lib/works";
-import { getHomeHighlightBooks, pickSphereBookSummaries } from "@/lib/reading";
-import { getAccentStyle } from "@/lib/accent";
+import { getBookHighlights, pickSphereBookSummaries } from "@/lib/reading";
 
 // 首页书封每次刷新换一批，依赖运行时随机 seed → 不能预渲染。
 export const dynamic = "force-dynamic";
@@ -26,9 +22,8 @@ export default async function HomePage() {
     title: b.title,
     author: b.author,
     cover: b.cover,
+    highlights: getBookHighlights(b.slug),
   }));
-
-  const highlightBooks = getHomeHighlightBooks();
 
   return (
     <>
@@ -42,31 +37,7 @@ export default async function HomePage() {
 
       {/* 阅读区沿用主题纸色，照片留给页脚揭幕。 */}
       <ReadingBackground>
-        <div className="relative z-10">
-          <ReadingReveal>
-            <header>
-              <p className="font-sans text-caption uppercase text-muted">Reading &amp; Notes</p>
-              <h2 id="reading-heading" className="mt-4 font-sans text-headline font-normal leading-[1.35] tracking-[0.04em]">
-                字里行间
-              </h2>
-            </header>
-            <Link
-              href="/reading"
-              style={getAccentStyle("home:reading")}
-              className="silence-pill silence-pill-accent font-sans text-ink"
-            >
-              进入书架 <span aria-hidden>→</span>
-            </Link>
-
-            {coverBooks.length > 0 && (
-              <BookRows books={coverBooks} />
-            )}
-          </ReadingReveal>
-
-          <div className="home-highlight mx-auto mt-16 max-w-[1400px] px-6 pb-24 pt-16 md:mt-24 md:px-10 md:pb-32 md:pt-20">
-            <TodayHighlight books={highlightBooks} />
-          </div>
-        </div>
+        <ReadingScene books={coverBooks} />
       </ReadingBackground>
     </>
   );

@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 个人摄影作品 + 阅读 + 随笔的展示站点。视觉定位：**电影暗调 + 几何黑体**——字号反差、留白、网格承担"杂志感"，作品本身说话，不堆动效。
 
 页面模块（已落地）：
-- **首页**（`/`）：Hero + 精选作品 + 3D 书球（首页今日一句 Highlight）
+- **首页**（`/`）：Hero + 精选作品 + 三行书封连续收束为单本书及其划线 + 页脚
 - **Works**（`/works`，`/works/[slug]`）：作品集列表（按系列 tab）+ 详情页（大图 + EXIF + 故事）
 - **Journal**（`/journal`，`/journal/[slug]`）：随笔，按 `life` / `tech` 分类
 - **Reading**（`/reading`，`/reading/[slug]`）：微信读书导出的笔记 + 划线，按一级分类聚合
@@ -153,7 +153,7 @@ lib/
   categories.ts           # 作品分类常量（风光/人像/日常/胶片）+ tab slug 映射
   journal-categories.ts   # 随笔分类常量（life/tech）
 components/
-  home/                   # 首页板块（selected-works / today-highlight / book-sphere / editor-note）
+  home/                   # 首页板块（selected-works / book-rows / reading-scene / reading-finale）
   work/                   # 作品列表 + 详情大图（works-gallery / plates-grid）
   journal/                # 随笔列表
   reading/                # 书架
