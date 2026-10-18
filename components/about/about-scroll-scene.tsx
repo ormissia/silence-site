@@ -3,6 +3,7 @@
 import { useRef, type ReactNode } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionStyle } from "framer-motion";
 import { RevealImg } from "@/components/media/reveal-image";
+import { AboutIceReveal } from "./about-ice-reveal";
 
 export function AboutScrollScene({
   hero,
@@ -14,6 +15,7 @@ export function AboutScrollScene({
   /** 首段诗完全显现后剩余的背景行程比例，范围 0–1。 */
   backgroundReserveRatio: number;
 }) {
+  const sceneRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
   const contentRef = useRef<HTMLDivElement>(null);
   const reducedMotion = useReducedMotion();
@@ -38,7 +40,7 @@ export function AboutScrollScene({
   });
 
   return (
-    <div className="about-scroll-scene relative isolate bg-paper [--about-background-travel:3rem] md:[--about-background-travel:16rem]">
+    <div ref={sceneRef} className="about-scroll-scene relative isolate bg-paper [--about-background-travel:3rem] md:[--about-background-travel:16rem]">
       <div
         aria-hidden
         className="about-scene-backdrop sticky top-0 z-0 h-svh overflow-hidden motion-reduce:top-[calc(-1*var(--about-background-travel))] motion-reduce:h-[calc(100svh+var(--about-background-travel))]"
@@ -51,6 +53,7 @@ export function AboutScrollScene({
             src="/images/background.jpg" alt="" loading="eager"
             className="absolute inset-0 h-full w-full object-cover object-center brightness-[0.9] saturate-[0.85]"
           />
+          <AboutIceReveal interactionRef={sceneRef} />
           <motion.div className="about-scene-fade absolute inset-0" style={{ opacity: reducedMotion ? 1 : fadeOpacity }} />
           <motion.div
             className="about-scene-shade absolute inset-0 bg-paper"
@@ -60,7 +63,7 @@ export function AboutScrollScene({
       </div>
       <div className="about-scene-foreground relative z-10 -mt-[100svh] motion-reduce:-mt-[calc(100svh+var(--about-background-travel))]">
         <div ref={heroRef} className="relative">{hero}</div>
-        <div ref={contentRef} className="about-scene-content">{children}</div>
+        <div ref={contentRef} className="about-scene-content relative">{children}</div>
       </div>
     </div>
   );

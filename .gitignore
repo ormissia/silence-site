@@ -1,6 +1,7 @@
 node_modules
 .next
 out
+output
 dist
 .env*.local
 .DS_Store
