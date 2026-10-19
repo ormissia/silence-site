@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { RevealImg } from "@/components/media/reveal-image";
 import { RowsPhotoAlbum } from "react-photo-album";
 import "react-photo-album/rows.css";
@@ -20,6 +20,7 @@ export function PlatesGrid({ photos, workTitle, film = false }: {
   const [containerWidth, setContainerWidth] = useState(0);
   const isOpen = activeIdx !== null;
   const close = useCallback(() => setActiveIdx(null), []);
+  const getThumbnail = useCallback((index: number) => albumRef.current?.querySelector<HTMLImageElement>(`img[data-photo-index="${index}"]`) ?? null, []);
   const prev = useCallback(
     () => setActiveIdx((i) => (i === null ? null : (i - 1 + photos.length) % photos.length)),
     [photos.length]
@@ -39,13 +40,17 @@ export function PlatesGrid({ photos, workTitle, film = false }: {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (!isOpen) return;
     const prevOverflow = document.body.style.overflow;
+    const prevPadding = document.body.style.paddingRight;
+    const scrollbar = window.innerWidth - document.documentElement.clientWidth;
+    if (scrollbar > 0) document.body.style.paddingRight = `${(parseFloat(getComputedStyle(document.body).paddingRight) || 0) + scrollbar}px`;
     document.body.style.overflow = "hidden";
     document.body.dataset.lightboxOpen = "true";
     return () => {
       document.body.style.overflow = prevOverflow;
+      document.body.style.paddingRight = prevPadding;
       delete document.body.dataset.lightboxOpen;
     };
   }, [isOpen]);
@@ -82,7 +87,8 @@ export function PlatesGrid({ photos, workTitle, film = false }: {
           })}
           render={{ image: (props, { photo }) => <>
             {film && <div className="film-sprockets" aria-hidden />}
-            <RevealImg {...props} revealIndex={photo.originalIndex} />
+            <RevealImg {...props} revealIndex={photo.originalIndex} data-photo-index={photo.originalIndex}
+              style={{ ...props.style, visibility: activeIdx === photo.originalIndex ? "hidden" : undefined }} />
             {film && filmCaption(photo.originalIndex)}
           </> }}
           onClick={({ photo }) => setActiveIdx(photo.originalIndex)} />;
@@ -90,7 +96,14 @@ export function PlatesGrid({ photos, workTitle, film = false }: {
     </div>
     {isOpen && <PhotoLightbox
       src={buildSrc(photos[activeIdx!].key, "hero")}
+      previewSrc={buildSrc(photos[activeIdx!].key, "detail")}
       alt={photos[activeIdx!].caption ?? `${workTitle} plate ${activeIdx! + 1}`}
+      width={photos[activeIdx!].width}
+      height={photos[activeIdx!].height}
+      index={activeIdx!}
+      total={photos.length}
+      getThumbnail={getThumbnail}
+      preloadSrcs={photos.length > 1 ? [buildSrc(photos[(activeIdx! + 1) % photos.length].key, "hero"), buildSrc(photos[(activeIdx! - 1 + photos.length) % photos.length].key, "hero")] : []}
       onClose={close}
       onPrev={photos.length > 1 ? prev : undefined}
       onNext={photos.length > 1 ? next : undefined}

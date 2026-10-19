@@ -7,7 +7,6 @@ import { motion, useScroll, useTransform, useReducedMotion, useMotionValueEvent,
 import { useSearchParams } from "next/navigation";
 import { CAMERA, lcdCenter } from "@/components/camera-spec";
 import { getAccentStyle } from "@/lib/accent";
-import { NavProgressLink } from "@/components/layout/nav-link";
 
 const POEM_LINES = ["这是一场回忆，", "还是一场梦，", "我不知道。"];
 const SCENE_TRAVEL_VH = 278;
@@ -177,7 +176,7 @@ export function CinemaHero() {
           aria-hidden={!titleInteractive}
           className="absolute bottom-0 left-0 right-0 z-30 mx-auto max-w-[1400px] px-6 pb-32 md:px-10 md:pb-14"
         >
-          <OpeningTitle interactive={titleInteractive} />
+          <OpeningTitle />
         </motion.div>
 
         {/* 底部中央滚动提示：跳动动效 + 跟随标题一起渐隐 */}
@@ -308,16 +307,12 @@ function CinemaHeroStatic() {
 }
 
 /** 动态序章与减弱动态模式共用同一套封面文字。 */
-function OpeningTitle({ interactive = true }: { interactive?: boolean }) {
+function OpeningTitle() {
   return (
     <div className="max-w-xl font-sans text-ink [text-shadow:0_2px_20px_rgba(0,0,0,0.5)]">
       <p className="text-caption uppercase text-ink/70">Photographs &amp; Notes</p>
-      <h1 className="mt-4 text-display font-normal leading-[1.2] tracking-[0.04em]">寂静无声</h1>
-      <p className="mt-6 text-body leading-relaxed tracking-[0.025em] text-ink/80">收着光、句子与几次远行。</p>
-      <nav aria-label="浏览内容" className="mt-5 flex flex-wrap gap-x-8 text-sm">
-        <NavProgressLink href="/works" tabIndex={interactive ? 0 : -1} className="inline-flex min-h-11 items-center gap-3 underline decoration-white/40 underline-offset-8 hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">浏览作品 <span aria-hidden>↗</span></NavProgressLink>
-        <NavProgressLink href="/reading" tabIndex={interactive ? 0 : -1} className="inline-flex min-h-11 items-center gap-3 underline decoration-white/40 underline-offset-8 hover:decoration-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white">进入书架 <span aria-hidden>↗</span></NavProgressLink>
-      </nav>
+      <h1 className="mt-3 text-display font-normal leading-[1.1] tracking-[0.04em]">寂静无声</h1>
+      <p className="mt-3 text-body leading-relaxed tracking-[0.025em] text-ink/80">收着光、句子与几次远行。</p>
     </div>
   );
 }
