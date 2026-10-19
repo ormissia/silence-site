@@ -155,9 +155,9 @@ export function ReadingFinale({ book, width, ready, reduced }: {
         onPointerEnter={event => { if (event.pointerType === "mouse" && !compact) { method.current = "pointer"; open(); follow(event); } }}
         onPointerMove={follow} onPointerLeave={event => { reset(); leave(event); }} onPointerCancel={event => { reset(); leave(event); }}
         onFocus={() => { if (!compact && !suppressFocus.current && method.current === "keyboard") open(); }}
-        onClick={() => open()}>{artwork}</button>
+        onClick={() => open()}>{artwork}<span aria-hidden className={styles.coverHint}>展开划线 ↗</span></button>
         : <EnterListLink listHref="/" href={readingBookHref(book.slug, { view: "home" })} scroll={false} prefetch={false}
-          className={styles.cover} data-reading-focus-control tabIndex={ready ? 0 : -1} aria-label={`查看《${book.title}》`}>{artwork}</EnterListLink>}
+          className={styles.cover} data-reading-focus-control tabIndex={ready ? 0 : -1} aria-label={`查看《${book.title}》`}>{artwork}<span aria-hidden className={styles.coverHint}>查看这本书 ↗</span></EnterListLink>}
       <div className={styles.peekCards} aria-hidden data-hidden={active}>
         {notes.slice(0, 4).map((text, index) => <span key={index} className={styles.peekCard} data-note-index={index}><span>{text}</span></span>)}
       </div>

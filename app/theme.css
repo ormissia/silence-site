@@ -41,7 +41,7 @@ html[data-theme="light"] .journal-cover-placeholder :is(.journal-cover-index, .j
 html[data-theme="light"] .editorial-card {
   border-color: rgb(var(--color-ink) / .09);
   background: rgb(var(--color-surface));
-  box-shadow: 0 4px 32px rgba(62, 47, 30, .35), inset 0 1px 0 rgba(255, 255, 255, .04);
+  box-shadow: none;
 }
 
 html[data-theme="light"] .silence-pill {

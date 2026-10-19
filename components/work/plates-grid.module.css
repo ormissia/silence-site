@@ -1,0 +1,8 @@
+.album { display: flex; flex-direction: column; gap: 36px; }
+.album .rows { row-gap: 36px; }
+.album button { text-align: left; }
+.album button:focus-visible { outline: 2px solid rgb(var(--color-accent)); outline-offset: 6px; }
+.caption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; padding: 12px 12px 0; font-size: 12px; line-height: 1.5; color: rgb(var(--color-muted)); }
+@media (min-width: 768px) {
+  .album, .album .rows { row-gap: 64px; }
+}

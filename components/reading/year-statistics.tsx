@@ -1,12 +1,55 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import type { ReadingSummary } from "@/lib/reading/types";
 import { readingCategoryStatistics } from "@/lib/reading-statistics";
 
 const COLORS = ["#97816b", "#71877d", "#8c91a7", "#b69b6c", "#a88078", "#7b9aab", "#9a8aa4", "#929964", "#af8e69", "#687d92", "#9c707e", "#7c9994", "#a5a092"];
 
 type SegmentInfo = { key: string; category: string; label: string; value: string; share: number };
+
+export function YearStatisticsDisclosure({ year, books, categories }: {
+  year: string | null; books: ReadingSummary[]; categories: string[];
+}) {
+  const [open, setOpen] = useState(false);
+  const dialog = useRef<HTMLDialogElement>(null);
+  const trigger = useRef<HTMLButtonElement>(null);
+  const dialogId = useId();
+  useEffect(() => {
+    if (!open || !dialog.current) return;
+    const element = dialog.current;
+    const triggerElement = trigger.current;
+    const previousOverflow = document.body.style.overflow;
+    const desktop = window.matchMedia("(min-width: 768px)");
+    const closeOnDesktop = () => { if (desktop.matches) setOpen(false); };
+    document.body.style.overflow = "hidden";
+    element.showModal();
+    desktop.addEventListener("change", closeOnDesktop);
+    return () => {
+      element.close();
+      document.body.style.overflow = previousOverflow;
+      desktop.removeEventListener("change", closeOnDesktop);
+      if (!desktop.matches && triggerElement?.isConnected) triggerElement.focus({ preventScroll: true });
+    };
+  }, [open]);
+  const title = `${year ?? "未记录日期"} · 阅读统计`;
+  return <>
+    <div className="hidden md:block"><YearStatistics books={books} categories={categories} /></div>
+    <button ref={trigger} type="button" aria-haspopup="dialog" aria-controls={dialogId} aria-expanded={open} onClick={() => setOpen(true)}
+      className="mt-1 inline-flex min-h-11 items-center gap-2 text-sm text-muted hover:text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-accent md:hidden">查看年度统计 <span aria-hidden>↗</span></button>
+    {open && <dialog ref={dialog} id={dialogId} aria-label={title}
+      className="m-auto max-h-[calc(100svh-48px)] w-[min(360px,calc(100vw-32px))] overflow-y-auto overscroll-contain rounded-lg bg-paper p-6 text-ink backdrop:bg-black/60"
+      onCancel={event => { event.preventDefault(); setOpen(false); }}
+      onClick={event => {
+        if (event.target !== event.currentTarget) return;
+        const rect = event.currentTarget.getBoundingClientRect();
+        if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) setOpen(false);
+      }}>
+      <div className="flex items-center justify-between gap-4"><h3 className="text-base">{title}</h3><button type="button" className="min-h-11 min-w-11 text-sm" onClick={() => setOpen(false)}>关闭</button></div>
+      <YearStatistics books={books} categories={categories} />
+    </dialog>}
+  </>;
+}
 
 /** Separate arc paths make each visible segment its own pointer target. */
 function ringArc(radius: number, start: number, share: number) {
@@ -75,8 +118,8 @@ export function YearStatistics({ books, categories }: { books: ReadingSummary[];
           </div>
         )}
       </div>
-      <figcaption className="mt-3 text-center text-[10px] tracking-normal text-muted">外圈 · 阅读时长　内圈 · 书籍数量</figcaption>
-      <dl className="mt-4 space-y-2 text-left text-[10px] leading-relaxed tracking-normal">
+      <figcaption className="mt-3 text-center text-xs leading-relaxed tracking-normal text-muted">外圈 · 阅读时长　内圈 · 书籍数量</figcaption>
+      <dl className="mt-4 space-y-2 text-left text-xs leading-relaxed tracking-normal">
         {stats.categories.map((entry) => (
           <div key={entry.category} className="flex flex-wrap items-baseline justify-between gap-x-2 gap-y-0.5">
             <dt className="inline-flex items-center gap-1.5"><span aria-hidden="true" className="h-1.5 w-1.5 shrink-0 rounded-full" style={{ backgroundColor: colorMap.get(entry.category) }} />{entry.category}</dt>
@@ -84,7 +127,7 @@ export function YearStatistics({ books, categories }: { books: ReadingSummary[];
           </div>
         ))}
       </dl>
-      {stats.missingTime > 0 && <p className="mt-3 text-[10px] leading-relaxed tracking-normal text-muted">{stats.missingTime} 本未记录时长，仅计入数量。</p>}
+      {stats.missingTime > 0 && <p className="mt-3 text-xs leading-relaxed tracking-normal text-muted">{stats.missingTime} 本未记录时长，仅计入数量。</p>}
     </figure>
   );
 }

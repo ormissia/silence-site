@@ -98,6 +98,7 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
       <RestoreListScroll />
       {model.datedCount === 0 && <p className="py-16 text-center text-sm text-muted">记录读完日期后，阅读轨迹会出现在这里。</p>}
       {model.datedCount > 0 && <div className="hidden md:block">
+        <p className="mb-6 text-sm leading-relaxed text-muted">横向看分类，纵向从最近读完向前追溯。圆点越大，阅读时长越长；点击圆点打开笔记。</p>
         <div ref={plotRef} className="reading-evolution-plot relative">
         <svg viewBox={`0 ${EVOLUTION_HEADER_HEIGHT} ${EVOLUTION_WIDTH} ${plotHeight}`} className="block h-auto w-full text-ink" role="group" aria-label="按年份与书籍分类排列的阅读轨迹">
           <desc>纵向按读完日期由晚到早，每年只展示有书籍的原始分类，悬停分类区域展开列宽。圆点大小表示阅读时长，连线连接同年相邻读完的书。悬停或聚焦圆点查看信息，点击打开书籍笔记。</desc>

@@ -6,7 +6,7 @@ import type { ReadingSummary } from "@/lib/reading/types";
 import { groupReadingByYear } from "@/lib/reading-years";
 import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tabs";
 import { BookCard } from "@/components/reading/book-card";
-import { YearStatistics } from "@/components/reading/year-statistics";
+import { YearStatisticsDisclosure } from "@/components/reading/year-statistics";
 import { RestoreListScroll } from "@/components/layout/list-return";
 
 export function ReadingShelf({
@@ -47,23 +47,31 @@ export function ReadingShelf({
       {filtered.length === 0 ? (
         <p className="mt-24 text-center font-sans text-muted">这个分类下还没有书。</p>
       ) : (
-        <div className="reading-years mt-8 sm:mt-12">
+        <div className="reading-years mt-6 sm:mt-10">
+          {yearGroups.length > 1 && <nav aria-label="按年份浏览书架" className="mb-8 flex flex-wrap items-center gap-x-5 gap-y-1 text-sm">
+            <span className="text-muted">年份</span>
+            {yearGroups.map(({ year }) => <a key={year ?? "undated"} href={`#reading-year-${year ?? "undated"}`}
+              className="inline-flex min-h-11 items-center text-ink hover:text-accent focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent">{year ?? "未记录日期"}</a>)}
+          </nav>}
           {yearGroups.map(({ year, books: yearBooks }, groupIndex) => (
             <section key={year ?? "undated"} className="reading-year-section" aria-labelledby={`reading-year-${year ?? "undated"}`}>
               <header className="reading-year-summary">
-                <h2 id={`reading-year-${year ?? "undated"}`} className={year ? "font-serif text-[clamp(2.5rem,4vw,3.5rem)] leading-none" : "text-xl font-medium leading-snug"}>
+                <div className="flex items-center justify-between gap-4 md:block">
+                <h2 id={`reading-year-${year ?? "undated"}`} className={`scroll-mt-[calc(var(--site-header-height)+1.5rem)] ${year ? "font-serif text-[clamp(2rem,4vw,3.5rem)] leading-none" : "text-xl font-medium leading-snug"}`}>
                   {year ?? "未记录读完日期"}
                 </h2>
+                <span className="text-sm text-muted md:hidden">{yearBooks.length} 本</span>
+                </div>
                 <svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mx-auto mt-5 hidden h-5 w-5 text-muted md:block">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 5.5c-2.5-2-6-2-9-1v14c3-1 6.5-1 9 1 2.5-2 6-2 9-1v-14c-3-1-6.5-1-9 1Zm0 0v14" />
                 </svg>
-                <p className="mt-3 text-annotation tracking-normal text-muted md:mt-5">
+                <p className="mt-5 hidden text-sm tracking-normal text-muted md:block">
                   {year ? "这一年，读过的书。" : "保留书籍，等待补全读完时间。"}
                 </p>
-                <p className="reading-year-count font-sans text-label font-medium tracking-normal">
+                <p className="reading-year-count hidden font-sans text-sm font-medium tracking-normal md:block">
                   {yearBooks.length} {yearBooks.length === 1 ? "Book" : "Books"}
                 </p>
-                <YearStatistics books={yearBooks} categories={categories.map((category) => category.name)} />
+                <YearStatisticsDisclosure year={year} books={yearBooks} categories={categories.map((category) => category.name)} />
               </header>
               <div className="reading-year-content min-w-0">
                 <p className="mb-5 text-annotation uppercase tracking-[0.16em] text-muted">

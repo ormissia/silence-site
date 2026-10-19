@@ -30,9 +30,10 @@ describe("typed work queries", () => {
     expect(summaries[0]).not.toHaveProperty("story");
     expect(summaries[0]).not.toHaveProperty("exif");
     const album = await works.getWork("album");
-    expect(album?.photos.map((photo) => photo.key)).toEqual(["works/film/roll/cover.jpg", "works/film/roll/2.jpg", "works/film/roll/10.jpg"]);
+    expect(summaries[0].cover).toBe("works/film/roll/cover.jpg");
+    expect(album?.photos.map((photo) => photo.key)).toEqual(["works/film/roll/2.jpg", "works/film/roll/10.jpg"]);
     expect(album?.coverWidth).toBe(1200);
-    expect(album?.photos[1]).toMatchObject({ width: 800, height: 1200 });
+    expect(album?.photos[0]).toMatchObject({ width: 800, height: 1200 });
     expect(album?.story).toEqual(["First paragraph.", "Second paragraph."]);
     expect(await works.getWork("empty")).toBeUndefined();
     expect(mocks.read).toHaveBeenCalledTimes(1);
@@ -54,5 +55,42 @@ describe("typed work queries", () => {
     const works = await import("@/lib/works");
     await expect(works.listWorkSummaries()).rejects.toThrow("temporary failure");
     await expect(works.listWorkSummaries()).resolves.toHaveLength(1);
+  });
+
+  it("uses an explicit PNG cover without adding any cover variant to the photo list", async () => {
+    mocks.read.mockReturnValue(parseWorkSources([source("album", { album: "roll", cover: "cover.png" })]));
+    mocks.manifest.mockResolvedValue({ "works/film/roll": ["works/film/roll/COVER.JPG", "works/film/roll/cover.png", "works/film/roll/11.jpg", "works/film/roll/2.jpg"] });
+    const { getWork } = await import("@/lib/works");
+    const work = await getWork("album");
+    expect(work?.cover).toBe("works/film/roll/cover.png");
+    expect(work?.photos.map(({ key }) => key)).toEqual(["works/film/roll/2.jpg", "works/film/roll/11.jpg"]);
+    expect(mocks.meta).toHaveBeenCalledWith(["works/film/roll/cover.png", "works/film/roll/2.jpg", "works/film/roll/11.jpg"]);
+  });
+
+  it("keeps the first numbered photo when an album has no dedicated cover", async () => {
+    mocks.read.mockReturnValue(parseWorkSources([source("album", { album: "roll" })]));
+    mocks.manifest.mockResolvedValue({ "works/film/roll": ["works/film/roll/10.jpg", "works/film/roll/2.jpg"] });
+    const { getWork } = await import("@/lib/works");
+    const work = await getWork("album");
+    expect(work?.cover).toBe("works/film/roll/2.jpg");
+    expect(work?.photos.map(({ key }) => key)).toEqual(["works/film/roll/2.jpg", "works/film/roll/10.jpg"]);
+  });
+
+  it("does not expose an album containing only a dedicated cover as a photo collection", async () => {
+    mocks.read.mockReturnValue(parseWorkSources([source("album", { album: "roll", cover: "cover.png" })]));
+    mocks.manifest.mockResolvedValue({ "works/film/roll": ["works/film/roll/cover.png"] });
+    const { listWorkSummaries } = await import("@/lib/works");
+    expect(await listWorkSummaries()).toEqual([]);
+  });
+
+  it("removes the cover from explicit photos while preserving photo metadata", async () => {
+    mocks.read.mockReturnValue(parseWorkSources([source("explicit", {
+      cover: "https://example.test/poster.png",
+      photos: [{ key: "https://example.test/poster.png" }, { key: "works/film/roll/2.jpg", width: 100, height: 200, caption: "Original" }],
+    })]));
+    const { getWork } = await import("@/lib/works");
+    const work = await getWork("explicit");
+    expect(work?.cover).toBe("https://example.test/poster.png");
+    expect(work?.photos).toEqual([{ key: "works/film/roll/2.jpg", width: 100, height: 200, caption: "Original" }]);
   });
 });

@@ -12,7 +12,7 @@ export default function JournalPage() {
   const entries = listJournalSummaries();
 
   return (
-    <section className="mx-auto max-w-[1400px] px-6 pb-20 pt-28 md:px-12 md:pt-44">
+    <section className="collection-page mx-auto max-w-[1280px] px-6 pb-20 md:px-12 lg:px-16">
       <SecondaryPageHeader
         count={`${entries.length} Notes`}
         eyebrow="Journal — Notes & Essays"

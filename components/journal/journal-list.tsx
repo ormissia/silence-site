@@ -11,10 +11,8 @@ import {
 } from "@/lib/journal-categories";
 import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tabs";
 import { CoverFocusFrame } from "@/components/cover-focus-frame";
-import { OverflowText } from "@/components/overflow-text";
 import styles from "@/components/cover-hover.module.css";
 import { EnterListLink, RestoreListScroll } from "@/components/layout/list-return";
-import { getAccentStyle } from "@/lib/accent";
 
 const MONTH_EN = [
   "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -62,32 +60,30 @@ export function JournalList({ entries }: { entries: JournalSummary[] }) {
       {filtered.length === 0 ? (
         <p className="mt-24 text-center font-sans text-muted">这个分类下还没有文章。</p>
       ) : (
-        <div className="space-y-6 pb-16 pt-2">
+        <div className="space-y-12 pb-16 pt-2 md:space-y-16">
           {filtered.map((entry, i) => {
             const { day, monthYear } = formatDate(entry.date);
             return (
               <EnterListLink key={entry.slug} href={`/journal/${entry.slug}${categoryQuery}`} listHref={`/journal${categoryQuery}`}
-                className={`${styles.link} group grid overflow-hidden rounded-xl border border-ink/10 bg-surface md:grid-cols-[200px_minmax(0,1fr)]`}>
-                <div className="flex items-start justify-between gap-4 p-5 md:flex-col md:p-6">
+                className={`${styles.link} group grid gap-5 border-t border-rule pt-6 md:grid-cols-[128px_minmax(0,1fr)] md:gap-10 md:pt-8`}>
+                <div className="flex items-start justify-between gap-4 md:flex-col md:justify-start">
                   <div className="shrink-0">
-                    <span className="text-5xl font-light leading-none text-ink/85 md:text-7xl">{day}</span>
+                    <span className="text-2xl font-light leading-none text-ink/85 md:text-3xl">{day}</span>
                     <p className="mt-2 text-xs uppercase tracking-[0.16em] text-muted">{monthYear}</p>
                   </div>
-                  <div className="text-right md:mt-auto md:text-left">
+                  <div className="text-right md:text-left">
                     <p className="text-xs uppercase tracking-[0.12em] text-accent">{entry.category === "tech" ? "Tech / 技术" : "Life / 生活"}</p>
                     {entry.mood && <p className="mt-2 text-xs text-muted">Mood · {entry.mood}</p>}
                     {entry.location && <p className="mt-2 text-xs text-muted">{entry.location}</p>}
                   </div>
                 </div>
-                <div className={`${styles.cover} relative aspect-[16/9] min-w-0 ${entry.cover ? "image-frame" : "journal-cover-placeholder bg-[#1b1b22]"} md:aspect-[5/2]`}>
-                  {entry.cover ? <Image revealIndex={i} src={buildSrc(entry.cover, "detail")} alt="" fill sizes="(min-width: 768px) 70vw, 100vw" className={styles.image} /> : <div aria-hidden style={getAccentStyle(`journal:cover:${entry.slug}`)} className="journal-cover-glow absolute inset-0" />}
-                    <div aria-hidden className="journal-cover-shade absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
-                    <span className="journal-cover-index absolute left-5 top-5 text-xs tracking-[0.2em] text-white/75 md:left-7 md:top-7">{String(i + 1).padStart(2, "0")}</span>
-                  {entry.cover && <CoverFocusFrame />}
-                  <div className={`absolute inset-x-5 z-10 md:inset-x-7 ${entry.cover ? "bottom-5 md:bottom-7" : "top-1/2 -translate-y-1/2"}`}>
-                    <h2 className="journal-cover-title font-serif text-xl leading-snug text-white md:text-3xl"><OverflowText text={entry.title} /></h2>
-                    {entry.excerpt && <p className="journal-cover-excerpt mt-2 text-sm leading-relaxed text-white/75"><OverflowText text={entry.excerpt} /></p>}
-                  </div>
+                <div className="min-w-0">
+                  {entry.cover && <div className={`${styles.cover} image-frame relative mb-5 aspect-[16/9] md:aspect-[5/2]`}>
+                    <Image revealIndex={i} src={buildSrc(entry.cover, "detail")} alt="" fill sizes="(min-width: 768px) 70vw, 100vw" className={styles.image} />
+                    <CoverFocusFrame />
+                  </div>}
+                  <h2 className="font-serif text-xl leading-relaxed text-ink group-hover:text-accent md:text-2xl">{entry.title}</h2>
+                  {entry.excerpt && <p className="mt-3 line-clamp-3 max-w-prose text-base leading-relaxed text-muted">{entry.excerpt}</p>}
                 </div>
               </EnterListLink>
             );

@@ -242,7 +242,7 @@ export function SiteHeader() {
           </NavProgressLink>
         </div>
 
-        <nav className="order-3 flex w-full flex-wrap items-center gap-1.5 font-sans uppercase sm:gap-2 md:order-2 md:ml-auto md:w-auto">
+        <nav aria-label="主导航" className="order-3 flex w-full flex-wrap items-center gap-1.5 font-sans uppercase sm:gap-2 md:order-2 md:ml-auto md:w-auto">
           <Suspense fallback={<NavLink href="/works">Works</NavLink>}>
             <NavMenu href="/works" label="Works" items={WORKS_MENU} />
           </Suspense>

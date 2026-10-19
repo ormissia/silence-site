@@ -65,7 +65,7 @@ export function CategoryTabs({
         />
       ))}
       {totalLabel && (
-        <span className="ml-auto hidden font-sans text-label uppercase tracking-[0.24em] text-muted md:block">
+        <span className="sr-only" role="status" aria-live="polite">
           {totalLabel}
         </span>
       )}

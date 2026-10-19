@@ -116,7 +116,7 @@ export default async function WorkDetailPage({ params, searchParams }: {
       </section>}
 
       {/* Plates grid */}
-      <section className={`mx-auto max-w-[1400px] px-6 md:px-12 ${isFilm ? "mt-4" : "mt-24"}`}>
+      <section className={`mx-auto max-w-[1280px] px-6 md:px-12 lg:px-16 ${isFilm ? "mt-8" : "mt-16 md:mt-24"}`}>
         {isFilm && <div className="mb-6 flex items-center justify-between border-t divider-gradient pt-6 text-annotation uppercase tracking-[0.2em] text-muted"><span>Contact sheets</span><span>{work.photos.length} frames · Click to view</span></div>}
         <PlatesGrid photos={work.photos} workTitle={work.title} film={isFilm} />
       </section>

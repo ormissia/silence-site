@@ -3,6 +3,8 @@
 .cover { position: relative; display: block; width: 100%; height: 100%; border-radius: 8px; cursor: pointer; transform: rotate(var(--book-rotation)); z-index: 5; pointer-events: auto; }
 .coverArtwork { position: absolute; inset: 0; display: block; overflow: hidden; border-radius: inherit; background: rgb(var(--color-surface-raised)); box-shadow: 0 16px 28px rgb(0 0 0 / .18); pointer-events: none; }
 .cover img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.coverHint { position: absolute; top: calc(100% + 32px); left: 50%; width: max-content; transform: translateX(-50%) rotate(calc(-1 * var(--book-rotation, 0deg))); font-size: 13px; line-height: 1.5; color: rgb(var(--color-muted)); opacity: 1; }
+.layer[data-ready="false"] .coverHint, .layer[data-open="true"] .coverHint { visibility: hidden; }
 .fallback { display: flex; height: 100%; align-items: center; justify-content: center; padding: 16px; font-size: 14px; }
 .veil { position: absolute; inset: 0; background: rgb(var(--color-paper)); opacity: var(--cover-veil); }
 .layer[data-ready="false"] .cover { pointer-events: none; }

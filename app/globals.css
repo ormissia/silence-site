@@ -601,7 +601,7 @@ body[data-lightbox-open="true"] .site-header {
   border: 1px solid rgba(255,255,255,.09);
   border-radius: 12px;
   background: #111;
-  box-shadow: 0 4px 32px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.04);
+  box-shadow: none;
 }
 .silence-pill {
   position: relative;
@@ -621,6 +621,11 @@ body[data-lightbox-open="true"] .site-header {
 .silence-pill:focus-visible { outline: 2px solid #C9994A; outline-offset: 4px; }
 .category-tabs { scrollbar-width: none; }
 .category-tabs::-webkit-scrollbar { display: none; }
+.category-tabs .silence-pill { min-height: 44px; font-size: 13px; letter-spacing: .03em; }
+.collection-page { padding-top: calc(var(--site-header-height, 120px) + 24px); }
+@media (min-width: 768px) {
+  .collection-page { padding-top: calc(var(--site-header-height, 96px) + 64px); }
+}
 .silence-marquee { display: flex; width: max-content; }
 
 /* Film contact sheets and the archival sleeve stay local to film works. */
@@ -707,7 +712,7 @@ html[data-theme="light"] .reading-evolution-tooltip .reading-book-info-mask {
 }
 .reading-year-section { padding: 32px 0; }
 .reading-year-section + .reading-year-section { border-top: 1px solid rgb(var(--color-rule)); }
-.reading-year-section:first-child { padding-top: 0; }
+.reading-year-section:first-of-type { padding-top: 0; }
 .reading-year-summary { margin-bottom: 28px; }
 .reading-year-count { margin-top: 16px; }
 .reading-year-books {

@@ -15,16 +15,18 @@ function naturalSort(a: string, b: string): number {
   return a.localeCompare(b, undefined, { numeric: true, sensitivity: "base" });
 }
 
+function isCoverFile(key: string): boolean {
+  return /(?:^|\/)cover\.[^/]+$/i.test(key);
+}
+
 /**
  * 基于 OSS 列举结果解析 cover / photos（纯函数,无副作用）。
  *
  * - files：manifest[prefix]，该文件夹下全部图片完整 key（含扩展名）
  * - explicitCover：frontmatter 的 cover 字段,值为文件名（如 "cover.jpg"）
  *
- * cover 既是封面也是详情页第一张：
- *   - 指定了 cover → 用 `${prefix}/${cover}`
- *   - 未指定 → 优先名为 cover.* 的文件,否则自然排序第一张
- * photos = cover 置顶 + 其余自然排序,去重（cover 不重复出现）。
+ * 显式封面和 cover.* 专供封面展示，不进入照片列表与灯箱。
+ * 没有专用封面时借用自然排序第一张，原照片仍保留在列表中。
  */
 function resolveCoverAndPhotos(
   prefix: string,
@@ -40,16 +42,14 @@ function resolveCoverAndPhotos(
       console.warn(`[works] cover "${explicitCover}" not found under ${prefix}`);
     }
   } else {
-    coverKey = sorted.find((k) => /\/cover\.[^/]+$/i.test(k)) ?? sorted[0];
+    coverKey = sorted.find(isCoverFile) ?? sorted[0];
   }
 
-  const ordered = coverKey
-    ? [coverKey, ...sorted.filter((k) => k !== coverKey)]
-    : sorted;
+  const photos = sorted.filter((key) => !isCoverFile(key) && (!explicitCover || key !== coverKey));
 
   return {
     cover: coverKey ?? "",
-    photos: ordered.filter(Boolean).map((key) => ({ key })),
+    photos: photos.map((key) => ({ key })),
   };
 }
 
@@ -58,7 +58,10 @@ function mapSourceToWork(source: ParsedWorkSource, manifest: Manifest): Work {
   const { metadata, albumPrefix, storyMd } = source;
   const assets = albumPrefix
     ? resolveCoverAndPhotos(albumPrefix, manifest[albumPrefix] ?? [], metadata.cover)
-    : { cover: metadata.cover, photos: source.photos ?? [] };
+    : {
+      cover: metadata.cover,
+      photos: (source.photos ?? []).filter((photo) => photo.key !== metadata.cover && !isCoverFile(photo.key)),
+    };
   return {
     ...metadata,
     ...assets,
