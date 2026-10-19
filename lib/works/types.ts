@@ -6,6 +6,8 @@ export type WorkSummary = {
   date: string;
   location: string;
   cover: string;
+  coverWidth?: number;
+  coverHeight?: number;
   deck: string;
 };
 
@@ -18,8 +20,6 @@ export type Photo = {
 };
 
 export type WorkDetail = WorkSummary & {
-  coverWidth?: number;
-  coverHeight?: number;
   story: string[];
   exif: { camera: string; lens: string; film?: string };
   photos: Photo[];

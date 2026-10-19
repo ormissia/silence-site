@@ -31,6 +31,7 @@ describe("typed work queries", () => {
     expect(summaries[0]).not.toHaveProperty("exif");
     const album = await works.getWork("album");
     expect(summaries[0].cover).toBe("works/film/roll/cover.jpg");
+    expect(summaries[0]).toMatchObject({ coverWidth: 1200, coverHeight: 800 });
     expect(album?.photos.map((photo) => photo.key)).toEqual(["works/film/roll/2.jpg", "works/film/roll/10.jpg"]);
     expect(album?.coverWidth).toBe(1200);
     expect(album?.photos[0]).toMatchObject({ width: 800, height: 1200 });

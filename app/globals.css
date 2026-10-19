@@ -621,7 +621,6 @@ body[data-lightbox-open="true"] .site-header {
 .silence-pill:focus-visible { outline: 2px solid #C9994A; outline-offset: 4px; }
 .category-tabs { scrollbar-width: none; }
 .category-tabs::-webkit-scrollbar { display: none; }
-.category-tabs .silence-pill { min-height: 44px; font-size: 13px; letter-spacing: .03em; }
 .collection-page { padding-top: calc(var(--site-header-height, 120px) + 24px); }
 @media (min-width: 768px) {
   .collection-page { padding-top: calc(var(--site-header-height, 96px) + 64px); }

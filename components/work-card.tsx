@@ -1,41 +1,50 @@
 "use client";
 
-import { RevealImage as Image } from "@/components/media/reveal-image";
+import type { CSSProperties } from "react";
+import { RevealImg } from "@/components/media/reveal-image";
+import { EnterListLink } from "@/components/layout/list-return";
+import { CoverFocusFrame } from "@/components/cover-focus-frame";
 import { buildSrc } from "@/lib/oss";
 import type { WorkSummary } from "@/lib/works/types";
-import { CoverFocusFrame } from "@/components/cover-focus-frame";
-import { OverflowText } from "@/components/overflow-text";
-import styles from "./cover-hover.module.css";
-import { EnterListLink } from "@/components/layout/list-return";
+import styles from "./work/works-timeline.module.css";
+import hoverStyles from "./cover-hover.module.css";
 
-export function WorkCard({ work, index, variant = "wide", tab = "all" }: {
-  work: WorkSummary; index: number; variant?: "tall" | "wide" | "square"; tab?: string;
+export function WorkCard({ work, index, tab = "all" }: {
+  work: WorkSummary; index: number; tab?: string;
 }) {
-  const isFilm = work.series === "胶片";
-  const aspect = variant === "tall" ? "aspect-[4/5]" : variant === "square" ? "aspect-square" : "aspect-video";
   const query = tab === "all" ? "" : `?tab=${encodeURIComponent(tab)}`;
+  const coverStyle = work.coverWidth && work.coverHeight
+    ? { "--cover-ratio": work.coverWidth / work.coverHeight } as CSSProperties
+    : undefined;
+
   return (
-    <EnterListLink href={`/works/${work.slug}${query}`} listHref={`/works${query}`} className={`${styles.link} editorial-card block`}>
-      <div className={`${styles.cover} ${isFilm ? styles.film : ""} image-frame image-card ${aspect}`}>
-        <Image revealIndex={index} src={buildSrc(work.cover, "gridThumb")} alt={work.title} fill
-          sizes="(min-width: 768px) 50vw, 100vw"
-          className={styles.image} />
-        <div aria-hidden className="absolute inset-0 bg-gradient-to-t from-black/65 via-transparent to-black/15" />
-        {isFilm && <div aria-hidden className="pointer-events-none absolute inset-0 z-[3] border-[15px] border-solid" style={{ borderImageSource: 'url("/images/film/film-kodak-frame.webp")', borderImageSlice: 45, borderImageRepeat: "stretch" }} />}
-        <div className={styles.topMetadata}>
-          <span className="text-caption tracking-[0.25em] text-white/60">{String(index + 1).padStart(2, "0")}</span>
-          <span className="rounded-full border border-white/20 bg-black/30 px-3 py-1 text-annotation text-white/75 backdrop-blur-sm">{work.series}</span>
-        </div>
+    <EnterListLink
+      href={`/works/${work.slug}${query}`}
+      listHref={`/works${query}`}
+      className={`${styles.entry} ${hoverStyles.link}`}
+      aria-labelledby={`work-title-${work.slug}`}
+    >
+      <div className={styles.details}>
+        <time dateTime={work.date} className={styles.date}>{work.date.replaceAll("-", ".")}</time>
+        <h2 id={`work-title-${work.slug}`} className={styles.title}>{work.title}</h2>
+        <p className={styles.metadata}>
+          {[work.series, work.location !== "—" ? work.location : ""].filter(Boolean).join(" · ")}
+        </p>
+        {work.deck && <p className={styles.deck}>{work.deck}</p>}
+      </div>
+      <span className={styles.node} aria-hidden="true" />
+      <div className={`${styles.cover} ${hoverStyles.cover}`} style={coverStyle}>
+        <RevealImg
+          revealIndex={index}
+          src={buildSrc(work.cover, "gridThumb")}
+          alt={work.title}
+          width={work.coverWidth}
+          height={work.coverHeight}
+          loading="lazy"
+          decoding="async"
+          className={`${styles.image} ${hoverStyles.image}`}
+        />
         <CoverFocusFrame />
-        <div className={styles.info}>
-          <div className="min-w-0 flex-1">
-            <h3 className="font-serif text-sm italic leading-snug text-white/85"><OverflowText text={work.title} /></h3>
-            <p className="mt-1.5 text-annotation text-white/65">
-              <OverflowText text={[work.location !== "—" ? work.location : "", work.date.slice(0, 4)].filter(Boolean).join(" · ")} />
-            </p>
-            <p className="mt-1.5 text-xs leading-relaxed text-white/70"><OverflowText text={work.deck ?? ""} /></p>
-          </div>
-        </div>
       </div>
     </EnterListLink>
   );

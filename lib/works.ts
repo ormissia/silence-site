@@ -136,8 +136,8 @@ export async function listWorks(): Promise<Work[]> {
   return ensureLoaded();
 }
 
-function toWorkSummary({ slug, title, series, date, location, cover, deck }: Work): WorkSummary {
-  return { slug, title, series, date, location, cover, deck };
+function toWorkSummary({ slug, title, series, date, location, cover, coverWidth, coverHeight, deck }: Work): WorkSummary {
+  return { slug, title, series, date, location, cover, coverWidth, coverHeight, deck };
 }
 
 /** 列表不向客户端传递相册、故事和 EXIF。 */

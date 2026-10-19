@@ -78,7 +78,7 @@ export default function AboutPage() {
               <dl className="mt-12 grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-3">
                 {facts.map(([label, value]) => (
                   <div key={label} className="flex min-w-0 flex-col items-center gap-3 pt-5 text-center">
-                    <dt className="text-[13px] text-muted">{label}</dt>
+                    <dt style={getAccentStyle(`about:fact:${label}`)} className="silence-pill silence-pill-accent !px-2.5 !py-1.5 !text-[9px] uppercase !tracking-[0.22em] text-ink/80">{label}</dt>
                     <dd className="text-sm leading-relaxed tracking-normal text-ink/85">{value}</dd>
                   </div>
                 ))}
@@ -98,7 +98,7 @@ export default function AboutPage() {
                 <Link key={href} href={href} className="group block border-t divider-gradient py-4">
                   <div className="flex items-center justify-between gap-4">
                     <h3 className="text-body">{label} <span className="mx-1 text-ink/25">/</span> <span className="text-sm text-muted">{zh}</span></h3>
-                    <span className="text-sm text-muted group-hover:text-ink">Visit →</span>
+                    <span className="silence-pill !px-3 !py-1.5 !text-[10px] uppercase text-muted group-hover:text-ink">Visit →</span>
                   </div>
                   <p className="mt-2 text-sm leading-relaxed text-muted">{blurb}</p>
                 </Link>

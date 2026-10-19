@@ -9,6 +9,7 @@ import { tabToSeries, seriesToTab } from "@/lib/categories";
 import { CategoryTabs, type CategoryTab } from "@/components/layout/category-tabs";
 import type { WorkSummary } from "@/lib/works/types";
 import { RestoreListScroll } from "@/components/layout/list-return";
+import styles from "./works-timeline.module.css";
 
 type Props = {
   works: WorkSummary[];
@@ -54,9 +55,13 @@ export function WorksGallery({ works, categoryCounts }: Props) {
         {filtered.length === 0 ? (
           <p className="relative py-24 text-center text-muted">这个分类下还没有作品。</p>
         ) : (
-          <div className="relative grid grid-cols-1 gap-x-10 gap-y-12 pt-2 md:grid-cols-2 md:gap-y-16">
-            {filtered.map((work, index) => <WorkCard key={work.slug} work={work} index={index} tab={activeTab} />)}
-          </div>
+          <ol className={styles.timeline} aria-label="按日期排列的相册">
+            {filtered.map((work, index) => (
+              <li key={work.slug} className={styles.item}>
+                <WorkCard work={work} index={index} tab={activeTab} />
+              </li>
+            ))}
+          </ol>
         )}
       </div>
     </>
