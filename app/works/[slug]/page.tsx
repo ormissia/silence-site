@@ -6,6 +6,7 @@ import { tabToSeries } from "@/lib/categories";
 import { DetailReturnLink } from "@/components/layout/detail-return";
 import { getWork, listWorks } from "@/lib/works";
 import { PlatesGrid } from "@/components/work/plates-grid";
+import { CoverParallax } from "@/components/work/cover-parallax";
 
 import { FilmNotes } from "@/components/work/film-notes";
 
@@ -40,20 +41,24 @@ export default async function WorkDetailPage({ params, searchParams }: {
         <DetailReturnLink href={`/works${query}`} label="Works" ariaLabel="返回作品列表" className="silence-pill bg-black/40 text-white backdrop-blur-sm" />
       </div>
       {/* Cover hero：单独占满一屏，只显示封面 + 标题 */}
-      <header data-theme-surface="dark" className={`image-frame relative w-full overflow-hidden ${isFilm ? "h-[calc(100svh-var(--site-header-height))] min-h-[440px]" : "h-screen min-h-[560px]"}`}>
-        <Image
-          src={buildSrc(work.cover, "hero")}
-          revealEffect="blur"
-          alt={work.title}
-          fill
-          priority
-          className={isFilm ? "object-cover p-4 md:p-5" : "cinema-tone-soft object-cover"}
-          sizes="100vw"
-        />
+      <header data-theme-surface="dark" data-work-slug={work.slug} className={`image-frame relative w-full overflow-hidden ${isFilm ? "h-[calc(100svh-var(--site-header-height))] min-h-[440px]" : "h-screen min-h-[560px]"}`}>
+        <CoverParallax key={work.slug} slug={work.slug}>
+          <Image
+            src={buildSrc(work.cover, "hero")}
+            revealEffect="blur"
+            alt={work.title}
+            fill
+            priority
+            className={isFilm ? "object-cover p-4 md:p-5" : "cinema-tone-soft object-cover"}
+            sizes="100vw"
+            data-work-hero-image
+          />
+        </CoverParallax>
         {isFilm && <Image src="/images/film/film-hero-overlay.webp" alt="" fill sizes="100vw" className="pointer-events-none z-[1] object-fill opacity-60 mix-blend-screen" aria-hidden />}
         {/* 暗化让标题在亮区也立得住 */}
         <div
           aria-hidden
+          data-work-cover-shade
           className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/75"
         />
         <div className="vignette absolute inset-0" />

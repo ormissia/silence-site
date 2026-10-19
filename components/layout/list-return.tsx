@@ -21,8 +21,8 @@ export function rememberListPosition(href: string) {
 }
 
 /** 与进度共用导航意图；修饰键、下载或调用方取消时不写列表位置。 */
-export function EnterListLink({ listHref, ...props }: Omit<NavProgressLinkProps, "onNavigate"> & { listHref: string }) {
-  return <NavProgressLink {...props} onNavigate={() => rememberListPosition(listHref)} />;
+export function EnterListLink({ listHref, onNavigate, ...props }: NavProgressLinkProps & { listHref: string }) {
+  return <NavProgressLink {...props} onNavigate={() => { rememberListPosition(listHref); onNavigate?.(); }} />;
 }
 
 /** 适配已有 Link 回调入口（如 SVG 书籍节点），不监听页面级点击。 */
@@ -56,6 +56,7 @@ function ListScrollRestoration() {
 export function requestListReturn(href: string) {
   lastReturn = { href, id: (lastReturn?.id ?? 0) + 1 };
   try { sessionStorage.setItem(RETURN_KEY, href); } catch { /* Navigation remains usable. */ }
+  window.dispatchEvent(new CustomEvent("silence:list-return", { detail: { href } }));
 }
 
 /** 非链接关闭操作（Escape / 点击弹窗外部）与返回链接使用同一记录协议。 */

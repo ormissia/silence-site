@@ -8,10 +8,13 @@ import { buildSrc } from "@/lib/oss";
 import type { WorkSummary } from "@/lib/works/types";
 import styles from "./work/works-timeline.module.css";
 import hoverStyles from "./cover-hover.module.css";
+import { useCoverReveal } from "./work/use-cover-reveal";
+import { beginCoverTransition } from "./work/cover-transition";
 
-export function WorkCard({ work, index, tab = "all" }: {
-  work: WorkSummary; index: number; tab?: string;
+export function WorkCard({ work, tab = "all" }: {
+  work: WorkSummary; tab?: string;
 }) {
+  const coverRef = useCoverReveal(work.slug);
   const query = tab === "all" ? "" : `?tab=${encodeURIComponent(tab)}`;
   const coverStyle = work.coverWidth && work.coverHeight
     ? { "--cover-ratio": work.coverWidth / work.coverHeight } as CSSProperties
@@ -23,6 +26,8 @@ export function WorkCard({ work, index, tab = "all" }: {
       listHref={`/works${query}`}
       className={`${styles.entry} ${hoverStyles.link}`}
       aria-labelledby={`work-title-${work.slug}`}
+      data-work-entry
+      onNavigate={() => { if (coverRef.current) beginCoverTransition(coverRef.current, work.slug); }}
     >
       <div className={styles.details}>
         <time dateTime={work.date} className={styles.date}>{work.date.replaceAll("-", ".")}</time>
@@ -33,18 +38,21 @@ export function WorkCard({ work, index, tab = "all" }: {
         {work.deck && <p className={styles.deck}>{work.deck}</p>}
       </div>
       <span className={styles.node} aria-hidden="true" />
-      <div className={`${styles.cover} ${hoverStyles.cover}`} style={coverStyle}>
-        <RevealImg
-          revealIndex={index}
-          src={buildSrc(work.cover, "gridThumb")}
-          alt={work.title}
-          width={work.coverWidth}
-          height={work.coverHeight}
-          loading="lazy"
-          decoding="async"
-          className={`${styles.image} ${hoverStyles.image}`}
-        />
-        <CoverFocusFrame />
+      <div className={styles.cover} style={coverStyle}>
+        <div ref={coverRef} data-work-cover className={`${styles.reveal} ${hoverStyles.cover}`}>
+          <div className={styles.revealImage}>
+            <RevealImg
+              src={buildSrc(work.cover, "gridThumb")}
+              alt={work.title}
+              width={work.coverWidth}
+              height={work.coverHeight}
+              loading="lazy"
+              decoding="async"
+              className={`${styles.image} ${hoverStyles.image}`}
+            />
+          </div>
+          <CoverFocusFrame />
+        </div>
       </div>
     </EnterListLink>
   );

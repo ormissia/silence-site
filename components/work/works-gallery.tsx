@@ -56,9 +56,9 @@ export function WorksGallery({ works, categoryCounts }: Props) {
           <p className="relative py-24 text-center text-muted">这个分类下还没有作品。</p>
         ) : (
           <ol className={styles.timeline} aria-label="按日期排列的相册">
-            {filtered.map((work, index) => (
+            {filtered.map(work => (
               <li key={work.slug} className={styles.item}>
-                <WorkCard work={work} index={index} tab={activeTab} />
+                <WorkCard work={work} tab={activeTab} />
               </li>
             ))}
           </ol>
