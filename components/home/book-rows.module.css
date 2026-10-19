@@ -20,7 +20,7 @@
 .gallery::after { right: 0; background: linear-gradient(to left, rgb(var(--color-paper)), rgb(var(--color-paper) / 0)); }
 .gallery[data-active="true"]::before,
 .gallery[data-active="true"]::after { opacity: .18; }
-.row { position: relative; padding: 14px 16px; }
+.row { position: relative; padding: var(--book-row-padding, 14px) 16px; }
 .row[data-selected-row="true"] { z-index: 2; }
 .track {
   position: relative;

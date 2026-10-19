@@ -9,29 +9,32 @@
 .layer[data-open="true"] .bookMain { z-index: 25; }
 .peekCards { position: absolute; inset: 0; pointer-events: none; opacity: 1; transition: opacity 150ms; }
 .peekCards[data-hidden="true"] { opacity: 0; }
-.peekCard { --px: -15px; --py: -17px; --pr: -7deg; position: absolute; inset: 5% 2%; padding: 12px; border: 1px solid rgb(var(--color-ink) / .2); border-radius: 8px; background: rgb(var(--color-surface-raised)); color: rgb(var(--color-ink)); overflow: hidden; font-size: 12px; line-height: 1.7; opacity: var(--peek); transform: translate(calc(var(--px) * var(--peek)), calc(var(--py) * var(--peek))) rotate(calc(var(--pr) * var(--peek))); }
+.peekCard { --px: -15px; --py: -17px; --pr: -7deg; position: absolute; inset: 5% 2%; padding: 16px; border: 1px solid rgb(var(--color-ink) / .12); border-radius: 4px; background: rgb(var(--color-surface-raised)); color: rgb(var(--color-muted)); overflow: hidden; font-size: 12px; line-height: 1.8; opacity: var(--peek); transform: translate(calc(var(--px) * var(--peek)), calc(var(--py) * var(--peek))) rotate(calc(var(--pr) * var(--peek))); }
 .peekCard[data-note-index="1"] { --px: 18px; --py: -12px; --pr: 8deg; }
 .peekCard[data-note-index="2"] { --px: -18px; --py: 18px; --pr: -5deg; }
 .peekCard[data-note-index="3"] { --px: 15px; --py: 21px; --pr: 6deg; }
 .notes { position: absolute; inset: 0; pointer-events: none; }
-.note { position: absolute; left: 0; top: 0; translate: -50% -50%; overflow: hidden; height: 148px; padding: 16px 18px 20px; border: 1px solid rgb(var(--color-ink) / .18); border-radius: 8px; background: rgb(var(--color-surface-raised)); color: rgb(var(--color-ink)); box-shadow: 0 8px 28px rgb(0 0 0 / .16); text-align: left; cursor: zoom-in; }
-.noteCopy { position: relative; display: block; }
-.notePreview { position: absolute; top: 0; left: 0; width: 146px; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; letter-spacing: normal; overflow-wrap: anywhere; pointer-events: none; transition: opacity 140ms ease; }
-.noteText { display: block; width: 282px; max-height: 210px; overflow-y: auto; overscroll-behavior: contain; letter-spacing: normal; overflow-wrap: anywhere; user-select: text; scrollbar-width: thin; opacity: 0; pointer-events: none; transition: opacity 200ms ease; }
-.note[data-expanded="true"] { height: auto; min-height: 148px; max-height: 280px; cursor: auto; border-color: rgb(var(--color-ink) / .4); }
+.note { position: absolute; left: 0; top: 0; translate: -50% -50%; overflow: hidden; height: 164px; padding: 16px 18px 20px; border: 1px solid rgb(var(--color-ink) / .12); border-radius: 4px; background: rgb(var(--color-surface-raised)); color: rgb(var(--color-ink)); box-shadow: 0 10px 28px rgb(0 0 0 / .14); text-align: left; cursor: zoom-in; }
+.noteHeader { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding-bottom: 10px; margin-bottom: 12px; border-bottom: 1px solid rgb(var(--color-ink) / .1); color: rgb(var(--color-muted)); letter-spacing: .06em; }
+.noteIndex { flex-shrink: 0; font-variant-numeric: tabular-nums; letter-spacing: .02em; color: rgb(var(--color-ink) / .8); }
+.noteIndex > span { color: rgb(var(--color-muted)); }
+.noteCopy { position: relative; display: block; min-height: 81px; }
+.notePreview { position: absolute; top: 0; left: 0; width: 100%; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; line-height: 1.8; letter-spacing: normal; overflow-wrap: anywhere; pointer-events: none; transition: opacity 140ms ease; }
+.noteText { display: block; width: 100%; max-height: clamp(150px, calc(100svh - 420px), 252px); padding-right: 6px; overflow-y: auto; overscroll-behavior: contain; line-height: 1.85; letter-spacing: normal; overflow-wrap: anywhere; white-space: pre-line; user-select: text; scrollbar-width: thin; scrollbar-color: rgb(var(--color-ink) / .24) transparent; opacity: 0; pointer-events: none; transition: opacity 200ms ease; }
+.note[data-expanded="true"] { height: auto; min-height: 164px; cursor: auto; border-color: rgb(var(--color-ink) / .28); box-shadow: 0 16px 40px rgb(0 0 0 / .2); }
 .note[data-anchor="top"] { translate: -50% 0; }
 .note[data-anchor="bottom"] { translate: -50% -100%; }
 .note[data-expanded="true"] .notePreview { opacity: 0; }
 .note[data-expanded="true"] .noteText { opacity: 1; pointer-events: auto; }
 .cover:focus-visible, .note:focus-visible { outline: 2px solid rgb(var(--color-ink)); outline-offset: 5px; }
-.drawer { width: min(640px, calc(100vw - 32px)); max-height: calc(100svh - 48px); margin: auto; padding: 20px; border: 1px solid rgb(var(--color-ink) / .25); border-radius: 12px; background: rgb(var(--color-paper)); color: rgb(var(--color-ink)); pointer-events: auto; overflow-y: auto; overscroll-behavior: contain; }
+.drawer { width: min(640px, calc(100vw - 32px)); max-height: calc(100svh - 48px); margin: auto; padding: 20px; border: 1px solid rgb(var(--color-ink) / .16); border-radius: 8px; background: rgb(var(--color-paper)); color: rgb(var(--color-ink)); pointer-events: auto; overflow-y: auto; overscroll-behavior: contain; }
 .drawer::backdrop { background: rgb(0 0 0 / .6); }
 .drawerHead { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
 .drawerHead button { flex-shrink: 0; min-width: 44px; min-height: 44px; }
 .mobileNotes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
 .mobileNotes .note { position: relative; translate: none; width: 100%; height: auto; max-height: none; align-self: start; min-height: 0; }
 .mobileNotes .note[data-expanded="true"] { grid-column: 1 / -1; }
-.mobileNotes .noteCopy { height: 4.78125rem; }
+.mobileNotes .noteCopy { height: 81px; }
 .mobileNotes .note[data-expanded="true"] .noteCopy { height: auto; }
 .mobileNotes .notePreview, .mobileNotes .noteText { width: 100%; }
 @media (max-width: 639px) { .mobileNotes { grid-template-columns: minmax(0, 1fr); } }

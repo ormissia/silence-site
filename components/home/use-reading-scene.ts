@@ -113,7 +113,7 @@ export function useReadingScene(root: RefObject<HTMLDivElement>, stage: RefObjec
       previousProgress = progress;
       setReduced(media.matches);
       const staticScene = media.matches;
-      setTransitioning(!staticScene && progress > 0);
+      setTransitioning(!staticScene && progress > SCENE_STOPS.freeze);
       const previousFocus = locked.current;
 
       if (!staticScene && progress <= SCENE_STOPS.freeze && !pendingRestore) {

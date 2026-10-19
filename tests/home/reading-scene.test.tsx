@@ -23,7 +23,7 @@ function Fixture({ supplied = books }: { supplied?: SceneBook[] }) {
   const root = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const scene = useReadingScene(root, stage, supplied);
-  return <div ref={root} data-testid="scene" data-reduced={scene.reduced} data-ready={scene.ready}>
+  return <div ref={root} data-testid="scene" data-reduced={scene.reduced} data-ready={scene.ready} data-transitioning={scene.transitioning}>
     <button onClick={scene.save}>进入详情</button>
     <div ref={stage} data-stage>
       {[0, 1, 2].map(row => <div key={row} data-book-row={row}>
@@ -85,11 +85,15 @@ afterEach(() => {
 describe("continuous homepage reading scene", () => {
   it("slows all rows without restarting their phases, then keeps the nearest book even when it has no notes", () => {
     const view = render(<Fixture />); flush();
+    progress(.0004);
+    expect(view.getByTestId("scene").dataset.transitioning).toBe("false");
     progress(.175);
+    expect(view.getByTestId("scene").dataset.transitioning).toBe("false");
     animations.forEach(animation => expect(animation.playbackRate).toBeCloseTo(.25));
     expect(animations.map(animation => animation.currentTime)).toEqual([100, 200, 300]);
     expect(view.queryByTestId("selected")).toBeNull();
     progress(.36);
+    expect(view.getByTestId("scene").dataset.transitioning).toBe("true");
     expect(animations.map(animation => animation.playbackRate)).toEqual([0, 0, 0]);
     expect(view.getByTestId("selected").dataset.id).toBe("1:1:b");
     expect(view.getByTestId("selected").dataset.notes).toBe("0");
@@ -108,6 +112,7 @@ describe("continuous homepage reading scene", () => {
     expect(animations[1].playbackRate).toBe(0);
     expect(parseFloat(view.getByTestId("scene").style.getPropertyValue("--focus-width"))).toBeGreaterThan(100);
     progress(.35);
+    expect(view.getByTestId("scene").dataset.transitioning).toBe("false");
     expect(view.queryByTestId("selected")).toBeNull();
     expect(animations.map(animation => animation.playbackRate)).toEqual([1, 1, 1]);
     expect(animations.map(animation => animation.currentTime)).toEqual([100, 200, 300]);

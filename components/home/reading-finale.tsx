@@ -111,21 +111,22 @@ export function ReadingFinale({ book, width, ready, reduced }: {
   const renderNotes = (mobile: boolean) => notes.map((text, index) => {
     const enlarged = expanded === index;
     const angle = -Math.PI / 2 + index * Math.PI * 2 / notes.length;
-    const cardWidth = enlarged ? 320 : 184;
-    const radiusX = Math.min(228, geometry.width * .19);
+    const cardWidth = enlarged ? Math.min(360, geometry.width - 48) : 200;
+    const cardHeight = 164;
+    const radiusX = Math.min(300, geometry.width * .24);
     const radiusY = Math.min(220, Math.max(0, geometry.height - 96) * .36);
     const center = { x: geometry.width / 2, y: geometry.height / 2 };
     const cardX = clamp(center.x + Math.cos(angle) * radiusX, cardWidth / 2 + 12, geometry.width - cardWidth / 2 - 12);
     const baseY = clamp(center.y + Math.sin(angle) * radiusY, 86, geometry.height - 86);
     const anchor = Math.sin(angle) < -.25 ? "top" : Math.sin(angle) > .25 ? "bottom" : "center";
-    const cardY = anchor === "center" ? baseY : baseY + (anchor === "top" ? -74 : 74);
+    const cardY = anchor === "center" ? baseY : baseY + (anchor === "top" ? -cardHeight / 2 : cardHeight / 2);
     return <motion.button key={index} type="button" className={styles.note}
       data-highlight-note={index} data-expanded={enlarged} data-anchor={anchor}
       aria-expanded={enlarged} aria-label={`划线 ${index + 1}：${text}`} tabIndex={active && ready ? 0 : -1}
-      initial={false} animate={{ width: mobile ? "100%" : cardWidth, height: mobile || enlarged ? "auto" : 148,
+      initial={false} animate={{ width: mobile ? "100%" : cardWidth, height: mobile || enlarged ? "auto" : cardHeight,
         ...(mobile ? { opacity: 1, x: 0, y: 0, scale: 1, rotate: 0 } : !active ? {
           opacity: 0, x: center.x, y: center.y, scale: .25, rotate: 0,
-        } : { opacity: 1, x: cardX, y: cardY, scale: enlarged ? 1.04 : 1, rotate: enlarged ? 0 : (index % 2 === 0 ? -1 : 1) * (4 + index % 3 * 2) }) }}
+        } : { opacity: 1, x: cardX, y: cardY, scale: enlarged ? 1.02 : 1, rotate: enlarged ? 0 : (index % 2 === 0 ? -1 : 1) * (2 + index % 3) }) }}
       transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 270, damping: 25, mass: .75 }}
       style={{ zIndex: enlarged ? 30 : 10 + index, pointerEvents: active && ready ? "auto" : "none" }}
       onPointerEnter={event => { if (event.pointerType === "mouse" && !mobile) { method.current = "pointer"; open(index); } }}
@@ -134,7 +135,10 @@ export function ReadingFinale({ book, width, ready, reduced }: {
         if (!enlarged || !["ArrowDown", "ArrowUp"].includes(event.key)) return;
         event.preventDefault(); event.currentTarget.querySelector("[data-note-text]")?.scrollBy({ top: event.key === "ArrowDown" ? 60 : -60 });
       }}>
-      <span className="mb-3 block font-sans text-annotation tracking-normal text-muted">{String(index + 1).padStart(2, "0")} / 划线</span>
+      <span className={`${styles.noteHeader} font-sans text-annotation`}>
+        <span>划线</span>
+        <span className={styles.noteIndex}>{String(index + 1).padStart(2, "0")} <span>/ {String(notes.length).padStart(2, "0")}</span></span>
+      </span>
       <span className={styles.noteCopy} aria-hidden="true">
         <span className={`${styles.notePreview} font-sans text-body`}>{text}</span>
         <span data-note-text className={`${styles.noteText} font-sans text-body`}>{text}</span>
