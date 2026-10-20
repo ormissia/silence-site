@@ -15,6 +15,22 @@ const expectedSlugs = new Map([
 ]);
 
 describe("migrated work content", () => {
+  it("keeps film archive numbers unique and aligned with content and OSS paths", () => {
+    const films = readAllWorksMdx()
+      .filter(({ sourcePath }) => sourcePath.startsWith("content/works/film/"))
+      .sort((a, b) => a.metadata.slug.localeCompare(b.metadata.slug));
+
+    expect(films.length).toBeGreaterThan(0);
+    for (const [index, work] of films.entries()) {
+      const number = String(index + 1).padStart(4, "0");
+      expect(work.metadata.slug).toMatch(new RegExp(`^${number}-(120|135)-[a-z0-9]+$`));
+      expect(work.sourcePath).toBe(`content/works/film/${work.metadata.slug}.mdx`);
+      expect(work.albumPrefix).toBe(`works/film/${work.metadata.slug}`);
+      expect(work.metadata.title).toMatch(new RegExp(`^No\\.${number} · `));
+      expect(`${work.metadata.title} ${work.metadata.deck} ${work.storyMd}`).not.toMatch(/\(Roll \d+\)|第 \d+ 批/);
+    }
+  });
+
   it("resolves each renamed file and album through its full-pinyin slug", () => {
     const works = readAllWorksMdx();
     const slugs = works.map(({ metadata }) => metadata.slug);

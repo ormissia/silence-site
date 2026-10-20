@@ -74,7 +74,7 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 `frontmatter.cover` 由各自的内容模块解析：
 
 - **`http(s)://...` 开头** → 原样透传（外链封面）
-- **包含 `/` 的完整 OSS key**（如 `works/film/0001-120-RVP100-1/23670001.jpg`）→ 原样透传，可跨目录复用图片
+- **包含 `/` 的完整 OSS key**（如 `works/film/0002-120-rvp100/23670001.jpg`）→ 原样透传，可跨目录复用图片
 - **纯文件名** → 按 MDX 所在目录自动拼前缀（journal 拼 `journal/<category>/<file>`，works 借助 `album` 字段）
 
 上述外链和完整 key 透传适用于 Reading / Journal，以及显式提供 `photos` 的 Works。Works 使用 `album` 自动列举、没有显式 `photos` 时，现有实现始终把 `cover` 当相对文件名拼接；应填写 `cover.jpg` 这类文件名，完整 key/外链会被重复加前缀。保留现有封面解析语义。
