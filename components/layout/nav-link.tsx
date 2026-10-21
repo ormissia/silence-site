@@ -6,7 +6,7 @@ import { useRouteProgress } from "./route-progress-state";
 import { shouldStartRouteProgress } from "@/lib/route-navigation";
 import { getAccentStyle } from "@/lib/accent";
 
-export type NavProgressLinkProps = Omit<LinkProps, "onNavigate"> &
+export type NavProgressLinkProps = LinkProps &
   Omit<AnchorHTMLAttributes<HTMLAnchorElement>, keyof LinkProps> & {
     children?: ReactNode;
     /** 仅在未取消的同窗口路由跳转前执行；不接管浏览器导航。 */

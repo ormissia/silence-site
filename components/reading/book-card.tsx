@@ -43,7 +43,7 @@ export function BookCard({ book, index }: { book: ReadingSummary; index: number 
                 {book.title}
               </div>
             )}
-            <span className="absolute right-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-black/65 px-2.5 py-1 font-sans text-annotation tracking-normal text-white backdrop-blur-xs sm:right-3 sm:top-3">
+            <span className="absolute right-2 top-2 max-w-[calc(100%-1rem)] truncate rounded-full bg-black/65 px-2.5 py-1 font-sans text-annotation tracking-normal text-white backdrop-blur-sm sm:right-3 sm:top-3">
               {book.category}
             </span>
           </div>
@@ -55,7 +55,7 @@ export function BookCard({ book, index }: { book: ReadingSummary; index: number 
       </EnterListLink>
       <button
         type="button"
-        className="reading-book-toggle absolute bottom-2 right-2 rounded-full border border-white/20 bg-black/75 px-3 py-1.5 font-sans text-annotation tracking-normal text-white backdrop-blur-xs"
+        className="reading-book-toggle absolute bottom-2 right-2 rounded-full border border-white/20 bg-black/75 px-3 py-1.5 font-sans text-annotation tracking-normal text-white backdrop-blur-sm"
         aria-label={`${flipped ? "显示封面" : "查看书籍信息"}：${book.title}`}
         aria-pressed={flipped}
         onClick={() => setFlipped((value) => !value)}

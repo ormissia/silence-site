@@ -18,7 +18,7 @@ export function ReadingFinale({ book, width, ready, reduced }: {
   const root = useRef<HTMLDivElement>(null);
   const cover = useRef<HTMLButtonElement>(null);
   const drawer = useRef<HTMLDialogElement>(null);
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const timer = useRef<ReturnType<typeof setTimeout>>();
   const method = useRef("keyboard");
   const suppressFocus = useRef(false);
   const [active, setActive] = useState(false);

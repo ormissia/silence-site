@@ -5,7 +5,7 @@ import type { MotionValue } from "framer-motion";
 import { createIceRenderer, ICE_LIFETIME_MS, type IceSegment } from "./ice-reveal-renderer";
 
 export function AboutIceReveal({ interactionRef, fadeOpacity, shadeOpacity }: {
-  interactionRef: RefObject<HTMLDivElement | null>;
+  interactionRef: RefObject<HTMLDivElement>;
   fadeOpacity: MotionValue<number>;
   shadeOpacity: MotionValue<number>;
 }) {

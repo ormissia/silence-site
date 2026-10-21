@@ -101,7 +101,7 @@ export function YearStatistics({ books, categories }: { books: ReadingSummary[];
                       onPointerEnter={() => setActive(info)} onPointerLeave={() => setActive(null)}
                       onFocus={() => setActive(info)} onBlur={() => setActive(null)}
                       onKeyDown={(event) => { if (event.key === "Escape") setActive(null); }}
-                      className="cursor-default outline-hidden transition-[stroke-width] duration-150 ease-out motion-reduce:transition-none" />
+                      className="cursor-default outline-none transition-[stroke-width] duration-150 ease-out motion-reduce:transition-none" />
                   );
                 })}
               </g>

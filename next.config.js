@@ -4,16 +4,17 @@ process.env.SILENCE_OSS_BUILD_ID ||= require("node:crypto").randomUUID();
 
 const nextConfig = {
   reactStrictMode: true,
-  agentRules: false,
   // 将本次构建标识编译进应用，生产运行与资源清单使用相同值。
   env: {
     SILENCE_OSS_BUILD_ID: process.env.SILENCE_OSS_BUILD_ID,
   },
-  outputFileTracingIncludes: {
-    "/**": [
-      "./content/.album-manifest.json",
-      "./content/.image-meta.json",
-    ],
+  experimental: {
+    outputFileTracingIncludes: {
+      "/**": [
+        "./content/.album-manifest.json",
+        "./content/.image-meta.json",
+      ],
+    },
   },
   images: {
     // OSS 自带 x-oss-process（resize/format/quality）在做同样的事，

@@ -108,7 +108,7 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
           <line aria-hidden="true" x1="0" y1={model.height} x2={EVOLUTION_WIDTH} y2={model.height} stroke="currentColor" strokeOpacity="0.1" />
         </svg>
         {displayed && <div ref={tooltipRef} id={tooltipId} role="tooltip" data-visible={tooltipVisible}
-          className="reading-evolution-tooltip pointer-events-none absolute z-10 isolate aspect-[2/3] max-w-full overflow-hidden border border-ink/15 bg-surface-raised text-ink shadow-lg"
+          className="reading-evolution-tooltip pointer-events-none absolute z-10 isolate aspect-[2/3] max-w-full -translate-x-1/2 overflow-hidden border border-ink/15 bg-surface-raised text-ink shadow-lg"
           style={{ left: `clamp(calc(var(--reading-cover-width) / 2), ${displayed.x / EVOLUTION_WIDTH * 100}%, calc(100% - var(--reading-cover-width) / 2))`, top: `calc(${(displayed.y - EVOLUTION_HEADER_HEIGHT) / plotHeight * 100}% + ${tooltipOffset}px)` }}>
           <BookInformation book={displayed.book} />
         </div>}
@@ -145,7 +145,7 @@ export function ReadingEvolution({ books }: { books: EvolutionBook[] }) {
         <p className="mt-4 text-xs leading-relaxed text-muted">这些书暂未放入时间轨迹，补全读完日期后会归入对应年度。</p>
         <ul className="mt-5 grid gap-x-8 sm:grid-cols-2 lg:grid-cols-3">
           {model.undated.map((book) => <li key={book.slug} className="min-w-0 border-b border-rule py-4">
-            <EnterListLink href={readingBookHref(book.slug, EVOLUTION_NAVIGATION)} listHref={RETURN_HREF} prefetch={false} scroll={false} className="block rounded-sm focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
+            <EnterListLink href={readingBookHref(book.slug, EVOLUTION_NAVIGATION)} listHref={RETURN_HREF} prefetch={false} scroll={false} className="block rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-ink">
               <p className="break-words font-serif text-sm leading-relaxed">{book.title}</p>
               <p className="mt-1 break-words text-xs leading-relaxed text-muted">{book.author ?? "作者未记录"} · {book.category}</p>
             </EnterListLink>

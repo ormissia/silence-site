@@ -36,7 +36,7 @@ export function EvolutionYearGraph({ year, activeSlug, tooltipId, onActivate, on
   const focusCategory = useRef<string | null>(null);
   const pointer = useRef<{ x: number; y: number } | null>(null);
   const hoveredSlug = useRef<string | null>(null);
-  const elements = useRef<{ columns: SVGRectElement[]; panels: SVGForeignObjectElement[]; labels: SVGForeignObjectElement[]; nodes: SVGGElement[]; circles: SVGCircleElement[][]; lines: SVGLineElement[] } | undefined>(undefined);
+  const elements = useRef<{ columns: SVGRectElement[]; panels: SVGForeignObjectElement[]; labels: SVGForeignObjectElement[]; nodes: SVGGElement[]; circles: SVGCircleElement[][]; lines: SVGLineElement[] }>();
   const positionCallback = useRef(onPositions);
   positionCallback.current = onPositions;
   const activateCallback = useRef(onActivate);
@@ -214,7 +214,7 @@ export function EvolutionYearGraph({ year, activeSlug, tooltipId, onActivate, on
           data-reading-category={node.category}
           data-book-index={index}
           aria-label={`${node.book.title}；${node.book.author ?? "作者未记录"}；分类 ${node.category}；${node.book.finishedDate}；阅读 ${node.book.readingTime ?? "时长未记录"}；${node.book.noteCount === undefined ? "笔记数量未记录" : `${node.book.noteCount} 条笔记`}`}
-          aria-describedby={selected ? tooltipId : undefined} className="group/reading-node cursor-pointer outline-hidden"
+          aria-describedby={selected ? tooltipId : undefined} className="group/reading-node cursor-pointer outline-none"
           onPointerEnter={(event) => {
             pointer.current = { x: event.clientX, y: event.clientY };
             // Moving circles must not retarget the accordion under a stationary pointer.

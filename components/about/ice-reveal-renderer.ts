@@ -94,7 +94,7 @@ export function createIceRenderer(canvas: HTMLCanvasElement, original: HTMLImage
       gl!.activeTexture(gl!.TEXTURE0 + unit);
       gl!.bindTexture(gl!.TEXTURE_2D, value);
     }
-    function bindProgram(shader: WebGLProgram) {
+    function use(shader: WebGLProgram) {
       gl!.useProgram(shader);
       const position = positions.get(shader)!;
       gl!.bindBuffer(gl!.ARRAY_BUFFER, quad);
@@ -137,7 +137,7 @@ export function createIceRenderer(canvas: HTMLCanvasElement, original: HTMLImage
         const count = Math.min(segments.length, 12);
         segments.slice(0, count).forEach((segment, index) => segmentsBuffer.set(segment, index * 4));
         const write = 1 - read;
-        bindProgram(maskProgram);
+        use(maskProgram);
         gl.bindFramebuffer(gl.FRAMEBUFFER, targets[write]);
         gl.viewport(0, 0, maskWidth, maskHeight);
         bindTexture(masks[read], 0);
@@ -150,7 +150,7 @@ export function createIceRenderer(canvas: HTMLCanvasElement, original: HTMLImage
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         read = write;
 
-        bindProgram(sceneProgram);
+        use(sceneProgram);
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
         gl.viewport(0, 0, canvas.width, canvas.height);
         bindTexture(iceTexture, 0); bindTexture(masks[read], 1);

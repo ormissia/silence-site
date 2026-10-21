@@ -14,23 +14,21 @@ export async function generateStaticParams() {
   return (await listWorks()).map((w) => ({ slug: w.slug }));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
-  const { slug } = await params;
-  const work = await getWork(slug);
+export async function generateMetadata({ params }: { params: { slug: string } }) {
+  const work = await getWork(params.slug);
   if (!work) return {};
   return { title: `${work.title} — SILENCE` };
 }
 
 export default async function WorkDetailPage({ params, searchParams }: {
-  params: Promise<{ slug: string }>;
-  searchParams: Promise<{ tab?: string | string[] }>;
+  params: { slug: string };
+  searchParams: { tab?: string | string[] };
 }) {
-  const [{ slug }, queryParams] = await Promise.all([params, searchParams]);
-  const work = await getWork(slug);
+  const work = await getWork(params.slug);
   if (!work) notFound();
 
   const all = await listWorks();
-  const requestedTab = typeof queryParams.tab === "string" ? queryParams.tab : undefined;
+  const requestedTab = typeof searchParams.tab === "string" ? searchParams.tab : undefined;
   const tab = tabToSeries(requestedTab) === work.series ? requestedTab : undefined;
   const query = tab ? `?tab=${encodeURIComponent(tab)}` : "";
   const visibleWorks = tab ? all.filter((item) => item.series === work.series) : all;
@@ -40,7 +38,7 @@ export default async function WorkDetailPage({ params, searchParams }: {
   return (
     <article className={`detail-enter relative pb-20 ${isFilm ? "pt-[var(--site-header-height)]" : ""}`}>
       <div data-theme-surface="dark" className="absolute left-6 top-36 z-20 md:left-12">
-        <DetailReturnLink href={`/works${query}`} label="Works" ariaLabel="返回作品列表" className="silence-pill bg-black/40 text-white backdrop-blur-xs" />
+        <DetailReturnLink href={`/works${query}`} label="Works" ariaLabel="返回作品列表" className="silence-pill bg-black/40 text-white backdrop-blur-sm" />
       </div>
       {/* Cover hero：单独占满一屏，只显示封面 + 标题 */}
       <header data-theme-surface="dark" data-work-slug={work.slug} className={`image-frame relative w-full overflow-hidden ${isFilm ? "h-[calc(100svh-var(--site-header-height))] min-h-[440px]" : "h-screen min-h-[560px]"}`}>
@@ -61,7 +59,7 @@ export default async function WorkDetailPage({ params, searchParams }: {
         <div
           aria-hidden
           data-work-cover-shade
-          className="absolute inset-0 bg-linear-to-b/srgb from-black/45 via-black/15 to-black/75"
+          className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/75"
         />
         <div className="vignette absolute inset-0" />
 

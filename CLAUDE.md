@@ -15,8 +15,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## 技术栈
 
-- **框架**：Next.js 16.4.2（App Router，TypeScript，React 19.3）
-- **样式**：Tailwind 4.3（`app/globals.css` 通过 `@config` 加载 `tailwind.config.ts` 中的语义化字号和主题；utilities 保持未分层以兼容现有 CSS）
+- **框架**：Next.js 14.2.5（App Router，TypeScript，React 18.3）
+- **样式**：Tailwind 3.4（`tailwind.config.ts` 扩展了语义化字号 token：`display` / `headline` / `lede` / `body` / `deck`）
 - **字体**：`next/font` 加载 Syne（西文 UI 与主标题）+ Noto Sans SC（中文，含 100/400/700 三个字重）+ Playfair Display（英文说明、作品标题与编辑性小标题中的西文）
 - **设计规范**：详见 [DESIGN.md](./DESIGN.md)（字体、色彩、组件风格的完整定义）
 - **图片**：阿里云 OSS 托管原图；前端用 `next/image` 但 **关闭** Next 优化器（`images.unoptimized=true`），由 OSS 的 `?x-oss-process=image/resize,...` 实时生成缩略/WebP
@@ -111,7 +111,7 @@ content/reading/<分类>/*.md      (cover 可外链或 OSS key)
 npm run dev          # 本地开发
 npm run build        # 生产构建（每次重新列举 OSS 并探测像素尺寸）
 npm run start        # 启动构建产物
-npm run lint         # ESLint CLI，配置见 eslint.config.mjs
+npm run lint         # next lint
 npm run typecheck    # tsc --noEmit
 ```
 

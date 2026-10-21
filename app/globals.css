@@ -1,20 +1,6 @@
-@layer theme, base;
-@import "tailwindcss/theme.css" layer(theme);
-@import "tailwindcss/preflight.css" layer(base);
-/* Utilities stay unlayered to preserve their cascade with the existing site CSS. */
-@import "tailwindcss/utilities.css" source(none);
-@config "../tailwind.config.ts";
-@source "../app";
-@source "../components";
-
-@layer base {
-  *, ::before, ::after, ::backdrop {
-    border-color: var(--color-gray-200, currentColor);
-  }
-  button:not(:disabled), [role="button"]:not(:disabled) {
-    cursor: pointer;
-  }
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   color-scheme: dark;
@@ -299,7 +285,7 @@ body[data-lightbox-open="true"] .site-header {
 
 /* 段落 + 副段落：第一段 drop-cap 由 :first-child 命中 */
 .md-content p {
-  color: rgb(var(--color-ink) / 0.9);
+  color: theme(colors.ink/90);
 }
 .md-content > p:first-child::first-letter {
   font-family: theme(fontFamily.serif);
@@ -344,7 +330,7 @@ body[data-lightbox-open="true"] .site-header {
   border-left: 3px solid theme(colors.accent);
   padding: 0.2em 0 0.2em 1.4em;
   font-style: italic;
-  color: rgb(var(--color-ink) / 0.8);
+  color: theme(colors.ink/80);
 }
 .md-content blockquote p {
   color: inherit;
@@ -396,7 +382,7 @@ body[data-lightbox-open="true"] .site-header {
   overflow-x: auto;
   font-size: 0.95rem;
   line-height: 1.6;
-  border: 1px solid rgb(var(--color-ink) / 0.1);
+  border: 1px solid theme(colors.ink/10);
 }
 .md-content pre code {
   background: transparent;
@@ -420,7 +406,7 @@ body[data-lightbox-open="true"] .site-header {
   display: block;
   width: 100%;
   height: auto;
-  border: 1px solid rgb(var(--color-ink) / 0.1);
+  border: 1px solid theme(colors.ink/10);
 }
 
 /* 表格：暗调线框 */
@@ -448,10 +434,10 @@ body[data-lightbox-open="true"] .site-header {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: 0.85em;
   padding: 0.1em 0.5em;
-  border: 1px solid rgb(var(--color-ink) / 0.3);
+  border: 1px solid theme(colors.ink/30);
   border-radius: 4px;
   background: theme(colors.rule);
-  box-shadow: 0 2px 0 rgb(var(--color-ink) / 0.1);
+  box-shadow: 0 2px 0 theme(colors.ink/10);
 }
 
 /* 移动端缩字号 */
@@ -494,7 +480,7 @@ body[data-lightbox-open="true"] .site-header {
   margin-top: 0.8em;
 }
 .md-content .md-callout p {
-  color: rgb(var(--color-ink) / 0.85);
+  color: theme(colors.ink/85);
 }
 .md-content .md-callout .md-callout-title {
   margin: 0;
