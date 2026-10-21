@@ -206,7 +206,7 @@ export function CinemaHero() {
       {/* 跟随序章底边进入视口，不占用诗句的 sticky 停留行程。 */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-[30vh] bg-gradient-to-b from-transparent via-paper/60 to-paper"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-40 h-[30vh] bg-linear-to-b/srgb from-transparent via-paper/60 to-paper"
       />
     </section>
   );
@@ -257,7 +257,7 @@ function CameraBody({
         {/* LCD 微反光 + 跟外壳一起淡出 */}
         <motion.div
           style={{ opacity: shellOpacity }}
-          className="pointer-events-none absolute inset-0 bg-gradient-to-br from-white/[0.05] via-transparent to-black/10"
+          className="pointer-events-none absolute inset-0 bg-linear-to-br/srgb from-white/[0.05] via-transparent to-black/10"
         />
       </div>
 
@@ -297,7 +297,7 @@ function CinemaHeroStatic() {
       <div className="vignette absolute inset-0" />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-x-0 bottom-0 h-[30vh] bg-gradient-to-b from-transparent via-paper/60 to-paper"
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-[30vh] bg-linear-to-b/srgb from-transparent via-paper/60 to-paper"
       />
       <div className="absolute inset-0 z-10 mx-auto flex max-w-[1400px] flex-col justify-end px-6 pb-16 md:px-10">
         <OpeningTitle />

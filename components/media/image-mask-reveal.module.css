@@ -1,0 +1,14 @@
+.frame { overflow: hidden; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .entry[data-work-reveal="pending"] .frame { clip-path: inset(0 0 100%); }
+  .entry[data-work-reveal="pending"] .image { transform: scale(1.06); }
+  .entry[data-work-reveal="visible"] .frame {
+    clip-path: inset(0);
+    transition: clip-path 1000ms cubic-bezier(.22, 1, .36, 1);
+  }
+  .entry[data-work-reveal="visible"] .image {
+    transform: none;
+    transition: transform 1300ms cubic-bezier(.22, 1, .36, 1);
+  }
+}

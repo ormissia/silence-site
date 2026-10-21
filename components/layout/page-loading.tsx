@@ -51,7 +51,7 @@ export function CollectionLoading({ layout = "works" }: { layout?: CollectionLay
             <div className="grid grid-cols-1 items-start gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
               {WORK_CARD_RATIOS.map((ratio, index) => (
                 <div key={index} className="space-y-3">
-                  <Skeleton className={`${ratio} w-full rounded`} />
+                  <Skeleton className={`${ratio} w-full rounded-sm`} />
                   <Skeleton className="h-3 w-2/5" />
                 </div>
               ))}

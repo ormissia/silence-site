@@ -33,14 +33,14 @@ function duration(animation: Animation) {
   return Number.isFinite(value) && value > 0 ? value : 1;
 }
 
-export function useReadingScene(root: RefObject<HTMLDivElement>, stage: RefObject<HTMLDivElement>, supplied: SceneBook[]) {
+export function useReadingScene(root: RefObject<HTMLDivElement | null>, stage: RefObject<HTMLDivElement | null>, supplied: SceneBook[]) {
   const [restored] = useState(returningSnapshot);
   const [books] = useState(() => restored?.books ?? supplied);
   const [selected, setSelected] = useState<FocusBook>();
   const [transitioning, setTransitioning] = useState(false);
   const [ready, setReady] = useState(false);
   const [reduced, setReduced] = useState(false);
-  const locked = useRef<FocusBook>();
+  const locked = useRef<FocusBook | undefined>(undefined);
   const save = useRef<() => void>(() => {});
   const navigationSaved = useRef(false);
 

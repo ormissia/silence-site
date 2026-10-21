@@ -4,6 +4,14 @@
 
 > 设计规范详见 [DESIGN.md](./DESIGN.md)（字体、色彩、组件风格）
 
+## 开发环境
+
+使用 Node.js 24 与 npm，依赖版本由 `package-lock.json` 固定。执行 `npm ci` 后，`npm run dev` 在 3000 端口启动开发服务。框架为 Next.js 16、React 19、Tailwind CSS 4；开发和生产构建均使用 Next 默认的 Turbopack。
+
+Tailwind 由 `@tailwindcss/postcss` 处理，`app/globals.css` 显式加载现有 `tailwind.config.ts`。主题和基础样式使用 CSS layer，utilities 保持未分层，保留与全局样式及 CSS Modules 原有的覆盖关系。浏览器最低要求为 Safari 16.4、Chrome/Edge 111、Firefox 128。
+
+ESLint 使用 `eslint.config.mjs` 与独立的 `npm run lint`；Next.js 16 的生产构建不再自动运行 lint。保留原有 Hooks 检查，新增的 React Compiler `purity`、`refs`、`set-state-in-effect` 规则暂不启用，后续采用 Compiler 时单独迁移。升级或发布前依次执行下面的测试、lint、类型和构建检查。
+
 ## 内容数据边界与检查
 
 列表使用 `listReadingSummaries`、`listWorkSummaries`、`listJournalSummaries`；首页精选使用 `listFeaturedSummaries`。这些接口仅返回展示字段。详情继续使用原有 `getXxx` 接口，旧的完整 `listXxx` 接口保留兼容。

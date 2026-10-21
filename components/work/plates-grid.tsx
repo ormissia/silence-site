@@ -1,14 +1,37 @@
 "use client";
 
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { RevealImg } from "@/components/media/reveal-image";
-import { RowsPhotoAlbum } from "react-photo-album";
-import "react-photo-album/rows.css";
+import { observeImageMaskReveal } from "@/components/media/image-mask-reveal";
+import revealStyles from "@/components/media/image-mask-reveal.module.css";
 import { buildSrc } from "@/lib/oss";
-import { groupAlbumPhotos } from "@/lib/works/photo-layout";
 import { PhotoLightbox } from "./photo-lightbox";
 import type { Photo } from "@/lib/works/types";
 import styles from "./plates-grid.module.css";
+
+function PlateImage({ photo, alt, index, active }: { photo: Photo; alt: string; index: number; active: boolean }) {
+  const frameRef = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    const frame = frameRef.current;
+    const button = frame?.closest("button");
+    if (!frame || !button) return;
+    return observeImageMaskReveal(frame, button, `photo:${photo.key}`, active);
+  }, [photo.key, active]);
+
+  return <span ref={frameRef} className={`${styles.imageFrame} ${revealStyles.frame}`}>
+    <RevealImg
+      src={buildSrc(photo.key, "detail")}
+      alt={alt}
+      width={photo.width}
+      height={photo.height}
+      loading="lazy"
+      decoding="async"
+      data-photo-index={index}
+      className={`${styles.image} ${revealStyles.image}`}
+      style={{ visibility: active ? "hidden" : undefined }}
+    />
+  </span>;
+}
 
 export function PlatesGrid({ photos, workTitle, film = false }: {
   photos: Photo[];
@@ -17,29 +40,23 @@ export function PlatesGrid({ photos, workTitle, film = false }: {
 }) {
   const [activeIdx, setActiveIdx] = useState<number | null>(null);
   const albumRef = useRef<HTMLDivElement>(null);
-  const [containerWidth, setContainerWidth] = useState(0);
   const isOpen = activeIdx !== null;
   const close = useCallback(() => setActiveIdx(null), []);
   const getThumbnail = useCallback((index: number) => albumRef.current?.querySelector<HTMLImageElement>(`img[data-photo-index="${index}"]`) ?? null, []);
+  const open = useCallback((index: number) => {
+    // 灯箱在渲染时测量缩略图，先结束揭幕缩放，保证取到原始边界。
+    const button = getThumbnail(index)?.closest("button");
+    if (button) button.dataset.workReveal = "seen";
+    setActiveIdx(index);
+  }, [getThumbnail]);
   const prev = useCallback(
-    () => setActiveIdx((i) => (i === null ? null : (i - 1 + photos.length) % photos.length)),
-    [photos.length]
+    () => { if (activeIdx !== null) open((activeIdx - 1 + photos.length) % photos.length); },
+    [activeIdx, photos.length, open]
   );
   const next = useCallback(
-    () => setActiveIdx((i) => (i === null ? null : (i + 1) % photos.length)),
-    [photos.length]
+    () => { if (activeIdx !== null) open((activeIdx + 1) % photos.length); },
+    [activeIdx, photos.length, open]
   );
-
-  // 首帧同步测一次宽度：库在拿到宽度前不生成布局，否则相册会先空一块。
-  useLayoutEffect(() => {
-    const element = albumRef.current;
-    if (!element) return;
-    const measure = () => setContainerWidth(element.clientWidth);
-    measure();
-    const observer = new ResizeObserver(measure);
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, []);
 
   useLayoutEffect(() => {
     if (!isOpen) return;
@@ -56,49 +73,23 @@ export function PlatesGrid({ photos, workTitle, film = false }: {
     };
   }, [isOpen]);
 
-  const albumPhotos = photos.map((photo, originalIndex) => ({
-    ...photo,
-    width: photo.width!,
-    height: photo.height!,
-    src: buildSrc(photo.key, "detail"),
-    alt: photo.caption ?? `${workTitle} plate ${originalIndex + 1}`,
-    originalIndex,
-  }));
-
-  /* 服务端与首帧没有容器宽度：用内容区默认宽渲染，测到真实宽度后再校正。
-     库在拿不到宽度时不生成布局，相册会整块空白——所以这里不能等测量。
-     默认值对应相册外框 1440px 减去两侧 64px 内边距。 */
-  const layoutWidth = containerWidth || 1312;
-
-  const filmCaption = (index: number) => <>
-    <div className={styles.caption}><span>{String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}</span><span>Silence · Film archive</span></div>
-    <div className="film-sprockets" aria-hidden />
-  </>;
-
   return <>
-    <div ref={albumRef} className={styles.album} data-photo-album data-film={film}>
-      {groupAlbumPhotos(albumPhotos, layoutWidth).map((group) => {
-        const first = group[0];
-        return <RowsPhotoAlbum key={first.key} photos={group} targetRowHeight={380}
-          /* 显式传入宽度：库自身在拿到容器宽度前不生成布局，相册会整块空白。 */
-          defaultContainerWidth={layoutWidth}
-          breakpoints={[640]}
-          spacing={width => width < 640 ? 36 : 40}
-          rowConstraints={width => ({ maxPhotos: width < 640 ? 1 : 3 })}
-          componentsProps={containerWidth => ({
-            container: { className: styles.rows },
-            track: { style: { justifyContent: "center", gap: (containerWidth ?? 0) < 640 ? 36 : 40 } },
-            /* 不再给单张照片设 maxWidth：行布局已经按目标行高铺满整行，
-               额外的宽度上限只会让照片缩在中间、两侧留出空块。 */
-            button: ({ photo }) => ({ "aria-label": `查看 ${photo.alt}` }),
-          })}
-          render={{ image: (props, { photo }) => <>
-            {film && <div className="film-sprockets" aria-hidden />}
-            <RevealImg {...props} revealIndex={photo.originalIndex} data-photo-index={photo.originalIndex}
-              style={{ ...props.style, visibility: activeIdx === photo.originalIndex ? "hidden" : undefined }} />
-            {film && filmCaption(photo.originalIndex)}
-          </> }}
-          onClick={({ photo }) => setActiveIdx(photo.originalIndex)} />;
+    <div ref={albumRef} className={styles.album} data-photo-album data-film={film} role="group" aria-label={`${workTitle} 照片`}>
+      {photos.map((photo, index) => {
+        const alt = photo.caption ?? `${workTitle} plate ${index + 1}`;
+        const portrait = photo.width && photo.height ? photo.height > photo.width : false;
+        return <div key={photo.key} className={styles.row} data-align={index % 2 ? "right" : "left"} data-orientation={portrait ? "portrait" : "landscape"}>
+          <figure className={styles.plate}>
+            <button type="button" className={`${styles.photo} ${revealStyles.entry}`} aria-label={`查看 ${alt}`} onClick={() => open(index)}>
+              {film && <span className="film-sprockets block" aria-hidden />}
+              <PlateImage photo={photo} alt={alt} index={index} active={activeIdx === index} />
+            </button>
+            {film && <figcaption>
+              <div className={styles.caption}><span>{String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}</span><span>Silence · Film archive</span></div>
+              <div className="film-sprockets" aria-hidden />
+            </figcaption>}
+          </figure>
+        </div>;
       })}
     </div>
     {isOpen && <PhotoLightbox

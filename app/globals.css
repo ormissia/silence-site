@@ -1,6 +1,20 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@layer theme, base;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+/* Utilities stay unlayered to preserve their cascade with the existing site CSS. */
+@import "tailwindcss/utilities.css" source(none);
+@config "../tailwind.config.ts";
+@source "../app";
+@source "../components";
+
+@layer base {
+  *, ::before, ::after, ::backdrop {
+    border-color: var(--color-gray-200, currentColor);
+  }
+  button:not(:disabled), [role="button"]:not(:disabled) {
+    cursor: pointer;
+  }
+}
 
 :root {
   color-scheme: dark;

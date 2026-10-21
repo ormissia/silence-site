@@ -10,8 +10,9 @@ export function generateStaticParams() {
   return listJournalSummaries().map((e) => ({ slug: e.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const entry = getJournalSummary(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const entry = getJournalSummary(slug);
   return {
     title: entry ? `${entry.title} — SILENCE` : "Journal — SILENCE",
   };
@@ -28,14 +29,15 @@ function formatDateLong(iso: string): string {
   return `${MONTH_EN[d.getMonth()]} ${String(d.getDate()).padStart(2, "0")}, ${d.getFullYear()}`;
 }
 
-export default function JournalEntryPage({ params, searchParams }: {
-  params: { slug: string };
-  searchParams: { cat?: string | string[] };
+export default async function JournalEntryPage({ params, searchParams }: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ cat?: string | string[] }>;
 }) {
-  const entry = getJournalEntry(params.slug);
+  const [{ slug }, queryParams] = await Promise.all([params, searchParams]);
+  const entry = getJournalEntry(slug);
   if (!entry) notFound();
 
-  const category = searchParams.cat === entry.category ? entry.category : undefined;
+  const category = queryParams.cat === entry.category ? entry.category : undefined;
   const query = category ? `?cat=${encodeURIComponent(category)}` : "";
   // 优先同分类；若分类只有这一篇，则接到全站下一篇。
   const sameCat = listJournalSummaries(entry.category);
@@ -49,7 +51,7 @@ export default function JournalEntryPage({ params, searchParams }: {
   return (
     <article className="detail-enter relative">
       <div data-theme-surface={entry.cover ? "dark" : undefined} className="absolute left-6 top-36 z-20 md:left-12">
-        <DetailReturnLink href={`/journal${query}`} label="Journal" ariaLabel="返回文章列表" className={`silence-pill ${entry.cover ? "bg-black/40 text-white backdrop-blur-sm" : "text-muted"}`} />
+        <DetailReturnLink href={`/journal${query}`} label="Journal" ariaLabel="返回文章列表" className={`silence-pill ${entry.cover ? "bg-black/40 text-white backdrop-blur-xs" : "text-muted"}`} />
       </div>
       {entry.cover ? (
         // 有封面：标题压在 hero 底部居中，参考 works 详情页
@@ -65,7 +67,7 @@ export default function JournalEntryPage({ params, searchParams }: {
           {/* 暗化让标题在亮区也立得住 */}
           <div
             aria-hidden
-            className="absolute inset-0 bg-gradient-to-b from-black/45 via-black/15 to-black/75"
+            className="absolute inset-0 bg-linear-to-b/srgb from-black/45 via-black/15 to-black/75"
           />
           <div className="vignette absolute inset-0" />
 

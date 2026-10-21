@@ -12,22 +12,24 @@ export function generateStaticParams() {
   return listReadingSummaries().map((book) => ({ slug: book.slug }));
 }
 
-export function generateMetadata({ params }: { params: { slug: string } }) {
-  const book = getReadingMetadata(params.slug);
+export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const book = getReadingMetadata(slug);
   return { title: book ? `${book.title} — SILENCE` : "Reading — SILENCE" };
 }
 
-export default function ReadingEntryPage({ params, searchParams }: {
-  params: { slug: string };
-  searchParams: { cat?: string | string[]; view?: string | string[] };
+export default async function ReadingEntryPage({ params, searchParams }: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ cat?: string | string[]; view?: string | string[] }>;
 }) {
-  const book = getReadingMetadata(params.slug);
+  const [{ slug }, navigation] = await Promise.all([params, searchParams]);
+  const book = getReadingMetadata(slug);
   if (!book) notFound();
   const sections = getReadingSections(book.slug);
   const all = listReadingSummaries();
   const next = all[(all.findIndex((entry) => entry.slug === book.slug) + 1) % all.length];
-  const returnLabel = searchParams.view === "home" ? "首页" : searchParams.view === "evolution" ? "阅读演化" : "书架";
-  const shelfHref = readingListHref(searchParams);
+  const returnLabel = navigation.view === "home" ? "首页" : navigation.view === "evolution" ? "阅读演化" : "书架";
+  const shelfHref = readingListHref(navigation);
   const stats = [
     ["Progress", book.progress], ["Rating", book.rating],
     ["Reading time", book.readingTime], ["Finished", book.finishedDate],
@@ -81,7 +83,7 @@ export default function ReadingEntryPage({ params, searchParams }: {
         </div>
       </div>
 
-      {all.length > 1 && <NavProgressLink href={readingBookHref(next.slug, searchParams)} className="group mx-6 mb-8 mt-6 flex items-center justify-between gap-6 border-t divider-gradient pt-6 md:mx-10">
+      {all.length > 1 && <NavProgressLink href={readingBookHref(next.slug, navigation)} className="group mx-6 mb-8 mt-6 flex items-center justify-between gap-6 border-t divider-gradient pt-6 md:mx-10">
         <div><p className="text-annotation uppercase tracking-[0.22em] text-muted">Next book</p><h2 className="mt-2 text-lg text-ink/80 transition-colors group-hover:text-accent">{next.title}</h2></div>
         <span className="silence-pill shrink-0 text-muted">Continue →</span>
       </NavProgressLink>}

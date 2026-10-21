@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { RevealImg } from "@/components/media/reveal-image";
+import revealStyles from "@/components/media/image-mask-reveal.module.css";
 import { EnterListLink } from "@/components/layout/list-return";
 import { CoverFocusFrame } from "@/components/cover-focus-frame";
 import { CoverParallaxTile } from "./work/cover-parallax-tile";
@@ -34,13 +35,13 @@ export function WorkCard({ work, tab = "all", density = "grid" }: {
     <EnterListLink
       href={`/works/${work.slug}${query}`}
       listHref={`/works${query}`}
-      className={`${styles.entry} ${hoverStyles.link}`}
+      className={`${styles.entry} ${hoverStyles.link} ${revealStyles.entry}`}
       aria-labelledby={`work-title-${work.slug}`}
       data-work-entry
       data-density={density}
       onNavigate={() => { if (coverRef.current) beginCoverTransition(coverRef.current, work.slug); }}
     >
-      <div ref={coverRef} data-work-cover className={`${styles.cover} ${hoverStyles.cover}`} style={{ "--cover-ratio": ratio } as CSSProperties}>
+      <div ref={coverRef} data-work-cover className={`${styles.cover} ${hoverStyles.cover} ${revealStyles.frame}`} style={{ "--cover-ratio": ratio } as CSSProperties}>
         <CoverParallaxTile>
           <RevealImg
             src={buildSrc(work.cover, "gridThumb")}
@@ -49,7 +50,7 @@ export function WorkCard({ work, tab = "all", density = "grid" }: {
             height={work.coverHeight}
             loading="lazy"
             decoding="async"
-            className={`${styles.image} ${hoverStyles.image}`}
+            className={`${styles.image} ${hoverStyles.image} ${revealStyles.image}`}
             style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }}
           />
         </CoverParallaxTile>

@@ -66,8 +66,8 @@ describe("reading detail navigation", () => {
     { searchParams: { view: "evolution", cat: "历史" }, list: "/reading/evolution", next: "/reading/second%2Fbook?view=evolution", label: "阅读演化" },
     { searchParams: { view: "home", cat: "历史" }, list: "/", next: "/reading/second%2Fbook?view=home", label: "首页" },
     { searchParams: { view: ["evolution"], cat: "历史" }, list: "/reading?cat=%E5%8E%86%E5%8F%B2", next: "/reading/second%2Fbook?cat=%E5%8E%86%E5%8F%B2", label: "书架" },
-  ])("preserves detail return and next-book URLs for $searchParams", ({ searchParams, list, next, label }) => {
-    render(ReadingEntryPage({ params: { slug: "first" }, searchParams }), { wrapper: Wrapper });
+  ])("preserves detail return and next-book URLs for $searchParams", async ({ searchParams, list, next, label }) => {
+    render(await ReadingEntryPage({ params: Promise.resolve({ slug: "first" }), searchParams: Promise.resolve(searchParams) }), { wrapper: Wrapper });
     const returns = screen.getAllByRole("link").filter((link) => link.getAttribute("aria-label")?.includes("返回"));
     expect(returns).toHaveLength(2);
     for (const link of returns) {
@@ -85,10 +85,10 @@ describe("reading detail navigation", () => {
   it.each([
     { view: "evolution", list: "/reading/evolution" },
     { view: "home", list: "/" },
-  ])("starts next-book progress without replacing the original $view scroll position", ({ view, list }) => {
+  ])("starts next-book progress without replacing the original $view scroll position", async ({ view, list }) => {
     const key = `silence:list-position:${list}`;
     sessionStorage.setItem(key, "900");
-    render(ReadingEntryPage({ params: { slug: "first" }, searchParams: { view } }), { wrapper: Wrapper });
+    render(await ReadingEntryPage({ params: Promise.resolve({ slug: "first" }), searchParams: Promise.resolve({ view }) }), { wrapper: Wrapper });
 
     fireEvent.click(screen.getByRole("link", { name: /Next book/ }));
 
@@ -97,10 +97,10 @@ describe("reading detail navigation", () => {
     expect(sessionStorage.getItem("silence:return-to-list")).toBeNull();
   });
 
-  it.each(["返回首页", "关闭书籍详情，返回首页", "Escape"])("restores the saved homepage position once after %s", (action) => {
+  it.each(["返回首页", "关闭书籍详情，返回首页", "Escape"])("restores the saved homepage position once after %s", async (action) => {
     sessionStorage.setItem("silence:list-position:/", "3663");
     const scroll = vi.spyOn(window, "scrollTo").mockImplementation(() => {});
-    const detail = render(ReadingEntryPage({ params: { slug: "first" }, searchParams: { view: "home" } }), { wrapper: Wrapper });
+    const detail = render(await ReadingEntryPage({ params: Promise.resolve({ slug: "first" }), searchParams: Promise.resolve({ view: "home" }) }), { wrapper: Wrapper });
     if (action === "Escape") {
       fireEvent(screen.getByRole("dialog"), new Event("cancel", { cancelable: true }));
       expect(router.replace).toHaveBeenCalledExactlyOnceWith("/", { scroll: false });

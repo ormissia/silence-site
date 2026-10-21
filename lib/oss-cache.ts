@@ -21,7 +21,7 @@ export function isCurrentResourceBuild(cache: ResourceCache<unknown>): boolean {
   return cache.buildId === SESSION_ID;
 }
 
-/** Next 14 在生成静态参数/页面前设置 NEXT_PHASE；该值不编译进运行产物。 */
+/** Next 在生成静态参数/页面前设置 NEXT_PHASE；该值不编译进运行产物。 */
 export function canPrepareResources(): boolean {
   return process.env.NODE_ENV !== "production" || process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD;
 }

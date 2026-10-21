@@ -8,13 +8,11 @@ const nextConfig = {
   env: {
     SILENCE_OSS_BUILD_ID: process.env.SILENCE_OSS_BUILD_ID,
   },
-  experimental: {
-    outputFileTracingIncludes: {
-      "/**": [
-        "./content/.album-manifest.json",
-        "./content/.image-meta.json",
-      ],
-    },
+  outputFileTracingIncludes: {
+    "/**": [
+      "./content/.album-manifest.json",
+      "./content/.image-meta.json",
+    ],
   },
   images: {
     // OSS 自带 x-oss-process（resize/format/quality）在做同样的事，
