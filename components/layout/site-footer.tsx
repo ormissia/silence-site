@@ -91,7 +91,7 @@ export function SiteFooter({ year }: { year: number }) {
             animate={revealed ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
             transition={{ duration: reduced || !visible ? 0 : 0.7, ease: REVEAL_EASE }}
           >Photographs &amp; Notes</motion.p>
-          <h2 id="footer-title" aria-label="SILENCE" className={`${styles.headline} font-sans text-display font-semibold`}>
+          <h2 id="footer-title" aria-label="SILENCE" className={`${styles.headline} font-sans`}>
             {Array.from("SILENCE").map((letter, index) => (
               <FooterLetter key={index} letter={letter} index={index} visible={visible} reduced={reduced} />
             ))}

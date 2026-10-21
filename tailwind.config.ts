@@ -42,6 +42,9 @@ const config: Config = {
         prose: "62ch",
         column: "78ch",
       },
+      transitionTimingFunction: {
+        "out-soft": "cubic-bezier(.22,1,.36,1)",
+      },
     },
   },
   plugins: [],

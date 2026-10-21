@@ -1,6 +1,6 @@
 type CollectionLayout = "works" | "journal" | "reading";
 
-function Skeleton({ className }: { className: string }) {
+function Skeleton({ className }: { className?: string }) {
   return <div className={`loading-skeleton ${className}`} />;
 }
 
@@ -24,7 +24,12 @@ export function PageLoading({ heroOnly = false }: { heroOnly?: boolean }) {
   );
 }
 
-/** 路由 loading 与页内 Suspense 共用，骨架比例跟随各列表布局。 */
+/**
+ * Works 骨架：与列表同构——筛选胶囊 + 年份标题 + 高低错落的瀑布流卡片。
+ * 比例刻意参差，暗示保持原始比例的封面。
+ */
+const WORK_CARD_RATIOS = ["aspect-[3/2]", "aspect-[4/3]", "aspect-[3/2]", "aspect-[5/4]", "aspect-[3/2]", "aspect-[4/3]"];
+
 export function CollectionLoading({ layout = "works" }: { layout?: CollectionLayout }) {
   const label = { works: "作品", journal: "文章", reading: "书架" }[layout];
 
@@ -38,10 +43,19 @@ export function CollectionLoading({ layout = "works" }: { layout?: CollectionLay
           ))}
         </div>
         {layout === "works" && (
-          <div className="grid grid-cols-1 gap-5 pb-16 md:grid-cols-2">
-            {[0, 1, 2, 3].map((index) => (
-              <Skeleton key={index} className="aspect-video rounded-xl" />
-            ))}
+          <div className="pb-16 pt-8 md:pt-10">
+            <div className="mb-6 flex items-baseline justify-between gap-6">
+              <Skeleton className="h-9 w-24" />
+              <Skeleton className="h-3 w-10" />
+            </div>
+            <div className="grid grid-cols-1 items-start gap-x-6 gap-y-8 sm:grid-cols-2 xl:grid-cols-3">
+              {WORK_CARD_RATIOS.map((ratio, index) => (
+                <div key={index} className="space-y-3">
+                  <Skeleton className={`${ratio} w-full rounded`} />
+                  <Skeleton className="h-3 w-2/5" />
+                </div>
+              ))}
+            </div>
           </div>
         )}
         {layout === "journal" && (

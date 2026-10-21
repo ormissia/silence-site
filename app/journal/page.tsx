@@ -1,29 +1,33 @@
 import { Suspense } from "react";
 import { listJournalSummaries } from "@/lib/journal";
+import { buildSrc } from "@/lib/oss";
 import { JournalList } from "@/components/journal/journal-list";
-import { SecondaryPageHeader } from "@/components/layout/secondary-page-header";
+import { PagePlate } from "@/components/layout/page-plate";
 import { CollectionLoading } from "@/components/layout/page-loading";
 
 export const metadata = {
-  title: "Journal — SILENCE",
+  title: "只言片语 · Journal — SILENCE",
 };
 
 export default function JournalPage() {
   const entries = listJournalSummaries();
+  const plateEntry = entries.find((entry) => entry.cover);
 
   return (
-    <section className="collection-page mx-auto max-w-[1280px] px-6 pb-20 md:px-12 lg:px-16">
-      <SecondaryPageHeader
-        count={`${entries.length} Notes`}
-        eyebrow="Journal — Notes & Essays"
-        titleEn="JOURNAL"
-        titleZh="文章"
-        lede="技术心得与生活随笔——慢慢攒下的字。"
+    <>
+      <PagePlate
+        label="Journal"
+        count={entries.length}
+        countLabel=" 篇文章"
+        title="只言片语"
+        lede="技术心得与生活随笔，慢慢攒下的字。"
+        image={{ src: plateEntry?.cover ? buildSrc(plateEntry.cover, "hero") : "/images/cover.jpg", position: "center 40%" }}
       />
-
-      <Suspense fallback={<CollectionLoading layout="journal" />}>
-        <JournalList entries={entries} />
-      </Suspense>
-    </section>
+      <section className="page-frame pb-20">
+        <Suspense fallback={<CollectionLoading layout="journal" />}>
+          <JournalList entries={entries} />
+        </Suspense>
+      </section>
+    </>
   );
 }

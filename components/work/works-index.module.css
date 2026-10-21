@@ -1,0 +1,128 @@
+/* Works 列表：瀑布流卡片，封面保持原始比例，信息压在图上。 */
+
+/* 单张作品：封面保持原始比例，信息压在图上。 */
+.entry {
+  display: block;
+  color: rgb(var(--color-ink));
+}
+.cover {
+  position: relative;
+  aspect-ratio: var(--cover-ratio, 3 / 2);
+  overflow: hidden;
+  border-radius: 4px;
+  background: rgb(var(--color-image-placeholder));
+}
+.image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.overlay {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 2;
+  padding: 64px 20px 18px;
+  background: linear-gradient(to bottom, transparent, rgba(8, 8, 8, .55) 45%, rgba(8, 8, 8, .88));
+  color: #fff;
+  transition: opacity .35s ease, transform .45s cubic-bezier(.22, 1, .36, 1);
+}
+.overlayMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, .72);
+}
+.overlayTitle {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  margin-top: 10px;
+  font-size: clamp(1rem, 1.3vw, 1.25rem);
+  line-height: 1.45;
+  letter-spacing: .02em;
+  text-wrap: balance;
+}
+.overlayDate {
+  margin-top: 6px;
+  font-size: 11px;
+  letter-spacing: .08em;
+  color: rgba(255, 255, 255, .68);
+  font-variant-numeric: tabular-nums;
+}
+.rollNumber {
+  font-size: 1.5em;
+  letter-spacing: .04em;
+  font-variant-numeric: tabular-nums;
+}
+.format {
+  flex: none;
+  padding: 1px 6px;
+  border: 1px solid rgba(255, 255, 255, .4);
+  font-size: 10px;
+  letter-spacing: .08em;
+}
+
+.entry:focus-visible { outline-offset: 8px; }
+
+/* 鼠标悬浮时信息收起；键盘聚焦与触屏保持可见。 */
+@media (hover: hover) and (pointer: fine) {
+  .entry:hover .overlay {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  .entry:focus-visible .overlay {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* 封面滚入视野时自下而上显影一次。 */
+@media (prefers-reduced-motion: no-preference) {
+  .entry[data-work-reveal="pending"] .cover { clip-path: inset(100% 0 0); }
+  .entry[data-work-reveal="pending"] .image { transform: scale(1.06); }
+  .entry[data-work-reveal="visible"] .cover {
+    clip-path: inset(0);
+    transition: clip-path 1000ms cubic-bezier(.22, 1, .36, 1);
+  }
+  .entry[data-work-reveal="visible"] .image {
+    transform: none;
+    transition: transform 1300ms cubic-bezier(.22, 1, .36, 1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay { transition: none; }
+}
+
+/* 年份分段：组间用细线分隔，年份贴着列表左侧。 */
+.yearSection + .yearSection {
+  margin-top: clamp(56px, 7vw, 96px);
+  padding-top: clamp(28px, 3vw, 40px);
+  border-top: 1px solid rgb(var(--color-rule));
+}
+.yearHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: clamp(20px, 2.4vw, 32px);
+}
+.yearTitle {
+  font-size: clamp(1.75rem, 2.6vw, 2.5rem);
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: .06em;
+  font-variant-numeric: tabular-nums;
+}
+.yearCount {
+  font-size: 12px;
+  letter-spacing: .08em;
+  color: rgb(var(--color-muted));
+  font-variant-numeric: tabular-nums;
+}

@@ -17,6 +17,19 @@ export const TAB_SLUGS = {
 
 export type TabSlug = keyof typeof TAB_SLUGS | "all";
 
+/** 系列的西文名与列表密度：风光/人像用大图，日常三列，胶片为接触印样。 */
+export const SERIES_PRESENTATION: Record<Category, { en: string; density: "feature" | "grid" | "sheet" }> = {
+  风光: { en: "Landscape", density: "feature" },
+  人像: { en: "Portrait", density: "feature" },
+  日常: { en: "Snapshots", density: "grid" },
+  胶片: { en: "Film", density: "sheet" },
+};
+
+export function seriesPresentation(series: string) {
+  return (SERIES_PRESENTATION as Record<string, (typeof SERIES_PRESENTATION)[Category]>)[series]
+    ?? { en: series, density: "grid" as const };
+}
+
 export function tabToSeries(tab: string | null | undefined): Category | null {
   if (!tab || tab === "all") return null;
   return (TAB_SLUGS as Record<string, Category>)[tab] ?? null;

@@ -1,11 +1,12 @@
 import { Suspense } from "react";
 import { WorksGallery } from "@/components/work/works-gallery";
-import { SecondaryPageHeader } from "@/components/layout/secondary-page-header";
+import { PagePlate } from "@/components/layout/page-plate";
 import { CollectionLoading } from "@/components/layout/page-loading";
+import { buildSrc } from "@/lib/oss";
 import { listWorkSummaries, listWorksCategoryCounts } from "@/lib/works";
 
 export const metadata = {
-  title: "Works — SILENCE",
+  title: "光的片段 · Works — SILENCE",
 };
 
 export default async function WorksPage() {
@@ -13,20 +14,24 @@ export default async function WorksPage() {
     listWorkSummaries(),
     listWorksCategoryCounts(),
   ]);
+  // 图版使用最新一组非胶片作品的封面；全是胶片时退回最新一组。
+  const plateWork = works.find((work) => work.series !== "胶片") ?? works[0];
 
   return (
-    <section className="collection-page mx-auto max-w-[1280px] px-6 pb-20 md:px-12 lg:px-16">
-      <SecondaryPageHeader
-        count={`${works.length} Works`}
-        eyebrow="Index of Works — 2024 / Ongoing"
-        titleEn="WORKS"
-        titleZh="作品"
-        lede="风光、人像、与日常之间的随手——按主题分门别类地翻看。"
+    <>
+      <PagePlate
+        label="Works"
+        count={works.length}
+        countLabel=" 组作品"
+        title="光的片段"
+        lede="风光、日常与胶片，按系列归档。每一组都是一次出门。"
+        image={plateWork ? { src: buildSrc(plateWork.cover, "hero") } : undefined}
       />
-
-      <Suspense fallback={<CollectionLoading />}>
-        <WorksGallery works={works} categoryCounts={categoryCounts} />
-      </Suspense>
-    </section>
+      <section className="page-frame pb-20">
+        <Suspense fallback={<CollectionLoading />}>
+          <WorksGallery works={works} categoryCounts={categoryCounts} />
+        </Suspense>
+      </section>
+    </>
   );
 }

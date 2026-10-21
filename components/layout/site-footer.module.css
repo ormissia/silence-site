@@ -75,6 +75,12 @@
 
 .headline {
   display: inline-flex;
+  font-size: clamp(3rem, 9vw, 7rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: .14em;
+  /* 抵消末字右字距，视觉上保持居中。 */
+  margin-right: -.14em;
 }
 
 .letterClip {

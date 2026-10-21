@@ -30,13 +30,14 @@ export function PlatesGrid({ photos, workTitle, film = false }: {
     [photos.length]
   );
 
-  useEffect(() => {
+  // 首帧同步测一次宽度：库在拿到宽度前不生成布局，否则相册会先空一块。
+  useLayoutEffect(() => {
     const element = albumRef.current;
     if (!element) return;
     const measure = () => setContainerWidth(element.clientWidth);
+    measure();
     const observer = new ResizeObserver(measure);
     observer.observe(element);
-    measure();
     return () => observer.disconnect();
   }, []);
 
@@ -64,6 +65,11 @@ export function PlatesGrid({ photos, workTitle, film = false }: {
     originalIndex,
   }));
 
+  /* 服务端与首帧没有容器宽度：用内容区默认宽渲染，测到真实宽度后再校正。
+     库在拿不到宽度时不生成布局，相册会整块空白——所以这里不能等测量。
+     默认值对应相册外框 1440px 减去两侧 64px 内边距。 */
+  const layoutWidth = containerWidth || 1312;
+
   const filmCaption = (index: number) => <>
     <div className={styles.caption}><span>{String(index + 1).padStart(2, "0")} / {String(photos.length).padStart(2, "0")}</span><span>Silence · Film archive</span></div>
     <div className="film-sprockets" aria-hidden />
@@ -71,19 +77,20 @@ export function PlatesGrid({ photos, workTitle, film = false }: {
 
   return <>
     <div ref={albumRef} className={styles.album} data-photo-album data-film={film}>
-      {groupAlbumPhotos(albumPhotos, containerWidth).map((group) => {
+      {groupAlbumPhotos(albumPhotos, layoutWidth).map((group) => {
         const first = group[0];
         return <RowsPhotoAlbum key={first.key} photos={group} targetRowHeight={380}
+          /* 显式传入宽度：库自身在拿到容器宽度前不生成布局，相册会整块空白。 */
+          defaultContainerWidth={layoutWidth}
+          breakpoints={[640]}
           spacing={width => width < 640 ? 36 : 40}
           rowConstraints={width => ({ maxPhotos: width < 640 ? 1 : 3 })}
           componentsProps={containerWidth => ({
             container: { className: styles.rows },
             track: { style: { justifyContent: "center", gap: (containerWidth ?? 0) < 640 ? 36 : 40 } },
-            button: ({ photo, width }) => ({
-              "aria-label": `查看 ${photo.alt}`,
-              style: { maxWidth: (containerWidth ?? 0) >= 640
-                ? Math.min(width, (group.length === 1 ? 560 : 460) * photo.width / photo.height) : undefined },
-            }),
+            /* 不再给单张照片设 maxWidth：行布局已经按目标行高铺满整行，
+               额外的宽度上限只会让照片缩在中间、两侧留出空块。 */
+            button: ({ photo }) => ({ "aria-label": `查看 ${photo.alt}` }),
           })}
           render={{ image: (props, { photo }) => <>
             {film && <div className="film-sprockets" aria-hidden />}
