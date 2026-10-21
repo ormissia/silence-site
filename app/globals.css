@@ -299,7 +299,7 @@ body[data-lightbox-open="true"] .site-header {
 
 /* 段落 + 副段落：第一段 drop-cap 由 :first-child 命中 */
 .md-content p {
-  color: theme(colors.ink/90);
+  color: rgb(var(--color-ink) / 0.9);
 }
 .md-content > p:first-child::first-letter {
   font-family: theme(fontFamily.serif);
@@ -344,7 +344,7 @@ body[data-lightbox-open="true"] .site-header {
   border-left: 3px solid theme(colors.accent);
   padding: 0.2em 0 0.2em 1.4em;
   font-style: italic;
-  color: theme(colors.ink/80);
+  color: rgb(var(--color-ink) / 0.8);
 }
 .md-content blockquote p {
   color: inherit;
@@ -396,7 +396,7 @@ body[data-lightbox-open="true"] .site-header {
   overflow-x: auto;
   font-size: 0.95rem;
   line-height: 1.6;
-  border: 1px solid theme(colors.ink/10);
+  border: 1px solid rgb(var(--color-ink) / 0.1);
 }
 .md-content pre code {
   background: transparent;
@@ -420,7 +420,7 @@ body[data-lightbox-open="true"] .site-header {
   display: block;
   width: 100%;
   height: auto;
-  border: 1px solid theme(colors.ink/10);
+  border: 1px solid rgb(var(--color-ink) / 0.1);
 }
 
 /* 表格：暗调线框 */
@@ -448,10 +448,10 @@ body[data-lightbox-open="true"] .site-header {
   font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
   font-size: 0.85em;
   padding: 0.1em 0.5em;
-  border: 1px solid theme(colors.ink/30);
+  border: 1px solid rgb(var(--color-ink) / 0.3);
   border-radius: 4px;
   background: theme(colors.rule);
-  box-shadow: 0 2px 0 theme(colors.ink/10);
+  box-shadow: 0 2px 0 rgb(var(--color-ink) / 0.1);
 }
 
 /* 移动端缩字号 */
@@ -494,7 +494,7 @@ body[data-lightbox-open="true"] .site-header {
   margin-top: 0.8em;
 }
 .md-content .md-callout p {
-  color: theme(colors.ink/85);
+  color: rgb(var(--color-ink) / 0.85);
 }
 .md-content .md-callout .md-callout-title {
   margin: 0;

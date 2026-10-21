@@ -4,6 +4,7 @@ process.env.SILENCE_OSS_BUILD_ID ||= require("node:crypto").randomUUID();
 
 const nextConfig = {
   reactStrictMode: true,
+  agentRules: false,
   // 将本次构建标识编译进应用，生产运行与资源清单使用相同值。
   env: {
     SILENCE_OSS_BUILD_ID: process.env.SILENCE_OSS_BUILD_ID,
